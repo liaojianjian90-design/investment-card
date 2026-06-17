@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#16523f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="投资执行卡">
+  <title>投资执行卡</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <style>
+    :root {
+      --bg: #f7f5ee;
+      --card: #fffdf8;
+      --ink: #17251f;
+      --muted: #66736d;
+      --green: #16523f;
+      --soft: #eef3ef;
+      --gold: #b68635;
+      --line: #dedbd0;
+      --red: #a9473f;
+      --blue: #315f91;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      line-height: 1.55;
+    }
+    header {
+      padding: 28px 18px 22px;
+      background: var(--green);
+      color: white;
+    }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    header p { margin: 0; color: rgba(255,255,255,.82); }
+    main { padding: 14px; max-width: 820px; margin: 0 auto; }
+    section {
+      margin: 12px 0;
+      padding: 16px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(31,45,38,.06);
+    }
+    h2 { margin: 0 0 12px; font-size: 20px; }
+    h3 { margin: 16px 0 8px; font-size: 16px; color: var(--green); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .metric {
+      padding: 12px;
+      background: var(--soft);
+      border-radius: 10px;
+    }
+    .metric b { display: block; font-size: 18px; }
+    .metric span { color: var(--muted); font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 9px 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-weight: 700; }
+    td.num, th.num { text-align: right; white-space: nowrap; }
+    ul { padding-left: 20px; margin: 8px 0 0; }
+    li { margin: 6px 0; }
+    .tag {
+      display: inline-block;
+      margin: 2px 6px 6px 0;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: #edf2ef;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .warn { color: var(--red); font-weight: 700; }
+    .ok { color: var(--green); font-weight: 700; }
+    .blue { color: var(--blue); font-weight: 700; }
+    .note { color: var(--muted); font-size: 13px; }
+    .callout {
+      padding: 12px;
+      border-left: 4px solid var(--gold);
+      background: #fff8e8;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+    @media (max-width: 560px) {
+      .grid { grid-template-columns: 1fr; }
+      table { font-size: 12px; }
+      th, td { padding: 8px 4px; }
+      h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>投资执行卡</h1>
+    <p>更新：2026-06-17 · 总资产参考约 16,465 USDT · 每月新增 1,000-2,000 元人民币</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>总目标</h2>
+      <div class="grid">
+        <div class="metric"><b>15%-20%</b><span>基础年化目标</span></div>
+        <div class="metric"><b>30%+</b><span>行情好时进攻目标</span></div>
+        <div class="metric"><b>30%-35%</b><span>最大回撤底线</span></div>
+      </div>
+      <div class="callout">
+        当前策略不是纯长期躺平，而是“核心仓稳住 + DRAM信念仓 + 小比例投机仓”。重点是让每次买入都有价位、金额、止损和失效条件。
+      </div>
+    </section>
+
+    <section>
+      <h2>先看这里：防上头操作规则</h2>
+      <div class="callout">
+        默认动作：<b>不买新标的</b>。只有触发下面的价格和仓位条件，才允许买。没有触发就关掉交易软件。
+      </div>
+      <table>
+        <tr><th>情况</th><th>允许动作</th><th>金额上限</th></tr>
+        <tr><td>只是看到亏损、心里不舒服</td><td class="warn">不操作</td><td class="num">0</td></tr>
+        <tr><td>看到某只股票突然上涨，想追</td><td class="warn">不追涨</td><td class="num">0</td></tr>
+        <tr><td>核心ETF正常回调</td><td>只买 ITOT/VXUS</td><td class="num">100-300 USDT</td></tr>
+        <tr><td>投机仓跌到计划价位</td><td>按表格挂限价单</td><td class="num">30-120 USDT/笔</td></tr>
+        <tr><td>一天已经买过一次</td><td class="warn">停止交易</td><td class="num">0</td></tr>
+        <tr><td>想买一个新标的</td><td>先写理由，隔天再看</td><td class="num">0</td></tr>
+      </table>
+      <h3>交易前 5 问</h3>
+      <ul>
+        <li>这笔交易属于核心、DRAM、黄金，还是投机？说不清就不买。</li>
+        <li>买入价位是否已经写在执行卡里？没有写就不买。</li>
+        <li>加完以后，投机仓是否超过 15%？超过就不买。</li>
+        <li>这笔买入的失效条件是什么？没有失效条件就不买。</li>
+        <li>如果买完继续跌 10%，我是否还能接受？不能接受就减半或不买。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>当前明确操作计划</h2>
+      <table>
+        <tr><th>优先级</th><th>动作</th><th>触发条件</th><th class="num">金额</th></tr>
+        <tr><td>1</td><td>补核心 ITOT</td><td>任何正常回调日，优先于新小票</td><td class="num">100-300</td></tr>
+        <tr><td>2</td><td>补 VXUS</td><td>目标补到 5%-6%</td><td class="num">100-200</td></tr>
+        <tr><td>3</td><td>DRAM 小加</td><td>65-66 且趋势未坏</td><td class="num">100-200</td></tr>
+        <tr><td>4</td><td>DRAM 第二笔</td><td>61-63 且没有跌破逻辑</td><td class="num">100-200</td></tr>
+        <tr><td>5</td><td>MSTR 投机补仓</td><td>115-118</td><td class="num">80-120</td></tr>
+        <tr><td>6</td><td>AVGO/NVDA 低吸</td><td>AVGO 365-375；NVDA 198-202</td><td class="num">80-100</td></tr>
+        <tr><td>7</td><td>其他小票</td><td>只在计划价位，且当天没有其他交易</td><td class="num">30-50</td></tr>
+      </table>
+      <p class="note">执行顺序不能反过来。先核心，再DRAM，再少数投机。不要因为某个小票跌了，就绕过核心计划。</p>
+    </section>
+
+    <section>
+      <h2>最新仓位结构</h2>
+      <table>
+        <tr><th>类别</th><th class="num">当前占比</th><th class="num">建议区间</th><th>判断</th></tr>
+        <tr><td>USDGO/USDT 现金收益仓</td><td class="num">约 30.4%</td><td class="num">25%-28%</td><td>略高，但可作为回调弹药。</td></tr>
+        <tr><td>DRAM 存储主题</td><td class="num">约 21.2%</td><td class="num">22%-28%</td><td>略低于目标，可等回调补。</td></tr>
+        <tr><td>ITOT/SPY/VXUS 宽基核心</td><td class="num">约 26.7%</td><td class="num">30%-35%</td><td>偏低，后续新增资金优先补。</td></tr>
+        <tr><td>XAUT 黄金</td><td class="num">约 9.6%</td><td class="num">8%-10%</td><td>合理，暂不加不减。</td></tr>
+        <tr><td>个股/投机仓</td><td class="num">约 12.0%</td><td class="num">8%-12%</td><td class="warn">已到上沿，不能随手扩散。</td></tr>
+      </table>
+      <p class="note">结论：组合方向没有大偏离，但交易纪律开始偏离。问题不是亏一天，而是每天忍不住买新标的。</p>
+    </section>
+
+    <section>
+      <h2>最新持仓明细</h2>
+      <p class="note">根据 2026-06-17 截图估算，总资产约 16,465 USDT；数值用于组合管理，不作为精确会计。</p>
+      <table>
+        <tr><th>标的</th><th class="num">估值</th><th class="num">占比</th><th>定位</th></tr>
+        <tr><td>USDGO</td><td class="num">5,003</td><td class="num">30.4%</td><td>现金收益仓，弹药池。</td></tr>
+        <tr><td>DRAM</td><td class="num">3,492</td><td class="num">21.2%</td><td>存储信念仓，主题进攻核心。</td></tr>
+        <tr><td>ITOT</td><td class="num">2,568</td><td class="num">15.6%</td><td>美国宽基核心。</td></tr>
+        <tr><td>XAUT</td><td class="num">1,573</td><td class="num">9.6%</td><td>黄金防守和分散。</td></tr>
+        <tr><td>SPY</td><td class="num">1,152</td><td class="num">7.0%</td><td>美股宽基，但和 ITOT 重叠。</td></tr>
+        <tr><td>VXUS</td><td class="num">678</td><td class="num">4.1%</td><td>非美分散，仍偏低。</td></tr>
+        <tr><td>MSTR</td><td class="num">448</td><td class="num">2.7%</td><td>BTC 高波动代理。</td></tr>
+        <tr><td>AMZN</td><td class="num">259</td><td class="num">1.6%</td><td>优质科技/消费核心个股。</td></tr>
+        <tr><td>SPCX</td><td class="num">201</td><td class="num">1.2%</td><td>SpaceX 概念稀缺仓，偏事件驱动。</td></tr>
+        <tr><td>PDD</td><td class="num">154</td><td class="num">0.9%</td><td>中概消费，波动较高。</td></tr>
+        <tr><td>ADBE</td><td class="num">146</td><td class="num">0.9%</td><td>软件修复仓，当前偏弱。</td></tr>
+        <tr><td>AVGO</td><td class="num">122</td><td class="num">0.7%</td><td>AI/半导体核心个股。</td></tr>
+        <tr><td>GOOGL</td><td class="num">104</td><td class="num">0.6%</td><td>优质科技核心个股。</td></tr>
+        <tr><td>MSFT</td><td class="num">97</td><td class="num">0.6%</td><td>优质科技核心个股。</td></tr>
+        <tr><td>NVDA</td><td class="num">96</td><td class="num">0.6%</td><td>AI 龙头，小仓观察。</td></tr>
+        <tr><td>CRCL</td><td class="num">95</td><td class="num">0.6%</td><td>加密金融投机仓。</td></tr>
+        <tr><td>MRVL</td><td class="num">95</td><td class="num">0.6%</td><td>半导体高波动仓。</td></tr>
+        <tr><td>NOK</td><td class="num">93</td><td class="num">0.6%</td><td>小票/通信概念仓。</td></tr>
+        <tr><td>BGB</td><td class="num">69</td><td class="num">0.4%</td><td>平台币，不作为主要投资。</td></tr>
+        <tr><td>USDT</td><td class="num">4</td><td class="num">0.0%</td><td>零散余额。</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>整体分析</h2>
+      <ul>
+        <li><b>优点：</b>现金仍充足，DRAM 没有超仓，黄金比例合理，核心 ETF 已有底座。</li>
+        <li><b>问题：</b>小额个股太多，注意力被分散；投机仓虽单只不大，但合计已到上沿。</li>
+        <li><b>主要风险：</b>DRAM、MSTR、MRVL、CRCL、SPCX 都偏高波动，遇到科技/加密同步回调时会一起拖累账户。</li>
+        <li><b>当前重点：</b>不是急着卖，而是停止新增陌生标的，把后续资金集中到 ITOT、VXUS、DRAM 回调、少数高确定性投机位。</li>
+        <li><b>发散方向：</b>后续可继续观察 AI 基础设施、存储/HBM、优质大型科技、BTC 代理、黄金防守，但每条线最多选 1-2 个代表，不再无限扩散。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>标的学习卡</h2>
+      <p class="note">用途：帮助理解“我买的到底是什么”。趋势判断不是确定预测，只用于决定仓位和买卖纪律。</p>
+
+      <h3>核心与防守</h3>
+      <table>
+        <tr><th>标的</th><th>一句话介绍</th><th>未来看点</th><th>主要风险</th></tr>
+        <tr>
+          <td>ITOT</td>
+          <td>美国全市场ETF，覆盖大中小盘，是组合底座。</td>
+          <td>长期跟随美国企业盈利和经济增长；适合定投。</td>
+          <td>美股整体估值过高时也会回撤。</td>
+        </tr>
+        <tr>
+          <td>SPY</td>
+          <td>跟踪标普500，代表美国大型公司。</td>
+          <td>流动性强，适合观察美股大盘；但和ITOT重叠。</td>
+          <td>大型科技权重高，和ITOT重复配置。</td>
+        </tr>
+        <tr>
+          <td>VXUS</td>
+          <td>美国以外全球股票ETF，做国际分散。</td>
+          <td>如果美元走弱、非美市场修复，会提升组合弹性。</td>
+          <td>汇率、地缘政治、非美市场长期跑输美国。</td>
+        </tr>
+        <tr>
+          <td>XAUT</td>
+          <td>黄金代币，主要用于防守和分散。</td>
+          <td>避险、降息、美元走弱时通常更受益。</td>
+          <td>不产生现金流，涨多后也会回调。</td>
+        </tr>
+        <tr>
+          <td>USDGO</td>
+          <td>稳定币收益仓，当前承担现金和利息角色。</td>
+          <td>用于等待回调、减少冲动追高。</td>
+          <td>稳定币/平台/收益可持续性风险。</td>
+        </tr>
+      </table>
+
+      <h3>进攻主题</h3>
+      <table>
+        <tr><th>标的</th><th>一句话介绍</th><th>未来看点</th><th>主要风险</th></tr>
+        <tr>
+          <td>DRAM</td>
+          <td>存储/HBM主题ETF，集中押注AI算力里的存储瓶颈。</td>
+          <td>AI服务器、HBM、存储涨价和供需紧张仍是主线。</td>
+          <td>主题过热、持仓集中、周期反转时回撤会很大。</td>
+        </tr>
+        <tr>
+          <td>NVDA</td>
+          <td>AI芯片龙头，是AI基础设施核心标的。</td>
+          <td>数据中心、推理算力、AI生态继续扩张。</td>
+          <td>估值高、监管/竞争/订单放缓都会放大波动。</td>
+        </tr>
+        <tr>
+          <td>AVGO</td>
+          <td>Broadcom，AI网络芯片、定制芯片和软件业务结合。</td>
+          <td>AI数据中心网络、ASIC需求和软件现金流。</td>
+          <td>涨幅较大，半导体回调时会一起下跌。</td>
+        </tr>
+        <tr>
+          <td>MRVL</td>
+          <td>Marvell，偏AI网络、数据中心和定制芯片的高波动标的。</td>
+          <td>如果AI网络需求继续强，弹性较大。</td>
+          <td>业绩兑现要求高，急涨后容易大幅回撤。</td>
+        </tr>
+      </table>
+
+      <h3>优质个股与修复仓</h3>
+      <table>
+        <tr><th>标的</th><th>一句话介绍</th><th>未来看点</th><th>主要风险</th></tr>
+        <tr>
+          <td>AMZN</td>
+          <td>亚马逊，电商、云计算AWS、广告三条主线。</td>
+          <td>AWS增长、AI云服务、广告利润率提升。</td>
+          <td>资本开支过高、云业务放缓、消费疲弱。</td>
+        </tr>
+        <tr>
+          <td>GOOGL</td>
+          <td>谷歌，搜索广告、YouTube、云和AI模型。</td>
+          <td>AI搜索商业化、云业务改善、广告韧性。</td>
+          <td>AI改变搜索入口、反垄断监管。</td>
+        </tr>
+        <tr>
+          <td>MSFT</td>
+          <td>微软，云、Office、AI Copilot生态。</td>
+          <td>企业AI付费、Azure增长、软件订阅稳定。</td>
+          <td>估值不低，AI投入回报需要持续验证。</td>
+        </tr>
+        <tr>
+          <td>ADBE</td>
+          <td>Adobe，创意软件和文档软件龙头。</td>
+          <td>AI工具如果能转化为收费增长，有修复空间。</td>
+          <td>AI竞争改变创意软件格局，当前走势偏弱。</td>
+        </tr>
+        <tr>
+          <td>PDD</td>
+          <td>拼多多/Temu，中概消费和跨境电商代表。</td>
+          <td>海外Temu增长、中国消费修复。</td>
+          <td>中概监管、竞争加剧、利润率承压。</td>
+        </tr>
+      </table>
+
+      <h3>高波动投机仓</h3>
+      <table>
+        <tr><th>标的</th><th>一句话介绍</th><th>未来看点</th><th>主要风险</th></tr>
+        <tr>
+          <td>MSTR</td>
+          <td>Strategy，比特币高杠杆代理股，不等同于BTC本身。</td>
+          <td>BTC反弹时弹性通常大于BTC。</td>
+          <td>BTC下跌、融资成本、股价相对BTC溢价收缩。</td>
+        </tr>
+        <tr>
+          <td>CRCL</td>
+          <td>Circle，稳定币和加密金融基础设施概念。</td>
+          <td>稳定币使用扩大、合规金融化。</td>
+          <td>监管、利率变化、加密市场风险偏好下降。</td>
+        </tr>
+        <tr>
+          <td>SPCX</td>
+          <td>SpaceX代币化标的，偏稀缺性和事件驱动。</td>
+          <td>商业航天、星链、发射和估值预期。</td>
+          <td>价格透明度、流动性、估值波动、平台规则。</td>
+        </tr>
+        <tr>
+          <td>NOK</td>
+          <td>诺基亚，通信设备和网络基础设施公司。</td>
+          <td>通信设备周期修复、专网/网络升级。</td>
+          <td>成长性一般，容易成为低价小票投机。</td>
+        </tr>
+        <tr>
+          <td>BGB</td>
+          <td>Bitget平台币，和平台生态绑定。</td>
+          <td>平台增长、交易活跃度提升时可能受益。</td>
+          <td>平台风险和币价风险叠加，不适合重仓。</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>投资基础知识</h2>
+      <ul>
+        <li><b>ETF：</b>一篮子资产，风险比单个股票分散；ITOT、SPY、VXUS、DRAM都属于ETF，但DRAM是窄主题ETF，风险比宽基高。</li>
+        <li><b>宽基ETF：</b>买的是一整个市场，例如ITOT和SPY，适合作为长期底仓。</li>
+        <li><b>主题ETF：</b>买的是某个行业或主题，例如DRAM；上涨弹性大，但行业熄火时回撤也大。</li>
+        <li><b>仓位：</b>不是看买了多少股，而是看占总资产多少比例。仓位决定你亏损时会不会慌。</li>
+        <li><b>加仓：</b>只有在原逻辑没坏、价格到计划区间时才加；不是跌了就补。</li>
+        <li><b>止损/失效：</b>不是认输，而是承认这笔交易的前提已经不存在，保护本金和心态。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>今日市场判断</h2>
+      <span class="tag">科技回调</span>
+      <span class="tag">芯片回撤</span>
+      <span class="tag">黄金偏强</span>
+      <span class="tag">投机仓震荡</span>
+      <table>
+        <tr><th>标的</th><th class="num">价格</th><th class="num">单日</th><th class="num">近5日</th></tr>
+        <tr><td>DRAM</td><td class="num">68.12</td><td class="num warn">-4.15%</td><td class="num ok">+18.74%</td></tr>
+        <tr><td>MSTR</td><td class="num">122.81</td><td class="num warn">-6.35%</td><td class="num ok">+6.47%</td></tr>
+        <tr><td>MRVL</td><td class="num">278.67</td><td class="num warn">-9.78%</td><td class="num ok">+10.33%</td></tr>
+        <tr><td>AVGO</td><td class="num">376.71</td><td class="num warn">-4.37%</td><td class="num ok">+1.24%</td></tr>
+        <tr><td>CRCL</td><td class="num">79.72</td><td class="num warn">-4.38%</td><td class="num ok">+1.00%</td></tr>
+        <tr><td>BTC</td><td class="num">65,590</td><td class="num warn">-1.05%</td><td class="num ok">+1.82%</td></tr>
+        <tr><td>黄金</td><td class="num">4,362</td><td class="num ok">+0.79%</td><td class="num ok">+6.64%</td></tr>
+      </table>
+      <p class="note">今日亏损主要来自高波动仓位同向回撤，不是组合整体失控。</p>
+    </section>
+
+    <section>
+      <h2>投机仓补仓纪律</h2>
+      <div class="callout">
+        投机仓可以加，但不能因为亏了就补。补仓只在“跌到计划价位 + 没破失效位 + 加完不超仓位上限”时执行。
+      </div>
+      <ul>
+        <li>最多再拿 <b>400-600 USDT</b> 做投机补仓池，分 2-3 周使用。</li>
+        <li>投机仓合计不超过 <b>15%</b>。</li>
+        <li>单个投机标的不超过总资产 <b>3%-4%</b>。</li>
+        <li>每天最多一笔交易；没有计划价位就不买。</li>
+        <li class="warn">禁止因为手痒新增陌生标的。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>投机仓加仓表</h2>
+      <table>
+        <tr><th>标的</th><th>判断</th><th class="num">第一加仓</th><th class="num">第二加仓</th><th class="num">每次金额</th><th>失效条件</th></tr>
+        <tr><td>MSTR</td><td>高波动，跟 BTC</td><td class="num">115-118</td><td class="num">105-108</td><td class="num">80-120</td><td>跌破104且 BTC 同时走弱</td></tr>
+        <tr><td>AVGO</td><td>AI核心，回调可低吸</td><td class="num">365-375</td><td class="num">340-350</td><td class="num">80-100</td><td>跌破320</td></tr>
+        <tr><td>NVDA</td><td>相对健康</td><td class="num">198-202</td><td class="num">185-190</td><td class="num">80-100</td><td>跌破173</td></tr>
+        <tr><td>AMZN</td><td>正常回调</td><td class="num">235-240</td><td class="num">220-225</td><td class="num">60-80</td><td>跌破209</td></tr>
+        <tr><td>GOOGL</td><td>最健康之一</td><td class="num">355-362</td><td class="num">340-346</td><td class="num">60-80</td><td>跌破346后反抽失败</td></tr>
+        <tr><td>MRVL</td><td>急涨后回撤，谨慎</td><td class="num">255-265</td><td class="num">230-240</td><td class="num">50-80</td><td>跌破220或连续放量跌</td></tr>
+        <tr><td>CRCL</td><td>弱势投机，轻仓</td><td class="num">75-78</td><td class="num">68-72</td><td class="num">50</td><td>跌破68</td></tr>
+        <tr><td>PDD</td><td>弱势中概</td><td class="num">78-80</td><td class="num">72-75</td><td class="num">50</td><td>跌破72</td></tr>
+        <tr><td>ADBE</td><td>弱势修复</td><td class="num">196-200</td><td class="num">185-190</td><td class="num">50-80</td><td>跌破185</td></tr>
+        <tr><td>NOK</td><td>小票，不重仓</td><td class="num">13.0-13.3</td><td class="num">12.0-12.3</td><td class="num">30-50</td><td>跌破12</td></tr>
+        <tr><td>SPCX</td><td>概念/稀缺仓</td><td class="num">180-185</td><td class="num">160-165</td><td class="num">50</td><td>跌破160</td></tr>
+        <tr><td>BGB</td><td>平台币</td><td class="num">不补</td><td class="num">不补</td><td class="num">0</td><td>平台风险不可控</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>优先执行顺序</h2>
+      <h3>第一阶段：只用 250-300 USDT</h3>
+      <ul>
+        <li>MSTR 到 115-118：买 100 USDT。</li>
+        <li>AVGO 到 365-375：买 80 USDT。</li>
+        <li>NVDA 到 198-202：买 80 USDT。</li>
+      </ul>
+      <h3>第二阶段：再用 150-250 USDT</h3>
+      <ul>
+        <li>MSTR 到 105-108 且 BTC 没破位：再买 100 USDT。</li>
+        <li>MRVL 到 255-265 且没有继续放量下杀：买 50-80 USDT。</li>
+        <li>CRCL 到 75-78：只买 50 USDT。</li>
+      </ul>
+      <p class="note">补仓顺序：MSTR小仓博反弹 > AVGO/NVDA核心AI回调 > AMZN/GOOGL优质股低吸 > 其他小票观察。</p>
+    </section>
+
+    <section>
+      <h2>核心仓操作</h2>
+      <table>
+        <tr><th>标的</th><th>操作</th><th>条件</th></tr>
+        <tr><td>ITOT</td><td>继续作为主要加仓对象</td><td>新增资金优先，分批买，不等完美低点。</td></tr>
+        <tr><td>VXUS</td><td>补到 5%-6%</td><td>用于分散美国科技/芯片风险。</td></tr>
+        <tr><td>SPY</td><td>暂不加</td><td>和 ITOT 重叠，核心优先 ITOT。</td></tr>
+        <tr><td>DRAM</td><td>持有，回调加</td><td>65-66 小加，61-63 再加，跌破60重新评估。</td></tr>
+        <tr><td>XAUT</td><td>持有</td><td>8%-10%区间内不动。</td></tr>
+        <tr><td>USDGO</td><td>保留弹药</td><td>至少保留 4,000-5,000 USDT。</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>每月定投</h2>
+      <table>
+        <tr><th>用途</th><th class="num">比例</th><th class="num">金额</th></tr>
+        <tr><td>ITOT</td><td class="num">50%</td><td class="num">500-1,000 元</td></tr>
+        <tr><td>VXUS</td><td class="num">20%</td><td class="num">200-400 元</td></tr>
+        <tr><td>DRAM 回调备用</td><td class="num">15%</td><td class="num">150-300 元</td></tr>
+        <tr><td>高波动机会仓</td><td class="num">15%</td><td class="num">150-300 元</td></tr>
+      </table>
+      <p class="note">每月新增约 140-280 USDT。机会仓资金可以累计 2-3 个月再出手。</p>
+    </section>
+
+    <section>
+      <h2>不做清单</h2>
+      <ul>
+        <li>不因为一天亏损就连续补仓。</li>
+        <li>不同时补 5-8 个标的。</li>
+        <li>不为了降低成本，把弱票越补越大。</li>
+        <li>不继续扩散到更多 100 USDT 小票。</li>
+        <li>不重仓 TQQQ、SPCX、MSTR、CRCL。</li>
+        <li class="warn">不使用杠杆、合约、借款或期权。</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./service-worker.js").catch(function () {});
+      });
+    }
+  </script>
+</body>
+</html>
