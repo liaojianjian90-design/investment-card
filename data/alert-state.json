@@ -1,1 +1,11 @@
-{}
+{
+  "highWatermark": 15933.537890670592,
+  "weeklyReference": {
+    "week": "2026-26",
+    "btcPrice": 60671
+  },
+  "triggeredLevels": {},
+  "lastAlerts": {
+    "manual-test-email-1782358750892": "2026-06-25T03:39:10.892Z"
+  }
+}

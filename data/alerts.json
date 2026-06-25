@@ -1,8 +1,18 @@
 {
-  "updatedAt": "2026-06-25T00:00:00.000Z",
+  "updatedAt": "2026-06-25T03:39:10.891Z",
   "email": {
-    "sent": false,
+    "sent": true,
     "missing": []
   },
-  "alerts": []
+  "alerts": [
+    {
+      "id": "manual-test-email-1782358750892",
+      "symbol": "TEST",
+      "type": "test-email",
+      "severity": "low",
+      "message": "Manual test email triggered from GitHub Actions.",
+      "action": "If you received this email, SMTP settings are working.",
+      "createdAt": "2026-06-25T03:39:10.892Z"
+    }
+  ]
 }
