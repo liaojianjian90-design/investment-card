@@ -9,6 +9,7 @@ const mockPrices = process.env.MOCK_PRICES
   : mockArg
     ? JSON.parse(mockArg.slice("--mock-prices=".length))
     : null;
+const failSymbols = new Set((process.env.FAIL_SYMBOLS || "").split(",").map((item) => item.trim()).filter(Boolean));
 
 const files = {
   holdings: path.join(root, "config", "holdings.json"),
@@ -41,13 +42,43 @@ async function fetchJson(url) {
   return res.json();
 }
 
+async function tryQuote(symbol, sources) {
+  const errors = [];
+  for (const source of sources) {
+    try {
+      const price = await source();
+      if (!Number.isFinite(price)) throw new Error("invalid price");
+      return price;
+    } catch (error) {
+      errors.push(`${symbol}: ${error.message}`);
+    }
+  }
+  throw new Error(errors.join(" | "));
+}
+
 async function quote(symbol) {
+  if (failSymbols.has(symbol)) throw new Error(`forced test failure for ${symbol}`);
   if (mockPrices && Number.isFinite(Number(mockPrices[symbol]))) return Number(mockPrices[symbol]);
   if (symbol === "USDT" || symbol === "USDGO") return 1;
 
-  if (["BTC", "ETH", "DOGE"].includes(symbol)) {
-    const data = await fetchJson(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
-    return Number(data.price);
+  const coingeckoIds = { BTC: "bitcoin", ETH: "ethereum", DOGE: "dogecoin" };
+  const yahooCrypto = { BTC: "BTC-USD", ETH: "ETH-USD", DOGE: "DOGE-USD" };
+
+  if (coingeckoIds[symbol]) {
+    return tryQuote(symbol, [
+      async () => {
+        const data = await fetchJson(`https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoIds[symbol]}&vs_currencies=usd`);
+        return Number(data[coingeckoIds[symbol]]?.usd);
+      },
+      async () => {
+        const data = await fetchJson(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooCrypto[symbol]}?range=1d&interval=1m`);
+        return Number(data.chart?.result?.[0]?.meta?.regularMarketPrice);
+      },
+      async () => {
+        const data = await fetchJson(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
+        return Number(data.price);
+      }
+    ]);
   }
 
   if (symbol === "BGB") {
@@ -55,9 +86,13 @@ async function quote(symbol) {
     return Number(data.data?.[0]?.lastPr);
   }
 
-  if (["CRCL", "MSTR"].includes(symbol)) {
-    const data = await fetchJson(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1d&interval=1m`);
-    return Number(data.chart?.result?.[0]?.meta?.regularMarketPrice);
+  if (["CRCL", "MSTR", "ITOT", "SPY"].includes(symbol)) {
+    return tryQuote(symbol, [
+      async () => {
+        const data = await fetchJson(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1d&interval=1m`);
+        return Number(data.chart?.result?.[0]?.meta?.regularMarketPrice);
+      }
+    ]);
   }
 
   throw new Error(`No quote source for ${symbol}`);
@@ -86,7 +121,10 @@ async function loadPrices(symbols) {
 function buildSnapshot(holdings, prices, priceErrors) {
   const rows = allAssets(holdings).map((asset) => {
     const price = prices[asset.symbol];
-    const value = Number(asset.quantity) * price;
+    const priceOk = Number.isFinite(price);
+    const displayPrice = priceOk ? price : null;
+    const valuePrice = priceOk ? price : Number(asset.cost || 0);
+    const value = Number(asset.quantity) * valuePrice;
     const costValue = Number(asset.quantity) * Number(asset.cost || 0);
     const pnl = value - costValue;
     return {
@@ -94,13 +132,15 @@ function buildSnapshot(holdings, prices, priceErrors) {
       type: asset.type,
       quantity: Number(asset.quantity),
       cost: Number(asset.cost || 0),
-      price,
+      price: displayPrice,
+      priceOk,
+      priceError: priceErrors[asset.symbol] || null,
       value,
       pnl,
       pnlPct: costValue > 0 ? pnl / costValue * 100 : 0,
       weightPct: 0
     };
-  }).filter((row) => Number.isFinite(row.value));
+  });
 
   const totalValue = rows.reduce((sum, row) => sum + row.value, 0);
   const cashValue = rows.filter((row) => row.type === "cash").reduce((sum, row) => sum + row.value, 0);
@@ -202,7 +242,7 @@ function evaluateRules(snapshot, rules, alertState) {
     }
   }
 
-  if (eth && eth.price <= 1500 && snapshot.cashPct >= 35) {
+  if (eth && Number.isFinite(eth.price) && eth.price <= 1500 && snapshot.cashPct >= 35) {
     addAlert(alerts, alertState, repeatHours, {
       id: "eth-1500",
       symbol: "ETH",
@@ -212,7 +252,7 @@ function evaluateRules(snapshot, rules, alertState) {
       action: "Plan: buy ETH 300 USDT."
     });
   }
-  if (eth && eth.price <= 1350 && snapshot.cashPct >= 35) {
+  if (eth && Number.isFinite(eth.price) && eth.price <= 1350 && snapshot.cashPct >= 35) {
     addAlert(alerts, alertState, repeatHours, {
       id: "eth-1350",
       symbol: "ETH",
@@ -235,7 +275,7 @@ function evaluateRules(snapshot, rules, alertState) {
           symbol,
           type: "sell",
           severity: "medium",
-          message: `${symbol} sell/reduce rule hit. Price ${row.price.toFixed(4)}, weight ${row.weightPct.toFixed(1)}%.`,
+          message: `${symbol} sell/reduce rule hit. Price ${Number.isFinite(row.price) ? row.price.toFixed(4) : "N/A"}, weight ${row.weightPct.toFixed(1)}%.`,
           action: `Suggested sell ratio: ${rule.sellPct || 0}%. ${rule.message || ""}`
         });
       }

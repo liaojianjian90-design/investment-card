@@ -178,6 +178,24 @@
     }
     async function quote(symbol) {
       if (symbol === "USDT" || symbol === "USDGO") return 1;
+      const yahooSymbol = { BTC:"BTC-USD", ETH:"ETH-USD", DOGE:"DOGE-USD", CRCL:"CRCL", MSTR:"MSTR", ITOT:"ITOT", SPY:"SPY" }[symbol];
+      const coingeckoId = { BTC:"bitcoin", ETH:"ethereum", DOGE:"dogecoin" }[symbol];
+      if (coingeckoId) {
+        try {
+          const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoId}&vs_currencies=usd`);
+          const data = await res.json();
+          const price = Number(data[coingeckoId]?.usd);
+          if (Number.isFinite(price)) return price;
+        } catch {}
+      }
+      if (yahooSymbol) {
+        try {
+          const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=1d&interval=1m`);
+          const data = await res.json();
+          const price = Number(data.chart?.result?.[0]?.meta?.regularMarketPrice);
+          if (Number.isFinite(price)) return price;
+        } catch {}
+      }
       if (symbol === "BTC" || symbol === "ETH" || symbol === "DOGE") {
         const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
         const data = await res.json();
@@ -188,10 +206,7 @@
         const data = await res.json();
         return Number(data.data?.[0]?.lastPr);
       }
-      const y = symbol === "CRCL" ? "CRCL" : "MSTR";
-      const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${y}?range=1d&interval=1m`);
-      const data = await res.json();
-      return Number(data.chart?.result?.[0]?.meta?.regularMarketPrice);
+      throw new Error(`No price source for ${symbol}`);
     }
     async function buildLocalSnapshot() {
       const holdings = getHoldings();
@@ -199,13 +214,14 @@
       const prices = {};
       await Promise.all(assets.map(async (a) => {
         try { prices[a.symbol] = await quote(a.symbol); }
-        catch { prices[a.symbol] = a.symbol === "USDT" || a.symbol === "USDGO" ? 1 : NaN; }
+        catch { prices[a.symbol] = null; }
       }));
       const rows = assets.map((a) => {
         const price = prices[a.symbol];
-        const value = a.quantity * price;
+        const priceOk = Number.isFinite(price);
+        const value = a.quantity * (priceOk ? price : (a.cost ?? 0));
         const costValue = a.quantity * (a.cost ?? 0);
-        return { ...a, price, value, pnl: value - costValue, pnlPct: costValue > 0 ? (value - costValue) / costValue * 100 : 0 };
+        return { ...a, price: priceOk ? price : null, priceOk, value, pnl: value - costValue, pnlPct: costValue > 0 ? (value - costValue) / costValue * 100 : 0 };
       });
       const totalValue = rows.reduce((s, r) => s + (Number.isFinite(r.value) ? r.value : 0), 0);
       const cashValue = rows.filter((r) => r.type === "cash").reduce((s, r) => s + r.value, 0);
@@ -213,6 +229,7 @@
       return { updatedAt: new Date().toISOString(), source: "local-browser", totalValue, cashValue, cashPct: totalValue ? cashValue / totalValue * 100 : 0, positions: rows };
     }
     function statusFor(row, snapshot) {
+      if (row.priceOk === false || row.price === null) return "价格源失败，等待下次刷新";
       if (row.type === "cash") return "弹药仓";
       const t = DEFAULT_RULES.targets[row.symbol];
       if (snapshot.cashPct < DEFAULT_RULES.cashMinPct && row.symbol !== "DOGE") return "现金低于底线，暂停买入";
@@ -230,12 +247,13 @@
         ["数据源", snapshot.source === "local-browser" ? "本机输入" : "GitHub监控"]
       ].map(([k,v]) => `<div class="metric"><b>${v}</b><span>${k}</span></div>`).join("");
       document.getElementById("positions").innerHTML = snapshot.positions.map((r) => {
+        const priceMissing = r.priceOk === false || r.price === null;
         const cls = r.pnl >= 0 ? "ok" : "warn";
         return `<tr>
           <td><b>${r.symbol}</b><br><span class="note">${r.type}</span></td>
           <td class="num">${fmtNum(r.quantity)}</td>
           <td class="num">${fmtUsd(r.cost)}</td>
-          <td class="num">${fmtUsd(r.price)}</td>
+          <td class="num">${priceMissing ? "-" : fmtUsd(r.price)}</td>
           <td class="num">${fmtUsd(r.value)}</td>
           <td class="num">${pct(r.weightPct)}</td>
           <td class="num ${cls}">${fmtUsd(r.pnl)}<br><span class="${cls}">${pct(r.pnlPct)}</span></td>
