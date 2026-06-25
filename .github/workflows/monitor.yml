@@ -9,7 +9,9 @@ on:
         type: boolean
         default: false
   schedule:
-    - cron: "3,13,23,33,43,53 * * * *"
+    # GitHub Actions scheduled workflows can run at most once every 5 minutes.
+    # Use off-hour minutes to reduce delay risk around the top of each hour.
+    - cron: "2,7,12,17,22,27,32,37,42,47,52,57 * * * *"
 
 permissions:
   contents: write
