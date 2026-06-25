@@ -224,6 +224,17 @@ function markDipTriggered(alertState, rule, price) {
   alertState.triggeredLevels[rule.id] = { triggeredAt: new Date().toISOString(), triggerPrice: price, resetAbove: rule.resetAbove };
 }
 
+function markRuleTriggered(alertState, rule, details = {}) {
+  alertState.triggeredLevels ||= {};
+  alertState.triggeredLevels[rule.id] = { triggeredAt: new Date().toISOString(), ...details };
+}
+
+function projectedWeightPct(snapshot, symbol, addAmount) {
+  const row = position(snapshot, symbol);
+  if (!snapshot.totalValue) return 0;
+  return ((row?.value || 0) + Number(addAmount || 0)) / snapshot.totalValue * 100;
+}
+
 function resetDipLevels(alertState, rules, btcPrice, ethPrice) {
   alertState.triggeredLevels ||= {};
   for (const rule of rules.dipBuyRules || []) {
@@ -282,6 +293,7 @@ function alertTypeLabel(type) {
     "drawdown-risk": "回撤风控",
     "cap-risk": "组合上限",
     "weight-risk": "仓位超限",
+    "core-fill": "核心仓补足",
     "fixed-dca": "固定定投",
     "dip-buy": "下跌加仓",
     "risk-pause": "暂停买入",
@@ -307,6 +319,7 @@ function alertTitle(alert) {
   if (alert.type === "drawdown-risk") return "账户回撤风控触发";
   if (alert.type === "cap-risk") return "组合相关性或总仓位超限";
   if (alert.type === "weight-risk") return `${alert.symbol} 仓位超过目标上限`;
+  if (alert.type === "core-fill") return "BTC/ETH 核心仓第一批补足提醒";
   if (alert.type === "fixed-dca") return "固定定投提醒";
   if (alert.type === "dip-buy") return `${alert.symbol} 下跌加仓价位触发`;
   if (alert.type === "risk-pause") return "极端下跌区间，暂停主动买入";
@@ -391,6 +404,20 @@ function chineseAlertDetail(alert, snapshot) {
       "触发规则：固定定投日到达，且现金比例满足要求。",
       `建议动作：买入 BTC ${btcAmount || "-"} USDT，买入 ETH ${ethAmount || "-"} USDT。`,
       "纪律提醒：定投是纪律动作；但现金低于 40% 或回撤风控触发时，以风控优先。"
+    ];
+  }
+
+  if (alert.type === "core-fill") {
+    const btcAmount = extractFirstNumber(message, /BTC ([\d.]+) USDT/);
+    const ethAmount = extractFirstNumber(message, /ETH ([\d.]+) USDT/);
+    const cashReq = extractFirstNumber(action, /cash >= ([\d.]+)%/);
+    const btcMax = extractFirstNumber(action, /BTC <= ([\d.]+)%/);
+    const ethMax = extractFirstNumber(action, /ETH <= ([\d.]+)%/);
+    return [
+      "触发规则：前期核心仓第一批补足条件满足。",
+      `建议动作：买入 BTC ${btcAmount || "-"} USDT，买入 ETH ${ethAmount || "-"} USDT。`,
+      `纪律提醒：这不是追涨，是把 BTC/ETH 核心仓从试探仓补到基础仓；现金必须高于 ${cashReq || "40"}%，交易后 BTC 不超过 ${btcMax || "18"}%、ETH 不超过 ${ethMax || "6"}%。`,
+      "执行要求：只提醒一次，必须人工确认实时价格和交易后仓位后再下单。"
     ];
   }
 
@@ -505,7 +532,7 @@ function buildEmailContent(alerts, snapshot) {
     "1. 这不是自动下单，只是纪律提醒。",
     "2. 下单前确认平台实时价格、可用现金和交易后仓位。",
     "3. 若现金低于 35%，任何买入提醒都不执行。",
-    "4. 情绪上头时，先等下一次 10 分钟刷新。"
+    "4. 情绪上头时，先等下一次 5 分钟刷新。"
   ];
 
   return {
@@ -587,6 +614,37 @@ function evaluateRules(snapshot, rules, alertState) {
   }
 
   if (canBuy(snapshot) && !anyCorePriceError) {
+    for (const rule of rules.coreFillRules || []) {
+      if (!rule.enabled || dipAlreadyTriggered(alertState, rule.id)) continue;
+      const btcAmount = Number(rule.btcAmount || 0);
+      const ethAmount = Number(rule.ethAmount || 0);
+      const requiredCashPct = Number(rule.requireCashPct || 40);
+      const btcAfter = projectedWeightPct(snapshot, "BTC", btcAmount);
+      const ethAfter = projectedWeightPct(snapshot, "ETH", ethAmount);
+      const totalAmount = btcAmount + ethAmount;
+      if (snapshot.cashPct < requiredCashPct || snapshot.cashValue < totalAmount) continue;
+      if (btcAfter > Number(rule.maxBtcWeightPctAfter || Infinity)) continue;
+      if (ethAfter > Number(rule.maxEthWeightPctAfter || Infinity)) continue;
+
+      const beforeCount = alerts.length;
+      addAlert(alerts, alertState, rules, {
+        id: rule.id,
+        symbol: rule.symbol || "BTC/ETH",
+        type: "core-fill",
+        severity: "medium",
+        message: `Core fill batch ${rule.batch || 1} triggered. Buy BTC ${btcAmount} USDT and ETH ${ethAmount} USDT.`,
+        action: `Execute once after manual confirmation. Required cash >= ${requiredCashPct}%. Max after-fill weights: BTC <= ${rule.maxBtcWeightPctAfter}%, ETH <= ${rule.maxEthWeightPctAfter}%.`
+      });
+      if (alerts.length > beforeCount) {
+        markRuleTriggered(alertState, rule, {
+          btcAmount,
+          ethAmount,
+          btcAfterWeightPct: btcAfter,
+          ethAfterWeightPct: ethAfter
+        });
+      }
+    }
+
     const now = new Date();
     const dca = rules.fixedDca;
     if (dca?.enabled && now.getUTCDay() === Number(dca.weekdayUtc) && snapshot.cashPct >= Number(dca.requireCashPct)) {

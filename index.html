@@ -456,7 +456,7 @@
 
     <section class="card">
       <h2>交易纪律系统 2.0</h2>
-      <p class="section-note">优先级从高到低：数据异常 → 现金底线 → 账户回撤 → 组合上限 → 固定定投 / 下跌加仓 / 上涨追随。</p>
+      <p class="section-note">优先级从高到低：数据异常 → 现金底线 → 账户回撤 → 组合上限 → 核心仓补足 / 固定定投 / 下跌加仓 / 上涨追随。GitHub Actions 默认每 5 分钟检查一次。</p>
 
       <div class="grid rule-grid">
         <div class="rule-box">
@@ -517,7 +517,17 @@
         </div>
 
         <div class="rule-box">
-          <h3>五、固定定投</h3>
+          <h3>五、前期核心仓补足</h3>
+          <ul class="rule-list">
+            <li><strong>第一批：</strong>提醒买入 BTC 800 USDT + ETH 300 USDT。</li>
+            <li><strong>触发条件：</strong>现金比例必须高于 40%，且可用现金足够覆盖本次买入。</li>
+            <li><strong>交易后限制：</strong>BTC 不超过 18%，ETH 不超过 6%。</li>
+            <li><strong>执行纪律：</strong>该提醒只触发一次，只用于把核心仓从试探仓补到基础仓；收到邮件后仍需人工确认实时价格和交易后仓位。</li>
+          </ul>
+        </div>
+
+        <div class="rule-box">
+          <h3>六、固定定投</h3>
           <ul class="rule-list">
             <li>默认每周一次：BTC 210 USDT + ETH 90 USDT。</li>
             <li>现金比例必须高于 40%。低于 40% 时暂停定投。</li>
@@ -527,16 +537,16 @@
         </div>
 
         <div class="rule-box">
-          <h3>六、下跌加仓与重置</h3>
+          <h3>七、下跌加仓与重置</h3>
           <table>
             <thead>
               <tr><th>BTC 价位</th><th>提醒方案</th><th>重置条件</th></tr>
             </thead>
             <tbody>
-              <tr><td>≤ 60000</td><td>BTC 500 + ETH 150</td><td>重新站上 63000</td></tr>
-              <tr><td>≤ 57000</td><td>BTC 800 + ETH 250</td><td>重新站上 60000</td></tr>
-              <tr><td>≤ 55000</td><td>BTC 1000 + ETH 300</td><td>重新站上 58000</td></tr>
-              <tr><td>≤ 52000</td><td>暂停主动买入，观察 2-3 天</td><td>重新站上 55000</td></tr>
+              <tr><td>≤ 60000</td><td>BTC 500 + ETH 150</td><td>重新站上 61200</td></tr>
+              <tr><td>≤ 57000</td><td>BTC 800 + ETH 250</td><td>重新站上 58500</td></tr>
+              <tr><td>≤ 55000</td><td>BTC 1000 + ETH 300</td><td>重新站上 56500</td></tr>
+              <tr><td>≤ 52000</td><td>暂停主动买入，观察 2-3 天</td><td>重新站上 54000</td></tr>
               <tr><td>≤ 48000</td><td>极端风险，只保留小额定投</td><td>重新站上 52000</td></tr>
             </tbody>
           </table>
@@ -544,21 +554,21 @@
         </div>
 
         <div class="rule-box">
-          <h3>七、ETH 独立买点</h3>
+          <h3>八、ETH 独立买点</h3>
           <table>
             <thead>
               <tr><th>ETH 价位</th><th>提醒方案</th><th>重置条件</th></tr>
             </thead>
             <tbody>
-              <tr><td>≤ 1500</td><td>ETH 300 USDT</td><td>重新站上 1650</td></tr>
-              <tr><td>≤ 1350</td><td>ETH 500 USDT</td><td>重新站上 1500</td></tr>
+              <tr><td>≤ 1500</td><td>ETH 300 USDT</td><td>重新站上 1600</td></tr>
+              <tr><td>≤ 1350</td><td>ETH 500 USDT</td><td>重新站上 1450</td></tr>
             </tbody>
           </table>
           <p class="muted">ETH 买点仍受现金、回撤和价格源规则约束。</p>
         </div>
 
         <div class="rule-box">
-          <h3>八、上涨追随</h3>
+          <h3>九、上涨追随</h3>
           <ul class="rule-list">
             <li>BTC 站上 65000：连续 2 日确认后，才提醒 BTC 300 USDT。</li>
             <li>BTC 站上 70000 且 ETH 同步走强：确认后，才提醒 BTC 300 + ETH 100。</li>
@@ -568,7 +578,7 @@
         </div>
 
         <div class="rule-box">
-          <h3>九、止盈与再平衡</h3>
+          <h3>十、止盈与再平衡</h3>
           <table>
             <thead>
               <tr><th>条件</th><th>动作</th></tr>
@@ -584,7 +594,7 @@
         </div>
 
         <div class="rule-box">
-          <h3>十、手动执行清单</h3>
+          <h3>十一、手动执行清单</h3>
           <ul class="rule-list">
             <li>买入前问：这笔交易是定投、下跌加仓，还是上涨追随？</li>
             <li>买入前看：现金是否高于 35%，是否触发账户回撤限制？</li>

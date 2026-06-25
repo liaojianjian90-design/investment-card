@@ -30,38 +30,52 @@
     "halfSizeDrawdownPct": 15,
     "message": "Weekly DCA: BTC 210 USDT + ETH 90 USDT"
   },
+  "coreFillRules": [
+    {
+      "id": "core-fill-batch-1",
+      "enabled": true,
+      "symbol": "BTC/ETH",
+      "batch": 1,
+      "btcAmount": 800,
+      "ethAmount": 300,
+      "requireCashPct": 40,
+      "maxBtcWeightPctAfter": 18,
+      "maxEthWeightPctAfter": 6,
+      "note": "Early core position fill batch 1. Trigger once and execute only after manual confirmation."
+    }
+  ],
   "dipBuyRules": [
     {
       "id": "dip-btc-60000",
       "btcPriceBelow": 60000,
-      "resetAbove": 63000,
+      "resetAbove": 61200,
       "requireCashPct": 40,
       "btcAmount": 500,
       "ethAmount": 150,
-      "note": "First dip-buy level. Trigger once until BTC resets above 63000."
+      "note": "First dip-buy level. Trigger once until BTC resets above 61200."
     },
     {
       "id": "dip-btc-57000",
       "btcPriceBelow": 57000,
-      "resetAbove": 60000,
+      "resetAbove": 58500,
       "requireCashPct": 38,
       "btcAmount": 800,
       "ethAmount": 250,
-      "note": "Second dip-buy level. Trigger once until BTC resets above 60000."
+      "note": "Second dip-buy level. Trigger once until BTC resets above 58500."
     },
     {
       "id": "dip-btc-55000",
       "btcPriceBelow": 55000,
-      "resetAbove": 58000,
+      "resetAbove": 56500,
       "requireCashPct": 35,
       "btcAmount": 1000,
       "ethAmount": 300,
-      "note": "Deep dip-buy level. Trigger once until BTC resets above 58000."
+      "note": "Deep dip-buy level. Trigger once until BTC resets above 56500."
     },
     {
       "id": "risk-btc-52000",
       "btcPriceBelow": 52000,
-      "resetAbove": 55000,
+      "resetAbove": 54000,
       "requireCashPct": 35,
       "btcAmount": 0,
       "ethAmount": 0,
@@ -78,8 +92,8 @@
     }
   ],
   "ethDipRules": [
-    { "id": "eth-1500", "priceBelow": 1500, "resetAbove": 1650, "amount": 300, "message": "ETH price is below 1500. Buy 300 USDT only once until reset." },
-    { "id": "eth-1350", "priceBelow": 1350, "resetAbove": 1500, "amount": 500, "message": "ETH price is below 1350. Buy 500 USDT only once until reset." }
+    { "id": "eth-1500", "priceBelow": 1500, "resetAbove": 1600, "amount": 300, "message": "ETH price is below 1500. Buy 300 USDT only once until reset." },
+    { "id": "eth-1350", "priceBelow": 1350, "resetAbove": 1450, "amount": 500, "message": "ETH price is below 1350. Buy 500 USDT only once until reset." }
   ],
   "trendFollowRules": [
     {
