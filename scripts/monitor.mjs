@@ -37,7 +37,7 @@ function allAssets(holdings) {
 }
 
 async function fetchJson(url) {
-  const res = await fetch(url, { headers: { "user-agent": "investment-monitor-card/1.0" } });
+  const res = await fetch(url, { headers: { "user-agent": "investment-monitor-card/2.0" } });
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${url}`);
   return res.json();
 }
@@ -50,7 +50,7 @@ async function tryQuote(symbol, sources) {
       if (!Number.isFinite(price)) throw new Error("invalid price");
       return price;
     } catch (error) {
-      errors.push(`${symbol}: ${error.message}`);
+      errors.push(error.message);
     }
   }
   throw new Error(errors.join(" | "));
@@ -82,8 +82,12 @@ async function quote(symbol) {
   }
 
   if (symbol === "BGB") {
-    const data = await fetchJson("https://api.bitget.com/api/v2/spot/market/tickers?symbol=BGBUSDT");
-    return Number(data.data?.[0]?.lastPr);
+    return tryQuote(symbol, [
+      async () => {
+        const data = await fetchJson("https://api.bitget.com/api/v2/spot/market/tickers?symbol=BGBUSDT");
+        return Number(data.data?.[0]?.lastPr);
+      }
+    ]);
   }
 
   if (["CRCL", "MSTR", "ITOT", "SPY"].includes(symbol)) {
@@ -122,7 +126,6 @@ function buildSnapshot(holdings, prices, priceErrors) {
   const rows = allAssets(holdings).map((asset) => {
     const price = prices[asset.symbol];
     const priceOk = Number.isFinite(price);
-    const displayPrice = priceOk ? price : null;
     const valuePrice = priceOk ? price : Number(asset.cost || 0);
     const value = Number(asset.quantity) * valuePrice;
     const costValue = Number(asset.quantity) * Number(asset.cost || 0);
@@ -132,7 +135,7 @@ function buildSnapshot(holdings, prices, priceErrors) {
       type: asset.type,
       quantity: Number(asset.quantity),
       cost: Number(asset.cost || 0),
-      price: displayPrice,
+      price: priceOk ? price : null,
       priceOk,
       priceError: priceErrors[asset.symbol] || null,
       value,
@@ -146,12 +149,15 @@ function buildSnapshot(holdings, prices, priceErrors) {
   const cashValue = rows.filter((row) => row.type === "cash").reduce((sum, row) => sum + row.value, 0);
   for (const row of rows) row.weightPct = totalValue > 0 ? row.value / totalValue * 100 : 0;
 
+  const weights = Object.fromEntries(rows.map((row) => [row.symbol, row.weightPct]));
+
   return {
     updatedAt: new Date().toISOString(),
     source: "github-actions",
     totalValue,
     cashValue,
     cashPct: totalValue > 0 ? cashValue / totalValue * 100 : 0,
+    weights,
     priceErrors,
     positions: rows
   };
@@ -165,112 +171,234 @@ function isoWeek(date) {
   return `${d.getUTCFullYear()}-${String(Math.ceil((((d - yearStart) / 86400000) + 1) / 7)).padStart(2, "0")}`;
 }
 
-function shouldRepeat(id, alertState, repeatHours) {
-  const last = alertState[id];
-  if (!last) return true;
-  return Date.now() - Date.parse(last) > repeatHours * 60 * 60 * 1000;
-}
-
-function addAlert(alerts, alertState, repeatHours, alert) {
-  if (!shouldRepeat(alert.id, alertState, repeatHours)) return;
+function addAlert(alerts, alertState, rules, alert) {
+  const repeatHours = Number(rules.repeatAlertHours || 24);
+  const last = alertState.lastAlerts?.[alert.id];
+  if (last && Date.now() - Date.parse(last) <= repeatHours * 60 * 60 * 1000) return;
   const createdAt = new Date().toISOString();
+  alertState.lastAlerts ||= {};
+  alertState.lastAlerts[alert.id] = createdAt;
   alerts.push({ ...alert, createdAt });
-  alertState[alert.id] = createdAt;
 }
 
 function position(snapshot, symbol) {
   return snapshot.positions.find((row) => row.symbol === symbol);
 }
 
+function combinedWeight(snapshot, symbols) {
+  return symbols.reduce((sum, symbol) => sum + (position(snapshot, symbol)?.weightPct || 0), 0);
+}
+
+function updateRiskState(snapshot, rules, alertState) {
+  alertState.highWatermark = Math.max(Number(alertState.highWatermark || 0), snapshot.totalValue);
+  snapshot.highWatermark = alertState.highWatermark;
+  snapshot.drawdownPct = alertState.highWatermark > 0
+    ? Math.max(0, (alertState.highWatermark - snapshot.totalValue) / alertState.highWatermark * 100)
+    : 0;
+
+  const btc = position(snapshot, "BTC");
+  const week = isoWeek(new Date());
+  alertState.weeklyReference ||= {};
+  if (alertState.weeklyReference.week !== week || !Number.isFinite(Number(alertState.weeklyReference.btcPrice))) {
+    alertState.weeklyReference = { week, btcPrice: btc?.price || null };
+  }
+  snapshot.btcWeeklyGainPct = btc?.price && alertState.weeklyReference.btcPrice
+    ? (btc.price - Number(alertState.weeklyReference.btcPrice)) / Number(alertState.weeklyReference.btcPrice) * 100
+    : 0;
+
+  const pauseRule = (rules.drawdownRules || []).find((rule) => rule.pauseDays && snapshot.drawdownPct >= Number(rule.drawdownPct));
+  if (pauseRule) {
+    const until = new Date(Date.now() + Number(pauseRule.pauseDays) * 86400000).toISOString();
+    if (!alertState.buyPauseUntil || Date.parse(alertState.buyPauseUntil) < Date.now()) alertState.buyPauseUntil = until;
+  }
+  snapshot.buyPauseUntil = alertState.buyPauseUntil || null;
+  snapshot.buyPaused = snapshot.buyPauseUntil ? Date.parse(snapshot.buyPauseUntil) > Date.now() : false;
+}
+
+function dipAlreadyTriggered(alertState, id) {
+  return Boolean(alertState.triggeredLevels?.[id]);
+}
+
+function markDipTriggered(alertState, rule, price) {
+  alertState.triggeredLevels ||= {};
+  alertState.triggeredLevels[rule.id] = { triggeredAt: new Date().toISOString(), triggerPrice: price, resetAbove: rule.resetAbove };
+}
+
+function resetDipLevels(alertState, rules, btcPrice, ethPrice) {
+  alertState.triggeredLevels ||= {};
+  for (const rule of rules.dipBuyRules || []) {
+    if (Number.isFinite(btcPrice) && Number.isFinite(Number(rule.resetAbove)) && btcPrice >= Number(rule.resetAbove)) {
+      delete alertState.triggeredLevels[rule.id];
+    }
+  }
+  for (const rule of rules.ethDipRules || []) {
+    if (Number.isFinite(ethPrice) && Number.isFinite(Number(rule.resetAbove)) && ethPrice >= Number(rule.resetAbove)) {
+      delete alertState.triggeredLevels[rule.id];
+    }
+  }
+}
+
+function canBuy(snapshot) {
+  return snapshot.cashPct >= 35 && !snapshot.buyPaused;
+}
+
 function evaluateRules(snapshot, rules, alertState) {
   const alerts = [];
-  const repeatHours = Number(rules.repeatAlertHours || 24);
   const btc = position(snapshot, "BTC");
   const eth = position(snapshot, "ETH");
+  const anyCorePriceError = !Number.isFinite(btc?.price) || !Number.isFinite(eth?.price);
+  updateRiskState(snapshot, rules, alertState);
+  resetDipLevels(alertState, rules, btc?.price, eth?.price);
+
+  if (Object.keys(snapshot.priceErrors || {}).length) {
+    addAlert(alerts, alertState, rules, {
+      id: "price-source-error",
+      symbol: "DATA",
+      type: "data-risk",
+      severity: "high",
+      message: `Price source failed for: ${Object.keys(snapshot.priceErrors).join(", ")}.`,
+      action: "No buy alert should be executed while key prices are missing."
+    });
+  }
 
   if (snapshot.cashPct < Number(rules.cashMinPct || 35)) {
-    addAlert(alerts, alertState, repeatHours, {
+    addAlert(alerts, alertState, rules, {
       id: "cash-below-min",
       symbol: "CASH",
       type: "risk",
       severity: "high",
-      message: `Cash ratio is ${snapshot.cashPct.toFixed(1)}%, below the ${rules.cashMinPct}% floor. Stop all buy alerts.`,
-      action: "Do not add risk. Rebuild cash first."
-    });
-    return alerts;
-  }
-
-  const now = new Date();
-  const dca = rules.fixedDca;
-  if (dca?.enabled && now.getUTCDay() === Number(dca.weekdayUtc) && snapshot.cashPct >= Number(dca.requireCashPct)) {
-    const id = `fixed-dca-${isoWeek(now)}`;
-    addAlert(alerts, alertState, repeatHours, {
-      id,
-      symbol: "BTC/ETH",
-      type: "fixed-dca",
-      severity: "low",
-      message: `Weekly DCA triggered. Buy BTC ${dca.btcAmount} USDT and ETH ${dca.ethAmount} USDT.`,
-      action: `Execute only if cash ratio remains above ${dca.requireCashPct}%.`
+      message: `Cash ratio is ${snapshot.cashPct.toFixed(1)}%, below the ${rules.cashMinPct}% floor.`,
+      action: "Stop all buying and rebuild cash."
     });
   }
 
-  for (const rule of rules.dipBuyRules || []) {
-    if (btc && Number.isFinite(btc.price) && btc.price <= Number(rule.btcPriceBelow) && snapshot.cashPct >= Number(rule.requireCashPct)) {
-      addAlert(alerts, alertState, repeatHours, {
+  for (const rule of rules.drawdownRules || []) {
+    if (snapshot.drawdownPct >= Number(rule.drawdownPct)) {
+      addAlert(alerts, alertState, rules, {
         id: rule.id,
-        symbol: "BTC/ETH",
-        type: "dip-buy",
-        severity: "medium",
-        message: `Dip-buy level hit. BTC price ${btc.price.toFixed(2)} <= ${rule.btcPriceBelow}.`,
-        action: `Plan: BTC ${rule.btcAmount} USDT, ETH ${rule.ethAmount} USDT. ${rule.note || ""}`
+        symbol: "PORTFOLIO",
+        type: "drawdown-risk",
+        severity: snapshot.drawdownPct >= 20 ? "high" : "medium",
+        message: rule.message,
+        action: `Current drawdown: ${snapshot.drawdownPct.toFixed(1)}%.`
       });
     }
   }
 
-  for (const rule of rules.trendFollowRules || []) {
-    if (rule.pauseIfWeeklyGainAbovePct) continue;
-    if (btc && Number.isFinite(btc.price) && btc.price >= Number(rule.btcPriceAbove)) {
-      const extra = rule.requireManualConfirmation ? "Manual confirmation required: price should hold for the required period." : "";
-      addAlert(alerts, alertState, repeatHours, {
+  for (const cap of rules.portfolioCaps || []) {
+    const weight = combinedWeight(snapshot, cap.symbols);
+    if (weight > Number(cap.maxPct)) {
+      addAlert(alerts, alertState, rules, {
+        id: cap.id,
+        symbol: cap.symbols.join("+"),
+        type: "cap-risk",
+        severity: "medium",
+        message: `${cap.message} Current combined weight: ${weight.toFixed(1)}%.`,
+        action: "Stop adding this basket; consider trimming if it keeps rising."
+      });
+    }
+  }
+
+  for (const [symbol, target] of Object.entries(rules.targets || {})) {
+    const row = position(snapshot, symbol);
+    if (!row) continue;
+    if (row.weightPct > Number(target.maxPct)) {
+      addAlert(alerts, alertState, rules, {
+        id: `${symbol.toLowerCase()}-above-target`,
+        symbol,
+        type: "weight-risk",
+        severity: "medium",
+        message: `${symbol} weight is ${row.weightPct.toFixed(1)}%, above the ${target.maxPct}% cap.`,
+        action: "Stop adding. Consider trimming if it keeps rising."
+      });
+    }
+  }
+
+  if (canBuy(snapshot) && !anyCorePriceError) {
+    const now = new Date();
+    const dca = rules.fixedDca;
+    if (dca?.enabled && now.getUTCDay() === Number(dca.weekdayUtc) && snapshot.cashPct >= Number(dca.requireCashPct)) {
+      const halfSize = snapshot.drawdownPct >= Number(dca.halfSizeDrawdownPct || 999);
+      const btcAmount = halfSize ? Number(dca.btcAmount) / 2 : Number(dca.btcAmount);
+      const ethAmount = halfSize ? Number(dca.ethAmount) / 2 : Number(dca.ethAmount);
+      addAlert(alerts, alertState, rules, {
+        id: `fixed-dca-${isoWeek(now)}`,
+        symbol: "BTC/ETH",
+        type: "fixed-dca",
+        severity: "low",
+        message: `Weekly DCA triggered. Buy BTC ${btcAmount} USDT and ETH ${ethAmount} USDT.`,
+        action: halfSize ? "Half-size DCA because drawdown is elevated." : "Execute only if cash ratio remains above 40%."
+      });
+    }
+
+    for (const rule of rules.dipBuyRules || []) {
+      if (!Number.isFinite(btc?.price)) continue;
+      if (btc.price <= Number(rule.btcPriceBelow) && snapshot.cashPct >= Number(rule.requireCashPct) && !dipAlreadyTriggered(alertState, rule.id)) {
+        markDipTriggered(alertState, rule, btc.price);
+        addAlert(alerts, alertState, rules, {
+          id: rule.id,
+          symbol: "BTC/ETH",
+          type: Number(rule.btcAmount) > 0 ? "dip-buy" : "risk-pause",
+          severity: Number(rule.btcAmount) > 0 ? "medium" : "high",
+          message: `BTC level hit: ${btc.price.toFixed(2)} <= ${rule.btcPriceBelow}.`,
+          action: Number(rule.btcAmount) > 0
+            ? `Plan: BTC ${rule.btcAmount} USDT, ETH ${rule.ethAmount} USDT. Reset only after BTC > ${rule.resetAbove}.`
+            : `${rule.note} Reset only after BTC > ${rule.resetAbove}.`
+        });
+      }
+    }
+
+    for (const rule of rules.ethDipRules || []) {
+      if (!Number.isFinite(eth?.price)) continue;
+      if (eth.price <= Number(rule.priceBelow) && !dipAlreadyTriggered(alertState, rule.id)) {
+        markDipTriggered(alertState, rule, eth.price);
+        addAlert(alerts, alertState, rules, {
+          id: rule.id,
+          symbol: "ETH",
+          type: "dip-buy",
+          severity: "medium",
+          message: `ETH level hit: ${eth.price.toFixed(2)} <= ${rule.priceBelow}.`,
+          action: `${rule.message} Reset only after ETH > ${rule.resetAbove}.`
+        });
+      }
+    }
+
+    for (const rule of rules.trendFollowRules || []) {
+      if (!Number.isFinite(btc?.price) || btc.price < Number(rule.btcPriceAbove)) continue;
+      if (snapshot.btcWeeklyGainPct > Number(rule.maxWeeklyGainPct || 999)) {
+        addAlert(alerts, alertState, rules, {
+          id: `${rule.id}-pause-fast-rise`,
+          symbol: rule.symbol || "BTC",
+          type: "trend-pause",
+          severity: "medium",
+          message: `BTC weekly gain is ${snapshot.btcWeeklyGainPct.toFixed(1)}%, above ${rule.maxWeeklyGainPct}%.`,
+          action: "Do not chase. Wait for pullback or confirmation."
+        });
+        continue;
+      }
+      if (rule.onlyIfBelowWeightPct) {
+        const row = position(snapshot, rule.symbol);
+        if (!row || row.weightPct >= Number(rule.onlyIfBelowWeightPct)) continue;
+      }
+      addAlert(alerts, alertState, rules, {
         id: rule.id,
         symbol: rule.symbol || "BTC",
         type: "trend-follow",
         severity: "low",
-        message: `Trend-follow level hit. BTC price ${btc.price.toFixed(2)} >= ${rule.btcPriceAbove}. ${extra}`,
-        action: rule.action
+        message: `Trend-follow level hit. BTC price ${btc.price.toFixed(2)} >= ${rule.btcPriceAbove}.`,
+        action: `${rule.action} Manual confirmation required: BTC should hold above the level for 2 days.`
       });
     }
-  }
-
-  if (eth && Number.isFinite(eth.price) && eth.price <= 1500 && snapshot.cashPct >= 35) {
-    addAlert(alerts, alertState, repeatHours, {
-      id: "eth-1500",
-      symbol: "ETH",
-      type: "dip-buy",
-      severity: "medium",
-      message: `ETH price ${eth.price.toFixed(2)} <= 1500.`,
-      action: "Plan: buy ETH 300 USDT."
-    });
-  }
-  if (eth && Number.isFinite(eth.price) && eth.price <= 1350 && snapshot.cashPct >= 35) {
-    addAlert(alerts, alertState, repeatHours, {
-      id: "eth-1350",
-      symbol: "ETH",
-      type: "dip-buy",
-      severity: "medium",
-      message: `ETH price ${eth.price.toFixed(2)} <= 1350.`,
-      action: "Plan: buy ETH 500 USDT."
-    });
   }
 
   for (const [symbol, sellRules] of Object.entries(rules.sellRules || {})) {
     const row = position(snapshot, symbol);
     if (!row) continue;
     for (const rule of sellRules) {
-      const priceHit = Number.isFinite(Number(rule.priceAbove)) && row.price >= Number(rule.priceAbove);
+      const priceHit = Number.isFinite(Number(rule.priceAbove)) && Number.isFinite(row.price) && row.price >= Number(rule.priceAbove);
       const weightHit = Number.isFinite(Number(rule.weightAbovePct)) && row.weightPct >= Number(rule.weightAbovePct);
       if (priceHit || weightHit) {
-        addAlert(alerts, alertState, repeatHours, {
+        addAlert(alerts, alertState, rules, {
           id: rule.id,
           symbol,
           type: "sell",
@@ -279,20 +407,6 @@ function evaluateRules(snapshot, rules, alertState) {
           action: `Suggested sell ratio: ${rule.sellPct || 0}%. ${rule.message || ""}`
         });
       }
-    }
-  }
-
-  for (const [symbol, target] of Object.entries(rules.targets || {})) {
-    const row = position(snapshot, symbol);
-    if (row && row.weightPct > Number(target.maxPct)) {
-      addAlert(alerts, alertState, repeatHours, {
-        id: `${symbol.toLowerCase()}-above-target`,
-        symbol,
-        type: "risk",
-        severity: "medium",
-        message: `${symbol} weight is ${row.weightPct.toFixed(1)}%, above the ${target.maxPct}% cap.`,
-        action: "Stop adding. Consider trimming if it keeps rising."
-      });
     }
   }
 
@@ -317,6 +431,7 @@ async function sendEmail(alerts, snapshot) {
     `Checked at: ${snapshot.updatedAt}`,
     `Total value: ${snapshot.totalValue.toFixed(2)} USDT`,
     `Cash ratio: ${snapshot.cashPct.toFixed(1)}%`,
+    `Drawdown: ${(snapshot.drawdownPct || 0).toFixed(1)}%`,
     "",
     ...alerts.map((a) => `[${a.type}] ${a.symbol}\n${a.message}\n${a.action}`)
   ].join("\n\n");
@@ -340,6 +455,16 @@ async function main() {
   const { prices, errors } = await loadPrices(symbols);
   const snapshot = buildSnapshot(holdings, prices, errors);
   const alerts = evaluateRules(snapshot, rules, alertState);
+  if (process.env.TEST_EMAIL === "true") {
+    addAlert(alerts, alertState, rules, {
+      id: `manual-test-email-${Date.now()}`,
+      symbol: "TEST",
+      type: "test-email",
+      severity: "low",
+      message: "Manual test email triggered from GitHub Actions.",
+      action: "If you received this email, SMTP settings are working."
+    });
+  }
   const email = await sendEmail(alerts, snapshot);
 
   await writeJson(files.snapshot, snapshot);
@@ -349,6 +474,7 @@ async function main() {
   console.log(JSON.stringify({
     totalValue: snapshot.totalValue,
     cashPct: snapshot.cashPct,
+    drawdownPct: snapshot.drawdownPct,
     alerts: alerts.length,
     email,
     priceErrors: errors
