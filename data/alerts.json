@@ -1,8 +1,27 @@
 {
-  "updatedAt": "2026-06-25T00:00:00.000Z",
+  "updatedAt": "2026-06-25T05:04:51.775Z",
   "email": {
-    "sent": false,
+    "sent": true,
     "missing": []
   },
-  "alerts": []
+  "alerts": [
+    {
+      "id": "core-fill-batch-1",
+      "symbol": "BTC/ETH",
+      "type": "core-fill",
+      "severity": "medium",
+      "message": "Core fill batch 1 triggered. Buy BTC 800 USDT and ETH 300 USDT.",
+      "action": "Execute once after manual confirmation. Required cash >= 40%. Max after-fill weights: BTC <= 18%, ETH <= 6%.",
+      "createdAt": "2026-06-25T05:04:51.776Z"
+    },
+    {
+      "id": "manual-test-email-1782363891777",
+      "symbol": "TEST",
+      "type": "test-email",
+      "severity": "low",
+      "message": "手动测试邮件已触发。",
+      "action": "如果你收到这封邮件，说明 SMTP 邮件链路正常。",
+      "createdAt": "2026-06-25T05:04:51.777Z"
+    }
+  ]
 }
