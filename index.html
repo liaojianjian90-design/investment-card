@@ -3,23 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#173f35">
+  <meta name="theme-color" content="#102f2a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="投资执行卡">
-  <title>投资执行卡</title>
+  <meta name="apple-mobile-web-app-title" content="投资监控卡">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>投资监控卡</title>
   <style>
-    :root { --bg:#f5f4ee; --card:#fffefa; --ink:#18251f; --muted:#63716a; --green:#173f35; --soft:#edf3ee; --line:#dedbd1; --red:#a3443c; --gold:#9c7228; }
+    :root {
+      --bg:#f5f4ee; --card:#fffefa; --ink:#17231f; --muted:#64716b;
+      --green:#102f2a; --soft:#edf3ee; --line:#dedbd1; --red:#a3443c;
+      --gold:#9c7228; --blue:#2b5f83;
+    }
     * { box-sizing:border-box; }
     body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif; }
-    header { padding:28px 18px 22px; background:var(--green); color:#fff; }
-    h1 { margin:0 0 6px; font-size:30px; }
-    header p { margin:0; color:#d9e5df; }
-    main { max-width:820px; margin:auto; padding:14px; }
+    header { padding:26px 18px 20px; background:var(--green); color:#fff; }
+    header h1 { margin:0 0 6px; font-size:28px; }
+    header p { margin:0; color:#d7e5df; }
+    main { max-width:960px; margin:auto; padding:14px; }
     section { margin:12px 0; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:0 8px 24px rgba(31,45,38,.06); }
     h2 { margin:0 0 12px; font-size:20px; }
     h3 { margin:16px 0 8px; font-size:16px; color:var(--green); }
-    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
     .metric { padding:12px; background:var(--soft); border-radius:10px; }
     .metric b { display:block; font-size:19px; }
     .metric span,.note { color:var(--muted); font-size:13px; }
@@ -31,98 +36,264 @@
     .num { text-align:right; white-space:nowrap; }
     .warn { color:var(--red); font-weight:700; }
     .ok { color:var(--green); font-weight:700; }
-    ul { padding-left:20px; margin:8px 0; }
-    li { margin:6px 0; }
-    .tag { display:inline-block; padding:4px 8px; margin:2px 5px 2px 0; border-radius:999px; background:var(--soft); color:var(--green); font-size:12px; font-weight:700; }
-    @media (max-width:560px) { .grid { grid-template-columns:1fr; } table { font-size:12px; } th,td { padding:8px 4px; } }
+    .info { color:var(--blue); font-weight:700; }
+    button { appearance:none; border:0; border-radius:10px; padding:10px 12px; background:var(--green); color:#fff; font-weight:700; }
+    button.secondary { background:#e7ebe7; color:var(--green); }
+    button.warnbtn { background:var(--red); }
+    input { width:100%; padding:9px 8px; border:1px solid var(--line); border-radius:9px; background:#fff; font:inherit; }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .small { font-size:12px; }
+    .pill { display:inline-block; padding:3px 8px; border-radius:999px; background:var(--soft); color:var(--green); font-size:12px; font-weight:700; }
+    textarea { width:100%; min-height:180px; margin-top:10px; padding:10px; border:1px solid var(--line); border-radius:10px; font:12px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    @media (max-width:720px) {
+      .grid { grid-template-columns:1fr 1fr; }
+      table { font-size:12px; }
+      th,td { padding:8px 4px; }
+      .hide-mobile { display:none; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>投资执行卡</h1>
-    <p>主题进攻型组合 · 更新：2026-06-22 · 截图基准总资产约 16,965 USDT</p>
+    <h1>投资监控卡</h1>
+    <p>加密主题组合 · 10 分钟云端监控 · 手机本机仓位编辑</p>
   </header>
   <main>
     <section>
-      <h2>账户目标与硬约束</h2>
-      <div class="grid">
-        <div class="metric"><b>15%-20%</b><span>基础年化目标</span></div>
-        <div class="metric"><b>30%+</b><span>行情好时进攻目标</span></div>
-        <div class="metric"><b>35%</b><span>最大回撤控制线</span></div>
+      <h2>账户快照</h2>
+      <div class="grid" id="metrics"></div>
+      <div class="callout">
+        <b>数据边界：</b>网页会优先使用你在本机保存的仓位展示；邮件提醒使用 GitHub 仓库里的默认仓位配置。前端不会保存 GitHub Token、邮箱密码或交易所 API Key。
       </div>
-      <div class="callout danger"><b>组合定位：</b>允许存储与光通信主题高占比，但不允许无上限补仓。主题总仓上限 55%；达到上限后，任何新增都必须先卖出同主题资产腾出空间。</div>
     </section>
+
     <section>
-      <h2>最新仓位快照</h2>
-      <p class="note">按 2026-06-22 截图估值计算；数值用于执行纪律，不是精确会计。</p>
+      <h2>持仓与盈亏</h2>
       <table>
-        <tr><th>类别/标的</th><th class="num">估值 USDT</th><th class="num">占比</th><th>状态</th></tr>
-        <tr><td><b>存储/AI 互连主题合计</b><br><span class="note">DRAM、AVGO、WDC、TSM、SNDK、MU、MRVL</span></td><td class="num"><b>9,231</b></td><td class="num warn"><b>54.4%</b></td><td class="warn">已接近 55% 上限，暂停新增。</td></tr>
-        <tr><td>DRAM</td><td class="num">5,361</td><td class="num">31.6%</td><td>持有；不追买，33% 以上执行减仓。</td></tr>
-        <tr><td>ITOT</td><td class="num">2,722</td><td class="num">16.0%</td><td>核心偏低，目标 20%。</td></tr>
-        <tr><td>USDGO</td><td class="num">3,003</td><td class="num">17.7%</td><td>保留至少 15%，仅可动用约 450。</td></tr>
-        <tr><td>rSPCX + preOPAI</td><td class="num">1,925</td><td class="num">11.3%</td><td>长期高风险卫星仓，合计上限 12%。</td></tr>
-        <tr><td>BGB / USDT</td><td class="num">65</td><td class="num">0.4%</td><td>不加仓；反弹可清理。</td></tr>
+        <thead>
+          <tr>
+            <th>标的</th><th class="num">数量</th><th class="num">成本</th><th class="num">现价</th><th class="num">市值</th><th class="num">仓位</th><th class="num">盈亏</th><th>状态</th>
+          </tr>
+        </thead>
+        <tbody id="positions"></tbody>
       </table>
-      <p class="note">主题直接仓已占 54.4%；ITOT 内也含半导体权重，实际经济相关性比表面更高。</p>
+      <p class="note" id="price-note"></p>
     </section>
+
     <section>
-      <h2>现在执行：只做这一件事</h2>
+      <h2>触发提醒</h2>
+      <div id="alerts"></div>
+    </section>
+
+    <section>
+      <h2>手动更新仓位</h2>
+      <p class="note">这里保存到当前手机/浏览器。刷新页面仍会保留，但不会自动同步到 GitHub Actions 邮件提醒。</p>
       <table>
-        <tr><th>顺序</th><th>动作</th><th>金额</th><th>触发与失效条件</th></tr>
-        <tr><td>1</td><td><b>ITOT 第一笔</b></td><td class="num">200 USDT</td><td>可从 USDGO 转出后买入；目的只是把核心仓拉向 20%，不是追涨主题。</td></tr>
-        <tr><td>2</td><td><b>ITOT 第二笔</b></td><td class="num">200 USDT</td><td>仅当 ITOT 相对第一笔成交价再回调约 4% 时执行；未触发就不买。</td></tr>
-        <tr><td>3</td><td><b>所有主题标的</b></td><td class="num">0</td><td class="warn">DRAM、AVGO、WDC、TSM、SNDK、MU、MRVL 暂停加仓，直到主题占比低于 50%。</td></tr>
-        <tr><td>4</td><td><b>纯光模块/器件</b></td><td class="num">0</td><td>当前没有仓位容量。未来首次建仓前，先将 DRAM 降至 28%-30%，纯光通信子仓上限 5%。</td></tr>
+        <thead><tr><th>标的</th><th class="num">数量</th><th class="num">成本价</th><th class="hide-mobile">类型</th></tr></thead>
+        <tbody id="editor"></tbody>
       </table>
-      <div class="callout"><b>今日交易限制：</b>完成 ITOT 第一笔后，当日结束，不看新标的、不补主题、不因盘中涨跌改变计划。</div>
+      <div class="actions">
+        <button id="save-local">保存到本机</button>
+        <button class="secondary" id="export-config">导出配置</button>
+        <button class="warnbtn" id="reset-local">恢复默认配置</button>
+      </div>
+      <textarea id="export-box" readonly placeholder="点击“导出配置”后，这里会出现 JSON。你可以把它发给我，我来更新 GitHub 版本。"></textarea>
     </section>
+
     <section>
-      <h2>个标的操作规则</h2>
+      <h2>执行纪律</h2>
       <table>
-        <tr><th>标的</th><th>定位</th><th>仓位上限</th><th>当前动作</th></tr>
-        <tr><td>DRAM</td><td>存储主题核心</td><td class="num">33%</td><td>持有、不追买；超过 33% 时卖出 DRAM 持仓的 10%，将资金转入 USDGO/ITOT。</td></tr>
-        <tr><td>AVGO</td><td>AI 网络/定制芯片核心</td><td class="num">8%</td><td>持有、不加仓；当前约 7.4%，接近上限。</td></tr>
-        <tr><td>WDC、SNDK、MU</td><td>存储周期卫星仓</td><td class="num">各 4%</td><td>持有、不加仓；同一景气周期，不把它们误认为分散。</td></tr>
-        <tr><td>MRVL</td><td>AI 互连与网络芯片</td><td class="num">4%</td><td>持有、不加仓；后续与纯光通信仓共用主题上限。</td></tr>
-        <tr><td>TSM</td><td>半导体制造底座</td><td class="num">4%</td><td>持有、不加仓；已有 ITOT 间接重叠。</td></tr>
-        <tr><td>ITOT</td><td>美国全市场核心</td><td class="num">20%</td><td class="ok">允许按本卡分两笔补至目标。</td></tr>
-        <tr><td>rSPCX、preOPAI</td><td>预 IPO / 稀缺高风险卫星</td><td class="num">合计 12%</td><td>持有、暂停加仓；补充发行方、权利、费用和赎回条款后再评估。</td></tr>
-        <tr><td>BGB</td><td>平台币</td><td class="num">0%</td><td>不加仓；反弹可逐步卖出。</td></tr>
-      </table>
-    </section>
-    <section>
-      <h2>回撤响应卡</h2>
-      <table>
-        <tr><th>账户相对阶段高点回撤</th><th>强制动作</th></tr>
-        <tr><td class="num">10%</td><td>停止所有主题加仓，保留 USDGO，复核产业逻辑与总主题占比。</td></tr>
-        <tr><td class="num">15%</td><td>只允许按计划买 ITOT；禁止新增存储、光通信、预 IPO 代币。</td></tr>
-        <tr><td class="num">20%</td><td>将主题仓降至 45% 以下，先减预 IPO 资产和基本面最弱的次级主题股。</td></tr>
-        <tr><td class="num">35%</td><td class="warn">触及组合回撤控制线：停止主动买入，重做全组合风险评估后才允许恢复交易。</td></tr>
-      </table>
-    </section>
-    <section>
-      <h2>防冲动交易检查</h2>
-      <div class="callout danger"><b>默认动作：不交易。</b> 只有同时满足下面四项，才允许下单。</div>
-      <ul>
-        <li>交易属于本卡已定义的类别，且没有超过类别或单项仓位上限。</li>
-        <li>买入金额、触发价格、失效条件已写明；没有写明就是不买。</li>
-        <li>当天尚未进行过主动交易；一天最多一笔。</li>
-        <li>若买后再跌 10%，仍能接受且不会破坏 USDGO 最低 15% 缓冲。</li>
-      </ul>
-      <p class="note">“今天涨得很好”“怕错过”“想摊低成本”均不是交易理由。它们只会触发 24 小时冷静期。</p>
-    </section>
-    <section>
-      <h2>学习卡：你买的是什么</h2>
-      <table>
-        <tr><th>方向</th><th>当前代表</th><th>真正的驱动</th><th>误区</th></tr>
-        <tr><td>存储</td><td>DRAM、WDC、SNDK、MU</td><td>HBM、企业级 SSD、供给纪律与存储价格周期。</td><td>四只股票不等于四份分散，它们会受同一供需周期影响。</td></tr>
-        <tr><td>AI 网络芯片</td><td>AVGO、MRVL</td><td>数据中心交换、定制芯片、带宽升级。</td><td>这不完全等于光模块；估值和客户集中度也很重要。</td></tr>
-        <tr><td>纯光通信</td><td>未来独立研究</td><td>800G/1.6T 迭代、云厂商资本开支、供需结构。</td><td>单日暴涨不构成买点；未来总子仓最多 5%。</td></tr>
-        <tr><td>宽基核心</td><td>ITOT</td><td>美国整体企业盈利增长。</td><td>它不会每天最强，但负责降低单一行业判断错误的代价。</td></tr>
-        <tr><td>预 IPO 代币</td><td>rSPCX、preOPAI</td><td>稀缺资产的估值变化与事件催化。</td><td>必须核实发行方、锚定资产、交易流动性和赎回权，不能只看名称。</td></tr>
+        <tr><th>规则</th><th>动作</th></tr>
+        <tr><td>现金低于 35%</td><td class="warn">停止所有买入提醒，只保留风险提示。</td></tr>
+        <tr><td>固定定投</td><td>每周提醒 BTC 210 USDT + ETH 90 USDT；现金比例需高于 40%。</td></tr>
+        <tr><td>BTC 跌到 60000 / 57000 / 55000</td><td>分批提醒 BTC+ETH 组合买入：500+150、800+250、1000+300。</td></tr>
+        <tr><td>BTC 跌到 52000 / 48000</td><td>进入深跌观察或极端风险模式，不提醒主动加仓。</td></tr>
+        <tr><td>BTC 站上 65000 / 70000</td><td>只发上涨追随提醒；需要你人工确认已站稳，不自动追高。</td></tr>
+        <tr><td>DOGE 涨到 0.085 / 0.095</td><td>提醒止盈，不提醒补仓。</td></tr>
+        <tr><td>MSTR 超过 6%</td><td>提醒控制仓位，不做无限补仓。</td></tr>
       </table>
     </section>
   </main>
+
+  <script>
+    const DEFAULT_HOLDINGS = {
+      baseCurrency: "USDT",
+      cash: [
+        { symbol: "USDT", quantity: 12388.13874886, cost: 1, type: "cash" },
+        { symbol: "USDGO", quantity: 1501.94752253, cost: 1, type: "cash" }
+      ],
+      positions: [
+        { symbol: "BTC", quantity: 0.00998615, cost: 60071.83, type: "crypto" },
+        { symbol: "ETH", quantity: 0.0636747, cost: 1570.91, type: "crypto" },
+        { symbol: "DOGE", quantity: 4662.3598142, cost: 0.07506, type: "crypto" },
+        { symbol: "BGB", quantity: 26.60353409, cost: 1.9692, type: "crypto" },
+        { symbol: "CRCL", quantity: 7.38398262, cost: 74.41, type: "stock" },
+        { symbol: "MSTR", quantity: 4.37657119, cost: 102.72, type: "stock" }
+      ]
+    };
+    const DEFAULT_RULES = {
+      cashMinPct: 35,
+      targets: {
+        BTC:{minPct:20,maxPct:30}, ETH:{minPct:8,maxPct:15}, CRCL:{minPct:5,maxPct:8},
+        MSTR:{minPct:4,maxPct:6}, DOGE:{minPct:2,maxPct:4}, BGB:{minPct:0,maxPct:1}
+      }
+    };
+    const storageKey = "investment-monitor-holdings-v1";
+    const fmtUsd = (v) => Number.isFinite(v) ? v.toLocaleString("en-US", { maximumFractionDigits: 2 }) : "-";
+    const fmtNum = (v) => Number.isFinite(v) ? v.toLocaleString("en-US", { maximumFractionDigits: 8 }) : "-";
+    const pct = (v) => Number.isFinite(v) ? `${v.toFixed(1)}%` : "-";
+    function dataUrl(file) {
+      const host = location.hostname;
+      const repo = location.pathname.split("/").filter(Boolean)[0];
+      if (host.endsWith(".github.io") && repo) {
+        const owner = host.replace(".github.io", "");
+        return `https://raw.githubusercontent.com/${owner}/${repo}/main/data/${file}`;
+      }
+      return `data/${file}`;
+    }
+
+    function getHoldings() {
+      try { return JSON.parse(localStorage.getItem(storageKey)) || DEFAULT_HOLDINGS; }
+      catch { return DEFAULT_HOLDINGS; }
+    }
+    function setHoldings(data) {
+      localStorage.setItem(storageKey, JSON.stringify(data, null, 2));
+    }
+    function allAssets(holdings) {
+      return [...holdings.cash, ...holdings.positions];
+    }
+    async function getSnapshot() {
+      try {
+        const res = await fetch(`${dataUrl("snapshot.json")}?ts=${Date.now()}`, { cache: "no-store" });
+        if (res.ok) return await res.json();
+      } catch {}
+      return null;
+    }
+    async function getAlerts() {
+      try {
+        const res = await fetch(`${dataUrl("alerts.json")}?ts=${Date.now()}`, { cache: "no-store" });
+        if (res.ok) return await res.json();
+      } catch {}
+      return { alerts: [] };
+    }
+    async function quote(symbol) {
+      if (symbol === "USDT" || symbol === "USDGO") return 1;
+      if (symbol === "BTC" || symbol === "ETH" || symbol === "DOGE") {
+        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
+        const data = await res.json();
+        return Number(data.price);
+      }
+      if (symbol === "BGB") {
+        const res = await fetch("https://api.bitget.com/api/v2/spot/market/tickers?symbol=BGBUSDT");
+        const data = await res.json();
+        return Number(data.data?.[0]?.lastPr);
+      }
+      const y = symbol === "CRCL" ? "CRCL" : "MSTR";
+      const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${y}?range=1d&interval=1m`);
+      const data = await res.json();
+      return Number(data.chart?.result?.[0]?.meta?.regularMarketPrice);
+    }
+    async function buildLocalSnapshot() {
+      const holdings = getHoldings();
+      const assets = allAssets(holdings);
+      const prices = {};
+      await Promise.all(assets.map(async (a) => {
+        try { prices[a.symbol] = await quote(a.symbol); }
+        catch { prices[a.symbol] = a.symbol === "USDT" || a.symbol === "USDGO" ? 1 : NaN; }
+      }));
+      const rows = assets.map((a) => {
+        const price = prices[a.symbol];
+        const value = a.quantity * price;
+        const costValue = a.quantity * (a.cost ?? 0);
+        return { ...a, price, value, pnl: value - costValue, pnlPct: costValue > 0 ? (value - costValue) / costValue * 100 : 0 };
+      });
+      const totalValue = rows.reduce((s, r) => s + (Number.isFinite(r.value) ? r.value : 0), 0);
+      const cashValue = rows.filter((r) => r.type === "cash").reduce((s, r) => s + r.value, 0);
+      rows.forEach((r) => r.weightPct = totalValue ? r.value / totalValue * 100 : 0);
+      return { updatedAt: new Date().toISOString(), source: "local-browser", totalValue, cashValue, cashPct: totalValue ? cashValue / totalValue * 100 : 0, positions: rows };
+    }
+    function statusFor(row, snapshot) {
+      if (row.type === "cash") return "弹药仓";
+      const t = DEFAULT_RULES.targets[row.symbol];
+      if (snapshot.cashPct < DEFAULT_RULES.cashMinPct && row.symbol !== "DOGE") return "现金低于底线，暂停买入";
+      if (t && row.weightPct > t.maxPct) return "超过上限，考虑减仓";
+      if (row.symbol === "DOGE") return "只止盈，不补仓";
+      if (row.symbol === "BGB") return "不加仓，反弹可清";
+      if (t && row.weightPct < t.minPct) return "低于目标，可等待规则触发";
+      return "持有观察";
+    }
+    function render(snapshot, alertData) {
+      document.getElementById("metrics").innerHTML = [
+        ["总资产", `${fmtUsd(snapshot.totalValue)} USDT`],
+        ["现金比例", pct(snapshot.cashPct)],
+        ["更新时间", new Date(snapshot.updatedAt).toLocaleString()],
+        ["数据源", snapshot.source === "local-browser" ? "本机输入" : "GitHub监控"]
+      ].map(([k,v]) => `<div class="metric"><b>${v}</b><span>${k}</span></div>`).join("");
+      document.getElementById("positions").innerHTML = snapshot.positions.map((r) => {
+        const cls = r.pnl >= 0 ? "ok" : "warn";
+        return `<tr>
+          <td><b>${r.symbol}</b><br><span class="note">${r.type}</span></td>
+          <td class="num">${fmtNum(r.quantity)}</td>
+          <td class="num">${fmtUsd(r.cost)}</td>
+          <td class="num">${fmtUsd(r.price)}</td>
+          <td class="num">${fmtUsd(r.value)}</td>
+          <td class="num">${pct(r.weightPct)}</td>
+          <td class="num ${cls}">${fmtUsd(r.pnl)}<br><span class="${cls}">${pct(r.pnlPct)}</span></td>
+          <td>${statusFor(r, snapshot)}</td>
+        </tr>`;
+      }).join("");
+      document.getElementById("price-note").textContent = "股票价格使用公开行情近似，代币化证券可能与平台成交价存在价差。";
+      const alerts = alertData?.alerts || [];
+      document.getElementById("alerts").innerHTML = alerts.length
+        ? alerts.map((a) => `<div class="callout ${a.severity === "high" ? "danger" : ""}"><b>${a.symbol}：</b>${a.message}<br><span class="note">${a.action || ""}</span></div>`).join("")
+        : `<div class="callout"><b>暂无云端触发提醒。</b><br><span class="note">若你刚上传项目，需要等待 GitHub Actions 首次运行后生成 alerts.json。</span></div>`;
+    }
+    function renderEditor() {
+      const holdings = getHoldings();
+      document.getElementById("editor").innerHTML = allAssets(holdings).map((a) => `
+        <tr data-symbol="${a.symbol}" data-type="${a.type}">
+          <td><b>${a.symbol}</b></td>
+          <td><input inputmode="decimal" data-field="quantity" value="${a.quantity}"></td>
+          <td><input inputmode="decimal" data-field="cost" value="${a.cost ?? 1}"></td>
+          <td class="hide-mobile"><span class="pill">${a.type}</span></td>
+        </tr>
+      `).join("");
+    }
+    function readEditor() {
+      const cash = [], positions = [];
+      document.querySelectorAll("#editor tr").forEach((tr) => {
+        const item = {
+          symbol: tr.dataset.symbol,
+          type: tr.dataset.type,
+          quantity: Number(tr.querySelector('[data-field="quantity"]').value || 0),
+          cost: Number(tr.querySelector('[data-field="cost"]').value || 0)
+        };
+        (item.type === "cash" ? cash : positions).push(item);
+      });
+      return { baseCurrency: "USDT", cash, positions };
+    }
+    async function init() {
+      renderEditor();
+      const cloud = await getSnapshot();
+      const local = localStorage.getItem(storageKey) ? await buildLocalSnapshot() : cloud || await buildLocalSnapshot();
+      render(local, await getAlerts());
+      document.getElementById("save-local").onclick = async () => {
+        setHoldings(readEditor());
+        render(await buildLocalSnapshot(), await getAlerts());
+      };
+      document.getElementById("export-config").onclick = () => {
+        document.getElementById("export-box").value = JSON.stringify(readEditor(), null, 2);
+      };
+      document.getElementById("reset-local").onclick = async () => {
+        localStorage.removeItem(storageKey);
+        renderEditor();
+        render(await buildLocalSnapshot(), await getAlerts());
+      };
+    }
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("service-worker.js"));
+    }
+    init();
+  </script>
 </body>
 </html>

@@ -1,0 +1,15 @@
+{
+  "baseCurrency": "USDT",
+  "cash": [
+    { "symbol": "USDT", "quantity": 12388.13874886, "cost": 1, "type": "cash" },
+    { "symbol": "USDGO", "quantity": 1501.94752253, "cost": 1, "type": "cash" }
+  ],
+  "positions": [
+    { "symbol": "BTC", "quantity": 0.00998615, "cost": 60071.83, "type": "crypto" },
+    { "symbol": "ETH", "quantity": 0.0636747, "cost": 1570.91, "type": "crypto" },
+    { "symbol": "DOGE", "quantity": 4662.3598142, "cost": 0.07506, "type": "crypto" },
+    { "symbol": "BGB", "quantity": 26.60353409, "cost": 1.9692, "type": "crypto" },
+    { "symbol": "CRCL", "quantity": 7.38398262, "cost": 74.41, "type": "stock" },
+    { "symbol": "MSTR", "quantity": 4.37657119, "cost": 102.72, "type": "stock" }
+  ]
+}

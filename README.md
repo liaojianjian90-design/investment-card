@@ -1,42 +1,124 @@
-# 投资执行卡 GitHub Pages 发布文件
+# 投资监控卡 GitHub Pages 文件
 
-把本文件夹内的全部内容上传到 GitHub 仓库根目录，然后开启 GitHub Pages。
+这是无 Bitget API Key 版本：
 
-## 建议仓库名
+- GitHub Actions 每 10 分钟拉取公开价格。
+- 使用 `config/holdings.json` 里的默认仓位计算盈亏。
+- 触发规则后通过邮件提醒。
+- 网页前端可以手动输入仓位并保存到本机浏览器。
+- 前端输入不会回写 GitHub，不会影响邮件提醒。
 
-```text
-investment-card
-```
+## 上传文件
 
-发布后网址通常是：
+把本文件夹内全部内容上传到 GitHub 仓库根目录：
 
-```text
-https://你的GitHub用户名.github.io/investment-card/
-```
+- `index.html`
+- `manifest.webmanifest`
+- `service-worker.js`
+- `icons/`
+- `config/`
+- `data/`
+- `scripts/`
+- `.github/`
+- `package.json`
+- `README.md`
 
-## GitHub 网页上传步骤
+注意：`.github` 是隐藏文件夹，也要上传，否则不会自动监控。
 
-1. 登录 GitHub。
-2. 点击右上角 `+`，选择 `New repository`。
-3. Repository name 填：`investment-card`。
-4. 选择 `Public`。
-5. 勾选 `Add a README file` 也可以，不勾选也可以。
-6. 创建仓库后，点击 `Add file` -> `Upload files`。
-7. 上传本文件夹里的全部内容：`index.html`、`manifest.webmanifest`、`service-worker.js`、`icons` 文件夹。
-8. 点击 `Commit changes`。
-9. 进入仓库 `Settings` -> `Pages`。
-10. Source 选择 `Deploy from a branch`。
-11. Branch 选择 `main`，目录选择 `/root`。
-12. 点击 `Save`，等待 1-3 分钟。
+## GitHub Pages 设置
 
-## 添加到手机桌面
+仓库页面进入：
 
-1. 用安卓 Chrome 打开 GitHub Pages 网址。
-2. 右上角 `⋮`。
-3. 选择 `添加到主屏幕` 或 `安装应用`。
-4. 名称填 `投资执行卡`。
-5. 添加完成后，桌面会出现图标。
+`Settings -> Pages -> Build and deployment`
 
-## 后续更新
+选择：
 
-以后只需要替换仓库里的 `index.html`，等待 GitHub Pages 自动刷新即可。
+- Source: `Deploy from a branch`
+- Branch: `main`
+- Folder: `/ (root)`
+
+保存后访问：
+
+`https://你的GitHub用户名.github.io/investment-card/`
+
+## GitHub Actions Secrets
+
+仓库页面进入：
+
+`Settings -> Secrets and variables -> Actions -> New repository secret`
+
+至少添加：
+
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_USER`
+- `SMTP_PASS`
+- `ALERT_EMAIL_TO`：`410097506@qq.com`
+
+可选：
+
+- `ALERT_EMAIL_FROM`
+
+说明：
+
+- Gmail/QQ/Outlook 建议使用应用专用密码。
+- 不要填写邮箱登录密码。
+- 不需要 Bitget API Key。
+- 不需要 GitHub Token。
+
+## QQ 邮箱参考配置
+
+如果使用 QQ 邮箱发信，通常填写：
+
+- `SMTP_HOST`: `smtp.qq.com`
+- `SMTP_PORT`: `465`
+- `SMTP_USER`: 你的 QQ 邮箱地址
+- `SMTP_PASS`: QQ 邮箱生成的 SMTP 授权码，不是 QQ 登录密码
+- `ALERT_EMAIL_TO`: `410097506@qq.com`
+
+QQ 邮箱授权码通常在：
+
+`QQ邮箱 -> 设置 -> 账号 -> POP3/IMAP/SMTP/Exchange/CardDAV/CalDAV服务`
+
+开启 SMTP 服务后生成授权码，再填到 GitHub Secret 的 `SMTP_PASS`。
+
+## 手动运行监控
+
+仓库页面进入：
+
+`Actions -> Investment Monitor -> Run workflow`
+
+运行成功后会更新：
+
+- `data/snapshot.json`
+- `data/alerts.json`
+- `data/alert-state.json`
+
+网页会优先读取 GitHub raw 上的最新 `data/*.json`，即使 GitHub Pages 没有重新构建，也能看到新的监控数据。
+
+## 手机手动修改仓位
+
+网页里打开“手动更新仓位”：
+
+1. 输入数量和成本价。
+2. 点击“保存到本机”。
+3. 刷新页面仍会保留。
+4. 点击“导出配置”可复制 JSON 发给 Codex，用于更新 GitHub 默认仓位。
+
+重要限制：
+
+- 本机保存只影响当前手机浏览器的显示。
+- 邮件提醒仍使用 GitHub 仓库里的 `config/holdings.json`。
+
+## 当前默认仓位
+
+默认配置来自 2026-06-25 截图：
+
+- USDT: `12388.13874886`
+- USDGO: `1501.94752253`
+- BTC: `0.00998615`, 成本 `60071.83`
+- ETH: `0.0636747`, 成本 `1570.91`
+- DOGE: `4662.3598142`, 成本 `0.07506`
+- BGB: `26.60353409`, 成本 `1.9692`
+- CRCL: `7.38398262`, 成本 `74.41`
+- MSTR: `4.37657119`, 成本 `102.72`

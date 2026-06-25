@@ -1,0 +1,101 @@
+{
+  "cashMinPct": 35,
+  "repeatAlertHours": 24,
+  "targets": {
+    "BTC": { "minPct": 20, "maxPct": 30 },
+    "ETH": { "minPct": 8, "maxPct": 15 },
+    "CRCL": { "minPct": 5, "maxPct": 8 },
+    "MSTR": { "minPct": 4, "maxPct": 6 },
+    "DOGE": { "minPct": 2, "maxPct": 4 },
+    "BGB": { "minPct": 0, "maxPct": 1 }
+  },
+  "fixedDca": {
+    "enabled": true,
+    "weekdayUtc": 1,
+    "requireCashPct": 40,
+    "btcAmount": 210,
+    "ethAmount": 90,
+    "message": "Weekly DCA: BTC 210 USDT + ETH 90 USDT"
+  },
+  "dipBuyRules": [
+    {
+      "id": "dip-btc-60000",
+      "btcPriceBelow": 60000,
+      "requireCashPct": 40,
+      "btcAmount": 500,
+      "ethAmount": 150,
+      "note": "First dip-buy level."
+    },
+    {
+      "id": "dip-btc-57000",
+      "btcPriceBelow": 57000,
+      "requireCashPct": 38,
+      "btcAmount": 800,
+      "ethAmount": 250,
+      "note": "Second dip-buy level."
+    },
+    {
+      "id": "dip-btc-55000",
+      "btcPriceBelow": 55000,
+      "requireCashPct": 35,
+      "btcAmount": 1000,
+      "ethAmount": 300,
+      "note": "Deep dip-buy level."
+    },
+    {
+      "id": "risk-btc-52000",
+      "btcPriceBelow": 52000,
+      "requireCashPct": 35,
+      "btcAmount": 0,
+      "ethAmount": 0,
+      "note": "Pause active dip-buying for 2-3 days and wait for stabilization."
+    },
+    {
+      "id": "risk-btc-48000",
+      "btcPriceBelow": 48000,
+      "requireCashPct": 35,
+      "btcAmount": 0,
+      "ethAmount": 0,
+      "note": "Extreme risk mode: only small fixed DCA is allowed."
+    }
+  ],
+  "trendFollowRules": [
+    {
+      "id": "trend-btc-65000",
+      "btcPriceAbove": 65000,
+      "symbol": "BTC",
+      "requireManualConfirmation": true,
+      "action": "If BTC has held above 65000 for 2 days, buy BTC 300 USDT."
+    },
+    {
+      "id": "trend-btc-70000",
+      "btcPriceAbove": 70000,
+      "symbol": "BTC/ETH",
+      "requireManualConfirmation": true,
+      "action": "If BTC holds above 70000 and ETH is also strong, buy BTC 300 USDT + ETH 100 USDT."
+    },
+    {
+      "id": "trend-crcl-under-target",
+      "btcPriceAbove": 65000,
+      "symbol": "CRCL",
+      "requireManualConfirmation": true,
+      "action": "If BTC trend is stable and CRCL is below 5% weight, buy CRCL 200 USDT."
+    },
+    {
+      "id": "trend-mstr-under-target",
+      "btcPriceAbove": 65000,
+      "symbol": "MSTR",
+      "requireManualConfirmation": true,
+      "action": "If BTC trend is stable and MSTR is below 4% weight, buy MSTR 100 USDT."
+    }
+  ],
+  "sellRules": {
+    "DOGE": [
+      { "id": "doge-0085", "priceAbove": 0.085, "sellPct": 30, "message": "DOGE take-profit level 1." },
+      { "id": "doge-0095", "priceAbove": 0.095, "sellPct": 50, "message": "DOGE strong take-profit level." }
+    ],
+    "MSTR": [
+      { "id": "mstr-weight-6", "weightAbovePct": 6, "sellPct": 20, "message": "MSTR is above the 6% cap." }
+    ]
+  }
+}
