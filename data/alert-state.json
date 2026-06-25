@@ -1,1 +1,19 @@
-{}
+{
+  "highWatermark": 15950.174296550587,
+  "weeklyReference": {
+    "week": "2026-26",
+    "btcPrice": 61605
+  },
+  "triggeredLevels": {
+    "core-fill-batch-1": {
+      "triggeredAt": "2026-06-25T06:42:57.512Z",
+      "btcAmount": 800,
+      "ethAmount": 300,
+      "btcAfterWeightPct": 8.872610069571795,
+      "ethAfterWeightPct": 2.5389070643170175
+    }
+  },
+  "lastAlerts": {
+    "core-fill-batch-1": "2026-06-25T06:42:57.512Z"
+  }
+}

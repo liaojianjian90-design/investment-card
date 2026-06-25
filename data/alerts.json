@@ -1,8 +1,18 @@
 {
-  "updatedAt": "2026-06-25T00:00:00.000Z",
+  "updatedAt": "2026-06-25T06:42:57.510Z",
   "email": {
-    "sent": false,
+    "sent": true,
     "missing": []
   },
-  "alerts": []
+  "alerts": [
+    {
+      "id": "core-fill-batch-1",
+      "symbol": "BTC/ETH",
+      "type": "core-fill",
+      "severity": "medium",
+      "message": "Core fill batch 1 triggered. Buy BTC 800 USDT and ETH 300 USDT.",
+      "action": "Execute once after manual confirmation. Required cash >= 40%. Max after-fill weights: BTC <= 18%, ETH <= 6%.",
+      "createdAt": "2026-06-25T06:42:57.512Z"
+    }
+  ]
 }
