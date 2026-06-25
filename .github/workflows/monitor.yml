@@ -10,8 +10,8 @@ on:
         default: false
   schedule:
     # GitHub Actions scheduled workflows can run at most once every 5 minutes.
-    # Use off-hour minutes to reduce delay risk around the top of each hour.
-    - cron: "4-59/5 * * * *"
+    # Use the most common 5-minute syntax first; if GitHub does not trigger it, use an external cron fallback.
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: write
