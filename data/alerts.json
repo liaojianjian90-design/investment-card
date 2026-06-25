@@ -1,8 +1,18 @@
 {
-  "updatedAt": "2026-06-25T13:45:15.952Z",
+  "updatedAt": "2026-06-25T13:50:16.602Z",
   "email": {
-    "sent": false,
+    "sent": true,
     "missing": []
   },
-  "alerts": []
+  "alerts": [
+    {
+      "id": "dip-btc-60000",
+      "symbol": "BTC/ETH",
+      "type": "dip-buy",
+      "severity": "medium",
+      "message": "BTC level hit: 59555.00 <= 60000.",
+      "action": "Plan: BTC 500 USDT, ETH 150 USDT. Reset only after BTC > 61200.",
+      "createdAt": "2026-06-25T13:50:16.603Z"
+    }
+  ]
 }
