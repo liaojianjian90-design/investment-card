@@ -2,6 +2,12 @@ name: Investment Monitor
 
 on:
   workflow_dispatch:
+    inputs:
+      test_email:
+        description: "Send a test email"
+        required: false
+        type: boolean
+        default: false
   schedule:
     - cron: "3,13,23,33,43,53 * * * *"
 
@@ -26,6 +32,7 @@ jobs:
       - name: Run monitor
         run: npm run monitor
         env:
+          TEST_EMAIL: ${{ github.event.inputs.test_email || 'false' }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
