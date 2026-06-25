@@ -118,6 +118,57 @@ QQ 邮箱常见配置：
 - `data/alerts.json`
 - `data/alert-state.json`
 
+## 如果 GitHub 定时任务不自动运行
+
+如果 `Actions -> Investment Monitor` 里一直只有 `workflow_dispatch`，没有 `schedule`，说明 GitHub 自带定时器没有接管。可以先上传本版本，因为本版本使用最标准的 5 分钟 cron：
+
+```yaml
+*/5 * * * *
+```
+
+上传后等待 10-20 分钟，不要手动运行。若仍然没有 `schedule`，使用免费外部定时器兜底。
+
+### 免费兜底：cron-job.org
+
+这个方案的作用是：每 5 分钟自动调用 GitHub API，相当于自动帮你点击 `Run workflow`。
+
+1. 在 GitHub 创建一个 Fine-grained token：
+   - GitHub 右上角头像 -> `Settings`
+   - `Developer settings`
+   - `Personal access tokens`
+   - `Fine-grained tokens`
+   - `Generate new token`
+2. Token 建议设置：
+   - Name: `investment-monitor-cron`
+   - Expiration: 建议 90 天或自定义
+   - Repository access: 只选择 `investment-card`
+   - Repository permissions: `Actions` 设为 `Read and write`
+   - 生成后复制 token，只显示一次
+3. 打开 `https://cron-job.org/` 注册免费账号。
+4. 创建 Cronjob：
+   - URL: `https://api.github.com/repos/liaojianjian90-design/investment-card/actions/workflows/monitor.yml/dispatches`
+   - Method: `POST`
+   - Schedule: every 5 minutes
+   - Timezone: Asia/Shanghai 或 UTC 均可
+5. Headers 添加：
+   - `Accept`: `application/vnd.github+json`
+   - `Authorization`: `Bearer 你的GitHubToken`
+   - `X-GitHub-Api-Version`: `2022-11-28`
+   - `Content-Type`: `application/json`
+6. Request body 填：
+
+```json
+{"ref":"main","inputs":{"test_email":"false"}}
+```
+
+7. 保存后点一次测试。成功时 GitHub Actions 会出现新的 `Investment Monitor` 运行，事件仍显示为 `workflow_dispatch`，但它是 cron-job.org 自动触发的。
+
+安全提醒：
+
+- 这个 token 只给 `investment-card` 仓库的 `Actions: Read and write` 权限。
+- 不要给它账户全局权限，不要给代码写入权限。
+- token 过期后，cron-job.org 会触发失败，需要重新生成并替换。
+
 ## 当前默认仓位
 
 默认配置来自 2026-06-25 截图：
