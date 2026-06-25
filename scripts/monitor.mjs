@@ -242,6 +242,278 @@ function canBuy(snapshot) {
   return snapshot.cashPct >= 35 && !snapshot.buyPaused;
 }
 
+function formatMoney(value) {
+  return `${Number(value || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT`;
+}
+
+function formatPct(value) {
+  return `${Number(value || 0).toFixed(1)}%`;
+}
+
+function formatPrice(value) {
+  if (value === null || value === undefined || value === "") return "-";
+  if (!Number.isFinite(Number(value))) return "-";
+  if (Math.abs(Number(value)) < 1) return Number(value).toFixed(5);
+  if (Math.abs(Number(value)) < 100) return Number(value).toFixed(2);
+  return Number(value).toLocaleString("en-US", { maximumFractionDigits: 2 });
+}
+
+function formatDateCn(iso) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  }).format(new Date(iso));
+}
+
+function uniqueSymbols(alerts) {
+  return [...new Set(alerts.flatMap((alert) => String(alert.symbol || "").split(/[+/]/)).filter(Boolean))];
+}
+
+function alertTypeLabel(type) {
+  return {
+    "data-risk": "数据异常",
+    "risk": "现金风控",
+    "drawdown-risk": "回撤风控",
+    "cap-risk": "组合上限",
+    "weight-risk": "仓位超限",
+    "fixed-dca": "固定定投",
+    "dip-buy": "下跌加仓",
+    "risk-pause": "暂停买入",
+    "trend-pause": "禁止追涨",
+    "trend-follow": "上涨追随",
+    "sell": "止盈/减仓",
+    "test-email": "邮件测试"
+  }[type] || "规则提醒";
+}
+
+function severityLabel(severity) {
+  return {
+    high: "高优先级",
+    medium: "中优先级",
+    low: "观察"
+  }[severity] || "普通";
+}
+
+function alertTitle(alert) {
+  if (alert.type === "test-email") return "邮件通道测试成功";
+  if (alert.type === "data-risk") return "行情数据异常，禁止按信号买入";
+  if (alert.type === "risk") return "现金底线触发，停止新增买入";
+  if (alert.type === "drawdown-risk") return "账户回撤风控触发";
+  if (alert.type === "cap-risk") return "组合相关性或总仓位超限";
+  if (alert.type === "weight-risk") return `${alert.symbol} 仓位超过目标上限`;
+  if (alert.type === "fixed-dca") return "固定定投提醒";
+  if (alert.type === "dip-buy") return `${alert.symbol} 下跌加仓价位触发`;
+  if (alert.type === "risk-pause") return "极端下跌区间，暂停主动买入";
+  if (alert.type === "trend-pause") return "上涨过快，暂不追涨";
+  if (alert.type === "trend-follow") return `${alert.symbol} 上涨追随待确认`;
+  if (alert.type === "sell") return `${alert.symbol} 止盈或减仓规则触发`;
+  return `${alert.symbol || "组合"} 规则提醒`;
+}
+
+function positionSummary(snapshot, symbol) {
+  const row = position(snapshot, symbol);
+  if (!row) return null;
+  const price = row.priceOk ? formatPrice(row.price) : "价格失败";
+  return `${symbol}: 现价 ${price} | 仓位 ${formatPct(row.weightPct)} | 盈亏 ${formatMoney(row.pnl)} (${formatPct(row.pnlPct)})`;
+}
+
+function extractFirstNumber(text, regex) {
+  const match = String(text || "").match(regex);
+  return match ? match[1] : null;
+}
+
+function chineseAlertDetail(alert, snapshot) {
+  const message = String(alert.message || "");
+  const action = String(alert.action || "");
+  const details = [];
+
+  if (alert.type === "test-email") {
+    return [
+      "触发规则：手动测试邮件。",
+      "建议动作：不用交易。收到这封邮件，说明 SMTP 邮件链路正常。",
+      "纪律提醒：正式提醒仍只在规则触发时发送。"
+    ];
+  }
+
+  if (alert.type === "data-risk") {
+    const symbols = message.replace("Price source failed for:", "").replace(".", "").trim() || "部分标的";
+    return [
+      `触发规则：${symbols} 行情价格获取失败。`,
+      "建议动作：今天不按系统买入提醒操作，等待下一次刷新。",
+      "纪律提醒：价格源异常时，宁可错过一次，也不要靠猜测下单。"
+    ];
+  }
+
+  if (alert.type === "risk") {
+    return [
+      `触发规则：现金比例低于底线。当前现金比例 ${formatPct(snapshot.cashPct)}。`,
+      "建议动作：停止所有新增买入，优先恢复现金仓。",
+      "纪律提醒：现金仓是二次进攻权，不能被情绪交易消耗掉。"
+    ];
+  }
+
+  if (alert.type === "drawdown-risk") {
+    return [
+      `触发规则：账户从高点回撤达到风控线。当前回撤 ${formatPct(snapshot.drawdownPct || 0)}。`,
+      `建议动作：${message}`,
+      "纪律提醒：回撤扩大时，先控制风险，再讨论抄底。"
+    ];
+  }
+
+  if (alert.type === "cap-risk") {
+    const weight = extractFirstNumber(message, /Current combined weight: ([\d.]+)%/);
+    return [
+      `触发规则：${alert.symbol} 组合仓位超过上限${weight ? `，当前约 ${weight}%` : ""}。`,
+      "建议动作：停止给这个组合继续加仓；如果继续上涨或波动放大，考虑分批降仓。",
+      "纪律提醒：MSTR、CRCL、BTC 不是完全独立分散，相关性会在极端行情里一起放大。"
+    ];
+  }
+
+  if (alert.type === "weight-risk") {
+    const weight = extractFirstNumber(message, /weight is ([\d.]+)%/);
+    return [
+      `触发规则：${alert.symbol} 单项仓位超过目标上限${weight ? `，当前约 ${weight}%` : ""}。`,
+      "建议动作：暂停加仓；只有明显超过硬上限时再考虑减仓。",
+      "纪律提醒：看好不等于无限加仓，仓位上限就是防情绪的边界。"
+    ];
+  }
+
+  if (alert.type === "fixed-dca") {
+    const btcAmount = extractFirstNumber(message, /BTC ([\d.]+) USDT/);
+    const ethAmount = extractFirstNumber(message, /ETH ([\d.]+) USDT/);
+    return [
+      "触发规则：固定定投日到达，且现金比例满足要求。",
+      `建议动作：买入 BTC ${btcAmount || "-"} USDT，买入 ETH ${ethAmount || "-"} USDT。`,
+      "纪律提醒：定投是纪律动作；但现金低于 40% 或回撤风控触发时，以风控优先。"
+    ];
+  }
+
+  if (alert.type === "dip-buy") {
+    const btcPrice = extractFirstNumber(message, /BTC level hit: ([\d.]+)/);
+    const btcLevel = extractFirstNumber(message, /<= ([\d.]+)/);
+    const ethPrice = extractFirstNumber(message, /ETH level hit: ([\d.]+)/);
+    const ethLevel = extractFirstNumber(message, /<= ([\d.]+)/);
+    const btcAmount = extractFirstNumber(action, /BTC ([\d.]+) USDT/);
+    const ethAmount = extractFirstNumber(action, /ETH ([\d.]+) USDT/);
+    const buyAmount = extractFirstNumber(action, /Buy ([\d.]+) USDT/);
+    const btcReset = extractFirstNumber(action, /BTC > ([\d.]+)/);
+    const ethReset = extractFirstNumber(action, /ETH > ([\d.]+)/);
+
+    if (alert.symbol === "BTC/ETH" || btcPrice) {
+      return [
+        `触发规则：BTC 现价 ${formatPrice(btcPrice)} <= ${formatPrice(btcLevel)}。`,
+        `建议动作：买入 BTC ${btcAmount || "-"} USDT，买入 ETH ${ethAmount || "-"} USDT。`,
+        `纪律提醒：该价位只触发一次，BTC 重新站上 ${formatPrice(btcReset)} 前不重复提醒。`
+      ];
+    }
+    return [
+      `触发规则：ETH 现价 ${formatPrice(ethPrice)} <= ${formatPrice(ethLevel)}。`,
+      `建议动作：买入 ETH ${buyAmount || "-"} USDT。`,
+      `纪律提醒：该价位只触发一次，ETH 重新站上 ${formatPrice(ethReset)} 前不重复提醒。`
+    ];
+  }
+
+  if (alert.type === "risk-pause") {
+    const btcPrice = extractFirstNumber(message, /BTC level hit: ([\d.]+)/);
+    const btcLevel = extractFirstNumber(message, /<= ([\d.]+)/);
+    const reset = extractFirstNumber(action, /BTC > ([\d.]+)/);
+    return [
+      `触发规则：BTC 进入极端下跌区间，现价 ${formatPrice(btcPrice)} <= ${formatPrice(btcLevel)}。`,
+      "建议动作：暂停主动买入 2-3 天，只观察结构是否企稳。",
+      `纪律提醒：BTC 重新站上 ${formatPrice(reset)} 前，不做新的下跌加仓。`
+    ];
+  }
+
+  if (alert.type === "trend-pause") {
+    const gain = extractFirstNumber(message, /weekly gain is ([\d.]+)%/);
+    return [
+      `触发规则：BTC 单周涨幅过快${gain ? `，当前约 ${gain}%` : ""}。`,
+      "建议动作：不追涨，等待回调或至少 2 日站稳确认。",
+      "纪律提醒：上涨追随不是看到大阳线就买，而是确认趋势后小额跟随。"
+    ];
+  }
+
+  if (alert.type === "trend-follow") {
+    const btcPrice = extractFirstNumber(message, /BTC price ([\d.]+)/);
+    const level = extractFirstNumber(message, />= ([\d.]+)/);
+    return [
+      `触发规则：BTC 现价 ${formatPrice(btcPrice)} >= ${formatPrice(level)}，进入上涨追随观察区。`,
+      `建议动作：${action.replace("Manual confirmation required: BTC should hold above the level for 2 days.", "必须人工确认 BTC 连续 2 日站稳后再执行。")}`,
+      "纪律提醒：若 BTC 单周涨幅超过 15%，宁可不追。"
+    ];
+  }
+
+  if (alert.type === "sell") {
+    const price = extractFirstNumber(message, /Price ([\d.]+)/);
+    const weight = extractFirstNumber(message, /weight ([\d.]+)%/);
+    const sellPct = extractFirstNumber(action, /Suggested sell ratio: ([\d.]+)%/);
+    return [
+      `触发规则：${alert.symbol} 达到止盈或仓位上限。现价 ${formatPrice(price)}，仓位约 ${weight || "-"}%。`,
+      `建议动作：卖出或减仓约 ${sellPct || "-"}%。`,
+      "纪律提醒：止盈不是看空，是把过热仓位换回现金，保留下一次进攻权。"
+    ];
+  }
+
+  return [
+    `触发规则：${message}`,
+    `建议动作：${action || "打开监控卡复核。"}`,
+    "纪律提醒：执行前再次确认平台实时价格、仓位和现金比例。"
+  ];
+}
+
+function buildEmailContent(alerts, snapshot) {
+  const symbols = uniqueSymbols(alerts);
+  const hasHigh = alerts.some((alert) => alert.severity === "high");
+  const subjectPrefix = hasHigh ? "【投资风控提醒】" : "【投资监控提醒】";
+  const subjectSymbols = symbols.slice(0, 4).join("、") || "组合";
+  const subject = `${subjectPrefix}${subjectSymbols}｜${alerts.length}条信号`;
+
+  const header = [
+    subjectPrefix.replace(/[【】]/g, ""),
+    "",
+    `触发数量：${alerts.length} 条`,
+    `检查时间：${formatDateCn(snapshot.updatedAt)}（北京时间）`,
+    `总资产：${formatMoney(snapshot.totalValue)}`,
+    `现金比例：${formatPct(snapshot.cashPct)}`,
+    `账户回撤：${formatPct(snapshot.drawdownPct || 0)}`,
+    Number.isFinite(Number(snapshot.btcWeeklyGainPct)) ? `BTC周涨幅：${formatPct(snapshot.btcWeeklyGainPct)}` : null
+  ].filter(Boolean);
+
+  const alertBlocks = alerts.map((alert, index) => {
+    const details = chineseAlertDetail(alert, snapshot);
+    const relatedSymbols = String(alert.symbol || "").split(/[+/]/).filter(Boolean);
+    const positionLines = relatedSymbols
+      .map((symbol) => positionSummary(snapshot, symbol))
+      .filter(Boolean);
+
+    return [
+      `—— 信号 ${index + 1}/${alerts.length}：${alertTitle(alert)} ——`,
+      `类型：${alertTypeLabel(alert.type)}｜级别：${severityLabel(alert.severity)}`,
+      ...details,
+      positionLines.length ? `持仓状态：${positionLines.join("；")}` : null
+    ].filter(Boolean).join("\n");
+  });
+
+  const footer = [
+    "—— 执行前检查 ——",
+    "1. 这不是自动下单，只是纪律提醒。",
+    "2. 下单前确认平台实时价格、可用现金和交易后仓位。",
+    "3. 若现金低于 35%，任何买入提醒都不执行。",
+    "4. 情绪上头时，先等下一次 10 分钟刷新。"
+  ];
+
+  return {
+    subject,
+    text: [...header, "", ...alertBlocks, "", ...footer].join("\n")
+  };
+}
+
 function evaluateRules(snapshot, rules, alertState) {
   const alerts = [];
   const btc = position(snapshot, "BTC");
@@ -416,7 +688,17 @@ function evaluateRules(snapshot, rules, alertState) {
 async function sendEmail(alerts, snapshot) {
   const required = ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS", "ALERT_EMAIL_TO"];
   const missing = required.filter((key) => !process.env[key]);
-  if (!alerts.length || missing.length || isDryRun) return { sent: false, missing };
+  if (!alerts.length) return { sent: false, missing };
+
+  const emailContent = buildEmailContent(alerts, snapshot);
+  if (process.env.PRINT_EMAIL_PREVIEW === "true") {
+    console.log("\n--- EMAIL PREVIEW START ---");
+    console.log(`Subject: ${emailContent.subject}`);
+    console.log(emailContent.text);
+    console.log("--- EMAIL PREVIEW END ---\n");
+  }
+
+  if (missing.length || isDryRun) return { sent: false, missing };
 
   const nodemailer = await import("nodemailer");
   const transporter = nodemailer.default.createTransport({
@@ -426,21 +708,11 @@ async function sendEmail(alerts, snapshot) {
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
   });
 
-  const subject = `Investment alert: ${alerts.map((a) => a.symbol).join(", ")}`;
-  const text = [
-    `Checked at: ${snapshot.updatedAt}`,
-    `Total value: ${snapshot.totalValue.toFixed(2)} USDT`,
-    `Cash ratio: ${snapshot.cashPct.toFixed(1)}%`,
-    `Drawdown: ${(snapshot.drawdownPct || 0).toFixed(1)}%`,
-    "",
-    ...alerts.map((a) => `[${a.type}] ${a.symbol}\n${a.message}\n${a.action}`)
-  ].join("\n\n");
-
   await transporter.sendMail({
     from: process.env.ALERT_EMAIL_FROM || process.env.SMTP_USER,
     to: process.env.ALERT_EMAIL_TO,
-    subject,
-    text
+    subject: emailContent.subject,
+    text: emailContent.text
   });
   return { sent: true, missing: [] };
 }
@@ -461,8 +733,8 @@ async function main() {
       symbol: "TEST",
       type: "test-email",
       severity: "low",
-      message: "Manual test email triggered from GitHub Actions.",
-      action: "If you received this email, SMTP settings are working."
+      message: "手动测试邮件已触发。",
+      action: "如果你收到这封邮件，说明 SMTP 邮件链路正常。"
     });
   }
   const email = await sendEmail(alerts, snapshot);
