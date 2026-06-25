@@ -1,8 +1,18 @@
 {
-  "updatedAt": "2026-06-25T00:00:00.000Z",
+  "updatedAt": "2026-06-25T03:54:58.130Z",
   "email": {
-    "sent": false,
+    "sent": true,
     "missing": []
   },
-  "alerts": []
+  "alerts": [
+    {
+      "id": "manual-test-email-1782359698131",
+      "symbol": "TEST",
+      "type": "test-email",
+      "severity": "low",
+      "message": "手动测试邮件已触发。",
+      "action": "如果你收到这封邮件，说明 SMTP 邮件链路正常。",
+      "createdAt": "2026-06-25T03:54:58.131Z"
+    }
+  ]
 }
