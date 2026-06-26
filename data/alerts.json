@@ -1,8 +1,18 @@
 {
-  "updatedAt": "2026-06-26T16:50:11.878Z",
+  "updatedAt": "2026-06-26T16:55:12.101Z",
   "email": {
-    "sent": false,
+    "sent": true,
     "missing": []
   },
-  "alerts": []
+  "alerts": [
+    {
+      "id": "watch-wdc-600",
+      "symbol": "WDC",
+      "type": "watch-buy",
+      "severity": "medium",
+      "message": "WDC watch-buy level hit: 597.22 <= 600.",
+      "action": "Plan: buy WDC 100 USDT. WDC first storage watch level. Reset only after WDC > 640.",
+      "createdAt": "2026-06-26T16:55:12.298Z"
+    }
+  ]
 }

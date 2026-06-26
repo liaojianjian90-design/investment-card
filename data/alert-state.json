@@ -4,5 +4,14 @@
     "week": "2026-26",
     "btcPrice": 60112
   },
-  "triggeredLevels": {}
+  "triggeredLevels": {
+    "watch-wdc-600": {
+      "triggeredAt": "2026-06-26T16:55:12.298Z",
+      "triggerPrice": 597.22,
+      "resetAbove": 640
+    }
+  },
+  "lastAlerts": {
+    "watch-wdc-600": "2026-06-26T16:55:12.298Z"
+  }
 }
