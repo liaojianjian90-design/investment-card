@@ -63,6 +63,22 @@ async function quote(symbol) {
 
   const coingeckoIds = { BTC: "bitcoin", ETH: "ethereum", DOGE: "dogecoin" };
   const yahooCrypto = { BTC: "BTC-USD", ETH: "ETH-USD", DOGE: "DOGE-USD" };
+  const bitgetTokenized = {
+    XAUT: "XAUTUSDT",
+    VOO: "RVOOUSDT",
+    AVGO: "RAVGOUSDT",
+    FN: "RFNUSDT",
+    MU: "RMUUSDT",
+    SNDK: "RSNDKUSDT",
+    DRAM: "RDRAMUSDT",
+    WDC: "RWDCUSDT",
+    ASX: "RASXUSDT",
+    AAOI: "RAAOIUSDT",
+    CRCL: "RCRCLUSDT",
+    MSTR: "RMSTRUSDT",
+    ITOT: "RITOTUSDT",
+    SPY: "RSPYUSDT"
+  };
 
   if (coingeckoIds[symbol]) {
     return tryQuote(symbol, [
@@ -77,6 +93,15 @@ async function quote(symbol) {
       async () => {
         const data = await fetchJson(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
         return Number(data.price);
+      }
+    ]);
+  }
+
+  if (bitgetTokenized[symbol]) {
+    return tryQuote(symbol, [
+      async () => {
+        const data = await fetchJson(`https://api.bitget.com/api/v2/spot/market/tickers?symbol=${bitgetTokenized[symbol]}`);
+        return Number(data.data?.[0]?.lastPr);
       }
     ]);
   }
@@ -120,6 +145,37 @@ async function loadPrices(symbols) {
     else prices[symbol] = price;
   }
   return { prices, errors };
+}
+
+function mockNumber(...keys) {
+  if (!mockPrices) return null;
+  for (const key of keys) {
+    const value = Number(mockPrices[key]);
+    if (Number.isFinite(value)) return value;
+  }
+  return null;
+}
+
+async function loadBtcFiveMinuteChangePct() {
+  const mocked = mockNumber("BTC_5M_CHANGE_PCT", "BTC_5MIN_CHANGE_PCT", "BTC_CHANGE_5M_PCT");
+  if (mocked !== null) return mocked;
+
+  try {
+    const data = await fetchJson("https://api.bitget.com/api/v2/spot/market/candles?symbol=BTCUSDT&granularity=5min&limit=3");
+    const candles = (data.data || [])
+      .map((item) => ({
+        time: Number(item[0]),
+        open: Number(item[1]),
+        close: Number(item[4])
+      }))
+      .filter((item) => Number.isFinite(item.time) && Number.isFinite(item.open) && item.open > 0 && Number.isFinite(item.close))
+      .sort((a, b) => a.time - b.time);
+    const latest = candles.at(-1);
+    if (!latest) return null;
+    return (latest.close - latest.open) / latest.open * 100;
+  } catch {
+    return null;
+  }
 }
 
 function buildSnapshot(holdings, prices, priceErrors) {
@@ -242,10 +298,23 @@ function resetDipLevels(alertState, rules, btcPrice, ethPrice) {
       delete alertState.triggeredLevels[rule.id];
     }
   }
+  const rapid = rules.rapidDropRules || {};
+  if (Number.isFinite(btcPrice) && Number.isFinite(Number(rapid.resetAbove)) && btcPrice >= Number(rapid.resetAbove)) {
+    if (rapid.buyRuleId) delete alertState.triggeredLevels[rapid.buyRuleId];
+  }
   for (const rule of rules.ethDipRules || []) {
     if (Number.isFinite(ethPrice) && Number.isFinite(Number(rule.resetAbove)) && ethPrice >= Number(rule.resetAbove)) {
       delete alertState.triggeredLevels[rule.id];
     }
+  }
+}
+
+function resetWatchLevels(alertState, rules, snapshot) {
+  alertState.triggeredLevels ||= {};
+  for (const rule of rules.watchBuyRules || []) {
+    const row = position(snapshot, rule.symbol);
+    if (!row || !Number.isFinite(row.price) || !Number.isFinite(Number(rule.resetAbove))) continue;
+    if (row.price >= Number(rule.resetAbove)) delete alertState.triggeredLevels[rule.id];
   }
 }
 
@@ -548,6 +617,12 @@ function evaluateRules(snapshot, rules, alertState) {
   const anyCorePriceError = !Number.isFinite(btc?.price) || !Number.isFinite(eth?.price);
   updateRiskState(snapshot, rules, alertState);
   resetDipLevels(alertState, rules, btc?.price, eth?.price);
+  resetWatchLevels(alertState, rules, snapshot);
+  const rapidDropRules = rules.rapidDropRules || {};
+  const btcFiveMinuteChangePct = Number(snapshot.btcFiveMinuteChangePct);
+  const btcFiveMinuteDropPct = Number.isFinite(btcFiveMinuteChangePct) ? Math.max(0, -btcFiveMinuteChangePct) : 0;
+  const rapidDropObserve = btcFiveMinuteDropPct >= Number(rapidDropRules.observeDropPct || Infinity);
+  const rapidDropBuy = btcFiveMinuteDropPct >= Number(rapidDropRules.buyDropPct || Infinity);
 
   if (Object.keys(snapshot.priceErrors || {}).length) {
     addAlert(alerts, alertState, rules, {
@@ -615,6 +690,7 @@ function evaluateRules(snapshot, rules, alertState) {
 
   if (canBuy(snapshot) && !anyCorePriceError) {
     for (const rule of rules.coreFillRules || []) {
+      if (rapidDropObserve) continue;
       if (!rule.enabled || dipAlreadyTriggered(alertState, rule.id)) continue;
       const btcAmount = Number(rule.btcAmount || 0);
       const ethAmount = Number(rule.ethAmount || 0);
@@ -647,7 +723,7 @@ function evaluateRules(snapshot, rules, alertState) {
 
     const now = new Date();
     const dca = rules.fixedDca;
-    if (dca?.enabled && now.getUTCDay() === Number(dca.weekdayUtc) && snapshot.cashPct >= Number(dca.requireCashPct)) {
+    if (!rapidDropObserve && dca?.enabled && now.getUTCDay() === Number(dca.weekdayUtc) && snapshot.cashPct >= Number(dca.requireCashPct)) {
       const halfSize = snapshot.drawdownPct >= Number(dca.halfSizeDrawdownPct || 999);
       const btcAmount = halfSize ? Number(dca.btcAmount) / 2 : Number(dca.btcAmount);
       const ethAmount = halfSize ? Number(dca.ethAmount) / 2 : Number(dca.ethAmount);
@@ -661,10 +737,59 @@ function evaluateRules(snapshot, rules, alertState) {
       });
     }
 
-    for (const rule of rules.dipBuyRules || []) {
-      if (!Number.isFinite(btc?.price)) continue;
-      if (btc.price <= Number(rule.btcPriceBelow) && snapshot.cashPct >= Number(rule.requireCashPct) && !dipAlreadyTriggered(alertState, rule.id)) {
+    if (Number.isFinite(btc?.price) && rapidDropObserve) {
+      const observeRuleId = rapidDropRules.observeRuleId || "rapid-btc-drop-observe";
+      const buyRuleId = rapidDropRules.buyRuleId || "rapid-btc-drop-buy";
+      const canRapidBuy =
+        rapidDropBuy &&
+        btc.price <= Number(rapidDropRules.buyMaxBtcPrice || Infinity) &&
+        btc.price > Number(rapidDropRules.riskFloor || 0) &&
+        snapshot.cashPct >= Number(rapidDropRules.requireCashPct || 45) &&
+        !dipAlreadyTriggered(alertState, buyRuleId);
+
+      if (canRapidBuy) {
+        const rule = { id: buyRuleId, resetAbove: rapidDropRules.resetAbove };
         markDipTriggered(alertState, rule, btc.price);
+        addAlert(alerts, alertState, rules, {
+          id: buyRuleId,
+          symbol: "BTC/ETH",
+          type: "rapid-drop-buy",
+          severity: "medium",
+          message: `BTC 5-minute rapid drop hit: ${btcFiveMinuteDropPct.toFixed(2)}% >= ${rapidDropRules.buyDropPct}%. BTC price ${btc.price.toFixed(2)}.`,
+          action: `Plan: BTC ${rapidDropRules.btcAmount} USDT, ETH ${rapidDropRules.ethAmount} USDT. This is a small test buy only. Reset after BTC > ${rapidDropRules.resetAbove}.`
+        });
+      } else {
+        addAlert(alerts, alertState, rules, {
+          id: observeRuleId,
+          symbol: "BTC",
+          type: "rapid-drop-observe",
+          severity: "high",
+          message: `BTC 5-minute rapid drop hit: ${btcFiveMinuteDropPct.toFixed(2)}% >= ${rapidDropRules.observeDropPct}%.`,
+          action: `Do not trigger normal dip-buy levels during rapid-drop mode. Observe for ${rapidDropRules.observeHours || "4-24"} hours unless rapid-drop buy conditions are met.`
+        });
+      }
+    }
+
+    let btcDipOrRiskTriggered = false;
+    if (Number.isFinite(btc?.price)) {
+      const riskFloor = Number(rapidDropRules.riskFloor || 52000);
+      const btcRiskMode = btc.price <= riskFloor;
+      const dipCandidates = (rules.dipBuyRules || [])
+        .filter((rule) => btc.price <= Number(rule.btcPriceBelow))
+        .filter((rule) => snapshot.cashPct >= Number(rule.requireCashPct))
+        .filter((rule) => !dipAlreadyTriggered(alertState, rule.id))
+        .filter((rule) => {
+          const isRiskPause = Number(rule.btcAmount || 0) <= 0;
+          if (btcRiskMode) return isRiskPause;
+          if (rapidDropObserve) return isRiskPause;
+          return true;
+        })
+        .sort((a, b) => Number(a.btcPriceBelow) - Number(b.btcPriceBelow));
+
+      const rule = dipCandidates[0];
+      if (rule) {
+        markDipTriggered(alertState, rule, btc.price);
+        btcDipOrRiskTriggered = true;
         addAlert(alerts, alertState, rules, {
           id: rule.id,
           symbol: "BTC/ETH",
@@ -679,6 +804,7 @@ function evaluateRules(snapshot, rules, alertState) {
     }
 
     for (const rule of rules.ethDipRules || []) {
+      if (rapidDropObserve || btcDipOrRiskTriggered) continue;
       if (!Number.isFinite(eth?.price)) continue;
       if (eth.price <= Number(rule.priceBelow) && !dipAlreadyTriggered(alertState, rule.id)) {
         markDipTriggered(alertState, rule, eth.price);
@@ -693,7 +819,45 @@ function evaluateRules(snapshot, rules, alertState) {
       }
     }
 
+    const activeBuyTriggeredThisRun = rapidDropObserve || btcDipOrRiskTriggered || alerts.some((alert) => (
+      ["core-fill", "fixed-dca", "dip-buy", "rapid-drop-buy", "risk-pause"].includes(alert.type)
+    ));
+
+    const triggeredWatchSymbols = new Set();
+    const watchRules = [...(rules.watchBuyRules || [])].sort((a, b) => Number(a.priceBelow) - Number(b.priceBelow));
+    for (const rule of watchRules) {
+      if (activeBuyTriggeredThisRun) continue;
+      if (triggeredWatchSymbols.has(rule.symbol)) continue;
+      const row = position(snapshot, rule.symbol);
+      if (!row || !Number.isFinite(row.price)) continue;
+      if (row.price > Number(rule.priceBelow)) continue;
+      if (snapshot.cashPct < Number(rule.requireCashPct || 40)) continue;
+      if (dipAlreadyTriggered(alertState, rule.id)) continue;
+
+      const amount = Number(rule.amount || 0);
+      const projectedSymbolWeight = projectedWeightPct(snapshot, rule.symbol, amount);
+      if (Number.isFinite(Number(rule.maxSymbolWeightPctAfter)) && projectedSymbolWeight > Number(rule.maxSymbolWeightPctAfter)) continue;
+
+      const groupCap = (rules.portfolioCaps || []).find((cap) => (cap.symbols || []).includes(rule.symbol));
+      const projectedGroupWeight = groupCap
+        ? combinedWeight(snapshot, groupCap.symbols) + (snapshot.totalValue > 0 ? amount / snapshot.totalValue * 100 : 0)
+        : 0;
+      if (groupCap && projectedGroupWeight > Number(groupCap.maxPct)) continue;
+
+      markDipTriggered(alertState, rule, row.price);
+      addAlert(alerts, alertState, rules, {
+        id: rule.id,
+        symbol: rule.symbol,
+        type: "watch-buy",
+        severity: "medium",
+        message: `${rule.symbol} watch-buy level hit: ${row.price.toFixed(2)} <= ${rule.priceBelow}.`,
+        action: `Plan: buy ${rule.symbol} ${amount} USDT. ${rule.message || ""} Reset only after ${rule.symbol} > ${rule.resetAbove}.`
+      });
+      triggeredWatchSymbols.add(rule.symbol);
+    }
+
     for (const rule of rules.trendFollowRules || []) {
+      if (rapidDropObserve) continue;
       if (!Number.isFinite(btc?.price) || btc.price < Number(rule.btcPriceAbove)) continue;
       if (snapshot.btcWeeklyGainPct > Number(rule.maxWeeklyGainPct || 999)) {
         addAlert(alerts, alertState, rules, {
@@ -784,6 +948,7 @@ async function main() {
   const symbols = [...new Set(allAssets(holdings).map((asset) => asset.symbol))];
   const { prices, errors } = await loadPrices(symbols);
   const snapshot = buildSnapshot(holdings, prices, errors);
+  snapshot.btcFiveMinuteChangePct = await loadBtcFiveMinuteChangePct();
   const alerts = evaluateRules(snapshot, rules, alertState);
   if (process.env.TEST_EMAIL === "true") {
     addAlert(alerts, alertState, rules, {
@@ -805,6 +970,7 @@ async function main() {
     totalValue: snapshot.totalValue,
     cashPct: snapshot.cashPct,
     drawdownPct: snapshot.drawdownPct,
+    btcFiveMinuteChangePct: snapshot.btcFiveMinuteChangePct,
     alerts: alerts.length,
     email,
     priceErrors: errors

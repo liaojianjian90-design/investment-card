@@ -7,13 +7,18 @@
     "CRCL": { "minPct": 5, "maxPct": 8 },
     "MSTR": { "minPct": 4, "maxPct": 5, "trimPct": 6 },
     "DOGE": { "minPct": 0, "maxPct": 3 },
-    "BGB": { "minPct": 0, "maxPct": 1 }
+    "BGB": { "minPct": 0, "maxPct": 1 },
+    "DRAM": { "minPct": 0, "maxPct": 5 },
+    "MU": { "minPct": 0, "maxPct": 3 },
+    "SNDK": { "minPct": 0, "maxPct": 2 },
+    "WDC": { "minPct": 0, "maxPct": 2 }
   },
   "portfolioCaps": [
     { "id": "cap-btc-mstr-35", "symbols": ["BTC", "MSTR"], "maxPct": 35, "message": "BTC + MSTR combined exposure is above 35%." },
     { "id": "cap-crcl-mstr-12", "symbols": ["CRCL", "MSTR"], "maxPct": 12, "message": "CRCL + MSTR combined exposure is above 12%." },
     { "id": "cap-doge-bgb-4", "symbols": ["DOGE", "BGB"], "maxPct": 4, "message": "DOGE + BGB speculation basket is above 4%." },
-    { "id": "cap-crypto-related-65", "symbols": ["BTC", "ETH", "DOGE", "BGB", "CRCL", "MSTR"], "maxPct": 65, "message": "Crypto-related total exposure is above 65%." }
+    { "id": "cap-crypto-related-65", "symbols": ["BTC", "ETH", "DOGE", "BGB", "CRCL", "MSTR"], "maxPct": 65, "message": "Crypto-related total exposure is above 65%." },
+    { "id": "cap-storage-cycle-12", "symbols": ["DRAM", "MU", "SNDK", "WDC"], "maxPct": 12, "message": "Storage/HBM cycle basket is above 12%." }
   ],
   "drawdownRules": [
     { "id": "dd-10", "drawdownPct": 10, "message": "Drawdown >= 10%: stop adding DOGE, MSTR and CRCL." },
@@ -30,10 +35,25 @@
     "halfSizeDrawdownPct": 15,
     "message": "Weekly DCA: BTC 210 USDT + ETH 90 USDT"
   },
+  "rapidDropRules": {
+    "window": "5m",
+    "observeDropPct": 1.5,
+    "buyDropPct": 2.5,
+    "buyMaxBtcPrice": 59000,
+    "riskFloor": 52000,
+    "requireCashPct": 45,
+    "btcAmount": 200,
+    "ethAmount": 60,
+    "resetAbove": 61200,
+    "observeHours": "4-24",
+    "observeRuleId": "rapid-btc-drop-observe",
+    "buyRuleId": "rapid-btc-drop-buy",
+    "message": "BTC 5-minute drop >= 1.5% sends observation alert; BTC 5-minute drop >= 2.5% plus price <= 59000 may trigger a small test buy."
+  },
   "coreFillRules": [
     {
       "id": "core-fill-batch-1",
-      "enabled": true,
+      "enabled": false,
       "symbol": "BTC/ETH",
       "batch": 1,
       "btcAmount": 800,
@@ -41,35 +61,44 @@
       "requireCashPct": 40,
       "maxBtcWeightPctAfter": 18,
       "maxEthWeightPctAfter": 6,
-      "note": "Early core position fill batch 1. Trigger once and execute only after manual confirmation."
+      "note": "Disabled after the user manually added BTC and ETH. Keep for history only."
     }
   ],
   "dipBuyRules": [
     {
-      "id": "dip-btc-60000",
-      "btcPriceBelow": 60000,
-      "resetAbove": 61200,
+      "id": "dip-btc-58000",
+      "btcPriceBelow": 58000,
+      "resetAbove": 59200,
       "requireCashPct": 40,
-      "btcAmount": 500,
-      "ethAmount": 150,
-      "note": "First dip-buy level. Trigger once until BTC resets above 61200."
+      "btcAmount": 250,
+      "ethAmount": 80,
+      "note": "Light dip-buy level. Trigger once until BTC resets above 59200."
     },
     {
       "id": "dip-btc-57000",
       "btcPriceBelow": 57000,
-      "resetAbove": 58500,
-      "requireCashPct": 38,
-      "btcAmount": 800,
-      "ethAmount": 250,
-      "note": "Second dip-buy level. Trigger once until BTC resets above 58500."
+      "resetAbove": 58200,
+      "requireCashPct": 40,
+      "btcAmount": 350,
+      "ethAmount": 100,
+      "note": "Second dip-buy level. Trigger once until BTC resets above 58200."
+    },
+    {
+      "id": "dip-btc-56000",
+      "btcPriceBelow": 56000,
+      "resetAbove": 57200,
+      "requireCashPct": 40,
+      "btcAmount": 450,
+      "ethAmount": 120,
+      "note": "Third dip-buy level. Trigger once until BTC resets above 57200."
     },
     {
       "id": "dip-btc-55000",
       "btcPriceBelow": 55000,
       "resetAbove": 56500,
-      "requireCashPct": 35,
-      "btcAmount": 1000,
-      "ethAmount": 300,
+      "requireCashPct": 40,
+      "btcAmount": 600,
+      "ethAmount": 180,
       "note": "Deep dip-buy level. Trigger once until BTC resets above 56500."
     },
     {
@@ -80,20 +109,21 @@
       "btcAmount": 0,
       "ethAmount": 0,
       "note": "Pause active buying for 2-3 days and wait for stabilization."
-    },
-    {
-      "id": "risk-btc-48000",
-      "btcPriceBelow": 48000,
-      "resetAbove": 52000,
-      "requireCashPct": 35,
-      "btcAmount": 0,
-      "ethAmount": 0,
-      "note": "Extreme risk mode: only small fixed DCA after manual confirmation."
     }
   ],
   "ethDipRules": [
     { "id": "eth-1500", "priceBelow": 1500, "resetAbove": 1600, "amount": 300, "message": "ETH price is below 1500. Buy 300 USDT only once until reset." },
     { "id": "eth-1350", "priceBelow": 1350, "resetAbove": 1450, "amount": 500, "message": "ETH price is below 1350. Buy 500 USDT only once until reset." }
+  ],
+  "watchBuyRules": [
+    { "id": "watch-dram-68", "symbol": "DRAM", "priceBelow": 68, "resetAbove": 72, "amount": 200, "requireCashPct": 40, "maxSymbolWeightPctAfter": 5, "group": "storage", "message": "DRAM first storage/HBM watch level." },
+    { "id": "watch-dram-63", "symbol": "DRAM", "priceBelow": 63, "resetAbove": 68, "amount": 300, "requireCashPct": 40, "maxSymbolWeightPctAfter": 5, "group": "storage", "message": "DRAM second storage/HBM watch level." },
+    { "id": "watch-mu-1100", "symbol": "MU", "priceBelow": 1100, "resetAbove": 1160, "amount": 150, "requireCashPct": 40, "maxSymbolWeightPctAfter": 3, "group": "storage", "message": "MU first storage/HBM watch level." },
+    { "id": "watch-mu-1030", "symbol": "MU", "priceBelow": 1030, "resetAbove": 1100, "amount": 250, "requireCashPct": 40, "maxSymbolWeightPctAfter": 3, "group": "storage", "message": "MU second storage/HBM watch level." },
+    { "id": "watch-sndk-2050", "symbol": "SNDK", "priceBelow": 2050, "resetAbove": 2160, "amount": 100, "requireCashPct": 40, "maxSymbolWeightPctAfter": 2, "group": "storage", "message": "SNDK first storage/NAND watch level." },
+    { "id": "watch-sndk-1900", "symbol": "SNDK", "priceBelow": 1900, "resetAbove": 2050, "amount": 150, "requireCashPct": 40, "maxSymbolWeightPctAfter": 2, "group": "storage", "message": "SNDK second storage/NAND watch level." },
+    { "id": "watch-wdc-600", "symbol": "WDC", "priceBelow": 600, "resetAbove": 640, "amount": 100, "requireCashPct": 40, "maxSymbolWeightPctAfter": 2, "group": "storage", "message": "WDC first storage watch level." },
+    { "id": "watch-wdc-550", "symbol": "WDC", "priceBelow": 550, "resetAbove": 600, "amount": 150, "requireCashPct": 40, "maxSymbolWeightPctAfter": 2, "group": "storage", "message": "WDC second storage watch level." }
   ],
   "trendFollowRules": [
     {

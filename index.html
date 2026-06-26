@@ -543,14 +543,14 @@
               <tr><th>BTC 价位</th><th>提醒方案</th><th>重置条件</th></tr>
             </thead>
             <tbody>
-              <tr><td>≤ 60000</td><td>BTC 500 + ETH 150</td><td>重新站上 61200</td></tr>
-              <tr><td>≤ 57000</td><td>BTC 800 + ETH 250</td><td>重新站上 58500</td></tr>
-              <tr><td>≤ 55000</td><td>BTC 1000 + ETH 300</td><td>重新站上 56500</td></tr>
+              <tr><td>≤ 58000</td><td>BTC 250 + ETH 80</td><td>重新站上 59200</td></tr>
+              <tr><td>≤ 57000</td><td>BTC 350 + ETH 100</td><td>重新站上 58200</td></tr>
+              <tr><td>≤ 56000</td><td>BTC 450 + ETH 120</td><td>重新站上 57200</td></tr>
+              <tr><td>≤ 55000</td><td>BTC 600 + ETH 180</td><td>重新站上 56500</td></tr>
               <tr><td>≤ 52000</td><td>暂停主动买入，观察 2-3 天</td><td>重新站上 54000</td></tr>
-              <tr><td>≤ 48000</td><td>极端风险，只保留小额定投</td><td>重新站上 52000</td></tr>
             </tbody>
           </table>
-          <p class="muted">每个下跌价位只触发一次，不会因为横盘低位每天重复提醒。</p>
+          <p class="muted">每个下跌价位只触发一次，不会因为横盘低位每天重复提醒。若 BTC 5 分钟急跌 ≥ 1.5%，普通下跌买点暂停；若 5 分钟急跌 ≥ 2.5%、BTC ≤ 59000、BTC > 52000 且现金 ≥ 45%，只提醒小额试探买入 BTC 200 + ETH 60。</p>
         </div>
 
         <div class="rule-box">
@@ -632,8 +632,16 @@
         { symbol: "ETH", quantity: 0.0636747, cost: 1570.91, type: "crypto" },
         { symbol: "DOGE", quantity: 4662.3598142, cost: 0.07506, type: "crypto" },
         { symbol: "BGB", quantity: 26.60353409, cost: 1.9692, type: "crypto" },
-        { symbol: "CRCL", quantity: 7.38398262, cost: 74.41, type: "stock" },
-        { symbol: "MSTR", quantity: 4.37657119, cost: 102.72, type: "stock" }
+        { symbol: "VOO", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "XAUT", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "AVGO", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "FN", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "MU", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "SNDK", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "DRAM", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "WDC", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "ASX", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "AAOI", quantity: 0, cost: 0, type: "watch" }
       ]
     };
 
@@ -658,7 +666,8 @@
     const typeLabels = {
       cash: "现金",
       crypto: "加密",
-      stock: "股票/代币化证券"
+      stock: "股票/代币化证券",
+      watch: "观察池"
     };
 
     const names = {
@@ -668,6 +677,16 @@
       ETH: "Ethereum",
       DOGE: "Dogecoin",
       BGB: "Bitget Token",
+      VOO: "Vanguard S&P 500 ETF",
+      XAUT: "Tether Gold",
+      AVGO: "Broadcom",
+      FN: "Fabrinet",
+      MU: "Micron",
+      SNDK: "SanDisk",
+      DRAM: "Roundhill Memory ETF",
+      WDC: "Western Digital",
+      ASX: "ASE Technology",
+      AAOI: "Applied Optoelectronics",
       CRCL: "Circle",
       MSTR: "MicroStrategy"
     };
@@ -699,6 +718,26 @@
 
     async function quote(symbol) {
       if (symbol === "USDT" || symbol === "USDGO") return 1;
+      const bitgetTokenized = {
+        XAUT: "XAUTUSDT",
+        VOO: "RVOOUSDT",
+        AVGO: "RAVGOUSDT",
+        FN: "RFNUSDT",
+        MU: "RMUUSDT",
+        SNDK: "RSNDKUSDT",
+        DRAM: "RDRAMUSDT",
+        WDC: "RWDCUSDT",
+        ASX: "RASXUSDT",
+        AAOI: "RAAOIUSDT",
+        CRCL: "RCRCLUSDT",
+        MSTR: "RMSTRUSDT",
+        ITOT: "RITOTUSDT",
+        SPY: "RSPYUSDT"
+      };
+      if (bitgetTokenized[symbol]) {
+        const data = await fetchJson(`https://api.bitget.com/api/v2/spot/market/tickers?symbol=${bitgetTokenized[symbol]}`);
+        return Number(data.data?.[0]?.lastPr);
+      }
       const coingecko = { BTC: "bitcoin", ETH: "ethereum", DOGE: "dogecoin" };
       if (coingecko[symbol]) {
         try {
