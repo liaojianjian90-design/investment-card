@@ -1,36 +1,55 @@
 # 投资监控卡 GitHub Pages 发布文件
 
-这是一个不需要 Bitget API Key 的投资纪律监控页面。
+这是一个不需要 Bitget API Key 的投资纪律监控页。它不会自动下单，只会根据公开行情、默认持仓和规则触发邮件提醒。
 
-## 当前版本做什么
+## 当前版本
 
-- GitHub Actions 每 5 分钟运行一次，并避开每小时 00 分附近的高负载时段。
-- 读取 `config/holdings.json` 里的默认仓位。
-- 拉取公开行情价格。
-- 计算总资产、现金比例、仓位、盈亏、价格源异常。
-- 按交易纪律规则判断是否触发提醒。
-- 有提醒时通过邮件发送。
-- 邮件内容使用中文手机执行卡格式，包含账户状态、触发规则、建议动作、纪律提醒和持仓状态。
-- 已加入“前期核心仓补足第一批”提醒：BTC 800 USDT + ETH 300 USDT，只触发一次。
-- 网页端可以手动输入仓位，并保存到当前手机浏览器。
-- 网页端不会保存 GitHub Token、邮箱密码或交易所 API Key。
+- GitHub Actions 默认每 5 分钟运行一次。
+- 加密与黄金优先使用 Bitget 公开行情。
+- 代币化证券优先使用 Bitget 公开行情。
+- 页面和邮件均显示价格源与数据是否过期。
+- 数据 10 分钟内视为正常，10-30 分钟为偏旧，超过 30 分钟禁止按信号买入。
+- 已移除此前的旧投机仓标的。
+- 当前观察池：VOO、XAUT、AVGO、FN、MU、SNDK、DRAM、WDC、ASX、AAOI、GLW。
 
-## 必须上传到 GitHub 的文件
+## 当前默认仓位
 
-把本文件夹里的所有内容上传到仓库根目录：
+默认配置来自 2026-06-27 截图：
 
-- `index.html`
-- `manifest.webmanifest`
-- `service-worker.js`
-- `icons/`
-- `config/`
-- `data/`
-- `scripts/`
-- `.github/`
-- `package.json`
-- `README.md`
+- USDT: `12618.88430083`
+- USDGO: `1502.54376978`
+- BTC: `0.01841215`，成本 `59741.49`
+- ETH: `0.1592747`，成本 `1569.49`
+- DOGE: `5073.6003142`，成本 `0.07489`
+- BGB: `25.91259087`，成本 `1.978`
+- 观察池标的数量均为 `0`，只用于监控买点。
 
-注意：`.github` 是隐藏文件夹，也必须上传，否则不会出现 `Investment Monitor` 自动监控流程。
+## 核心纪律
+
+- 现金低于 35%：停止所有新增买入。
+- 现金低于 40%：暂停普通加仓。
+- 每天最多一笔主动交易提醒。
+- BTC 急跌触发后，当天不再触发 AI 观察池买入。
+- DOGE 与 BGB 不补仓，只止盈或反弹清理。
+- 不做合约、不做杠杆、不做自动下单。
+
+## 价格源
+
+- BTC: `BTCUSDT`
+- ETH: `ETHUSDT`
+- DOGE: `DOGEUSDT`
+- BGB: `BGBUSDT`
+- XAUT: `XAUTUSDT`
+- VOO: `RVOOUSDT`
+- AVGO: `RAVGOUSDT`
+- FN: `RFNUSDT`
+- MU: `RMUUSDT`
+- SNDK: `RSNDKUSDT`
+- DRAM: `RDRAMUSDT`
+- WDC: `RWDCUSDT`
+- ASX: `RASXUSDT`
+- AAOI: `RAAOIUSDT`
+- GLW: `RGLWUSDT`
 
 ## GitHub Pages 设置
 
@@ -88,135 +107,17 @@ QQ 邮箱常见配置：
 4. 等待运行成功。
 5. 检查邮箱是否收到测试邮件。
 
-如果运行成功但没有收到邮件，查看：
+如果运行成功但没有收到邮件，检查 `data/alerts.json`：
 
-- `data/alerts.json` 里的 `email.sent` 是否为 `true`。
-- `email.missing` 是否提示缺少哪个 Secret。
-- QQ 邮箱是否开启了 SMTP 服务。
-- `SMTP_PASS` 是否填写授权码，而不是登录密码。
+- `email.sent` 是否为 `true`
+- `email.missing` 是否提示缺少 Secret
 
-触发规则后的邮件会使用类似下面的结构：
+## 手机页面缓存
 
-- 投资监控提醒
-- 触发数量、检查时间、总资产、现金比例、账户回撤
-- 每条信号的触发规则
-- 建议动作
-- 纪律提醒
-- 相关持仓状态
+如果上传后手机仍显示旧页面：
 
-## 手动运行监控
+1. 打开 Chrome 页面。
+2. 在网址后加 `?v=3` 强制刷新。
+3. 或清理该网站缓存后重新打开。
 
-仓库页面进入：
-
-`Actions -> Investment Monitor -> Run workflow`
-
-不勾选 `test_email` 时，只按真实规则发送邮件。
-
-运行成功后会更新：
-
-- `data/snapshot.json`
-- `data/alerts.json`
-- `data/alert-state.json`
-
-## 如果 GitHub 定时任务不自动运行
-
-如果 `Actions -> Investment Monitor` 里一直只有 `workflow_dispatch`，没有 `schedule`，说明 GitHub 自带定时器没有接管。可以先上传本版本，因为本版本使用最标准的 5 分钟 cron：
-
-```yaml
-*/5 * * * *
-```
-
-上传后等待 10-20 分钟，不要手动运行。若仍然没有 `schedule`，使用免费外部定时器兜底。
-
-### 免费兜底：cron-job.org
-
-这个方案的作用是：每 5 分钟自动调用 GitHub API，相当于自动帮你点击 `Run workflow`。
-
-1. 在 GitHub 创建一个 Fine-grained token：
-   - GitHub 右上角头像 -> `Settings`
-   - `Developer settings`
-   - `Personal access tokens`
-   - `Fine-grained tokens`
-   - `Generate new token`
-2. Token 建议设置：
-   - Name: `investment-monitor-cron`
-   - Expiration: 建议 90 天或自定义
-   - Repository access: 只选择 `investment-card`
-   - Repository permissions: `Actions` 设为 `Read and write`
-   - 生成后复制 token，只显示一次
-3. 打开 `https://cron-job.org/` 注册免费账号。
-4. 创建 Cronjob：
-   - URL: `https://api.github.com/repos/liaojianjian90-design/investment-card/actions/workflows/monitor.yml/dispatches`
-   - Method: `POST`
-   - Schedule: every 5 minutes
-   - Timezone: Asia/Shanghai 或 UTC 均可
-5. Headers 添加：
-   - `Accept`: `application/vnd.github+json`
-   - `Authorization`: `Bearer 你的GitHubToken`
-   - `X-GitHub-Api-Version`: `2022-11-28`
-   - `Content-Type`: `application/json`
-6. Request body 填：
-
-```json
-{"ref":"main","inputs":{"test_email":"false"}}
-```
-
-7. 保存后点一次测试。成功时 GitHub Actions 会出现新的 `Investment Monitor` 运行，事件仍显示为 `workflow_dispatch`，但它是 cron-job.org 自动触发的。
-
-安全提醒：
-
-- 这个 token 只给 `investment-card` 仓库的 `Actions: Read and write` 权限。
-- 不要给它账户全局权限，不要给代码写入权限。
-- token 过期后，cron-job.org 会触发失败，需要重新生成并替换。
-
-## 当前默认仓位
-
-默认配置来自 2026-06-25 截图：
-
-- USDT: `12388.13874886`
-- USDGO: `1501.94752253`
-- BTC: `0.00998615`, 成本 `60071.83`
-- ETH: `0.0636747`, 成本 `1570.91`
-- DOGE: `4662.3598142`, 成本 `0.07506`
-- BGB: `26.60353409`, 成本 `1.9692`
-- CRCL: `7.38398262`, 成本 `74.41`
-- MSTR: `4.37657119`, 成本 `102.72`
-
-## 手机网页手动修改仓位
-
-网页里打开“手动更新仓位”：
-
-1. 输入数量和成本价。
-2. 点击“保存到本机”。
-3. 刷新页面后仍会保留。
-4. 点击“导出配置 JSON”可复制配置发给 Codex，用于更新 GitHub 默认仓位。
-
-重要限制：
-
-- 本机保存只影响当前手机浏览器显示。
-- 邮件提醒仍使用 GitHub 仓库里的 `config/holdings.json`。
-
-## 纪律规则 2.0
-
-核心原则：
-
-- 价格源失败时不发买入提醒。
-- 现金低于 35% 时停止所有买入。
-- 加密相关总仓不超过 65%。
-- 前期核心仓补足第一批：BTC 800 USDT + ETH 300 USDT；现金高于 40%，交易后 BTC 不超过 18%、ETH 不超过 6%，只提醒一次。
-- 下跌买点每个价位只触发一次，必须重新站上重置价才允许再次触发。
-- 上涨追随必须人工确认，不能把单日暴拉当成买入理由。
-- DOGE 只止盈不补仓。
-- BGB 不加仓，反弹可清。
-- MSTR 单项上限比普通股票更严格。
-
-## 页面没有更新怎么办
-
-如果 GitHub 文件已经上传，但手机仍看到旧页面：
-
-1. 在 Chrome 打开页面。
-2. 右上角菜单进入“设置 -> 隐私和安全 -> 清除浏览数据”。
-3. 只清除该网站缓存，或直接换无痕窗口打开。
-4. 也可以在 URL 后加 `?v=2` 强制刷新。
-
-这次版本已把缓存名升级为 `investment-card-github-pages-v7`，正常上传后应能自动刷新。
+本版本已升级 Service Worker 缓存名，正常上传后会自动替换旧缓存。

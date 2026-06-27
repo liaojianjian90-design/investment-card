@@ -3,6 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const isDryRun = process.argv.includes("--dry-run");
+const noWrite = process.env.NO_WRITE === "true" || process.argv.includes("--no-write");
 const mockArg = process.argv.find((arg) => arg.startsWith("--mock-prices="));
 const mockPrices = process.env.MOCK_PRICES
   ? JSON.parse(process.env.MOCK_PRICES)
@@ -17,6 +18,50 @@ const files = {
   snapshot: path.join(root, "data", "snapshot.json"),
   alerts: path.join(root, "data", "alerts.json"),
   alertState: path.join(root, "data", "alert-state.json")
+};
+
+const names = {
+  USDT: "Tether",
+  USDGO: "USDGO",
+  BTC: "Bitcoin",
+  ETH: "Ethereum",
+  DOGE: "Dogecoin",
+  BGB: "Bitget Token",
+  VOO: "Vanguard S&P 500 ETF",
+  XAUT: "Tether Gold",
+  AVGO: "Broadcom",
+  FN: "Fabrinet",
+  MU: "Micron",
+  SNDK: "SanDisk",
+  DRAM: "Roundhill Memory ETF",
+  WDC: "Western Digital",
+  ASX: "ASE Technology",
+  AAOI: "Applied Optoelectronics",
+  GLW: "Corning"
+};
+
+const bitgetSymbols = {
+  BTC: "BTCUSDT",
+  ETH: "ETHUSDT",
+  DOGE: "DOGEUSDT",
+  BGB: "BGBUSDT",
+  XAUT: "XAUTUSDT",
+  VOO: "RVOOUSDT",
+  AVGO: "RAVGOUSDT",
+  FN: "RFNUSDT",
+  MU: "RMUUSDT",
+  SNDK: "RSNDKUSDT",
+  DRAM: "RDRAMUSDT",
+  WDC: "RWDCUSDT",
+  ASX: "RASXUSDT",
+  AAOI: "RAAOIUSDT",
+  GLW: "RGLWUSDT"
+};
+
+const coingeckoIds = {
+  BTC: "bitcoin",
+  ETH: "ethereum",
+  DOGE: "dogecoin"
 };
 
 async function readJson(file, fallback = null) {
@@ -37,114 +82,78 @@ function allAssets(holdings) {
 }
 
 async function fetchJson(url) {
-  const res = await fetch(url, { headers: { "user-agent": "investment-monitor-card/2.0" } });
+  const res = await fetch(url, { headers: { "user-agent": "investment-monitor-card/3.0" } });
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${url}`);
   return res.json();
 }
 
-async function tryQuote(symbol, sources) {
+async function bitgetQuote(symbol) {
+  const pair = bitgetSymbols[symbol];
+  if (!pair) throw new Error(`no Bitget symbol for ${symbol}`);
+  const data = await fetchJson(`https://api.bitget.com/api/v2/spot/market/tickers?symbol=${pair}`);
+  const price = Number(data.data?.[0]?.lastPr);
+  if (!Number.isFinite(price)) throw new Error(`invalid Bitget price for ${pair}`);
+  return { price, source: `Bitget ${pair}` };
+}
+
+async function coingeckoQuote(symbol) {
+  const id = coingeckoIds[symbol];
+  if (!id) throw new Error(`no CoinGecko id for ${symbol}`);
+  const data = await fetchJson(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`);
+  const price = Number(data[id]?.usd);
+  if (!Number.isFinite(price)) throw new Error(`invalid CoinGecko price for ${symbol}`);
+  return { price, source: "CoinGecko" };
+}
+
+async function binanceQuote(symbol) {
+  const data = await fetchJson(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
+  const price = Number(data.price);
+  if (!Number.isFinite(price)) throw new Error(`invalid Binance price for ${symbol}`);
+  return { price, source: `Binance ${symbol}USDT` };
+}
+
+async function quote(symbol) {
+  const now = new Date().toISOString();
+  if (failSymbols.has(symbol)) throw new Error(`forced test failure for ${symbol}`);
+  if (mockPrices && Number.isFinite(Number(mockPrices[symbol]))) {
+    return { price: Number(mockPrices[symbol]), source: "Mock price", updatedAt: now };
+  }
+  if (symbol === "USDT" || symbol === "USDGO") return { price: 1, source: "Fixed 1 USDT", updatedAt: now };
+
   const errors = [];
+  const sources = [() => bitgetQuote(symbol)];
+  if (coingeckoIds[symbol]) {
+    sources.push(() => coingeckoQuote(symbol), () => binanceQuote(symbol));
+  }
+
   for (const source of sources) {
     try {
-      const price = await source();
-      if (!Number.isFinite(price)) throw new Error("invalid price");
-      return price;
+      const result = await source();
+      return { ...result, updatedAt: now };
     } catch (error) {
       errors.push(error.message);
     }
   }
-  throw new Error(errors.join(" | "));
-}
-
-async function quote(symbol) {
-  if (failSymbols.has(symbol)) throw new Error(`forced test failure for ${symbol}`);
-  if (mockPrices && Number.isFinite(Number(mockPrices[symbol]))) return Number(mockPrices[symbol]);
-  if (symbol === "USDT" || symbol === "USDGO") return 1;
-
-  const coingeckoIds = { BTC: "bitcoin", ETH: "ethereum", DOGE: "dogecoin" };
-  const yahooCrypto = { BTC: "BTC-USD", ETH: "ETH-USD", DOGE: "DOGE-USD" };
-  const bitgetTokenized = {
-    XAUT: "XAUTUSDT",
-    VOO: "RVOOUSDT",
-    AVGO: "RAVGOUSDT",
-    FN: "RFNUSDT",
-    MU: "RMUUSDT",
-    SNDK: "RSNDKUSDT",
-    DRAM: "RDRAMUSDT",
-    WDC: "RWDCUSDT",
-    ASX: "RASXUSDT",
-    AAOI: "RAAOIUSDT",
-    CRCL: "RCRCLUSDT",
-    MSTR: "RMSTRUSDT",
-    ITOT: "RITOTUSDT",
-    SPY: "RSPYUSDT"
-  };
-
-  if (coingeckoIds[symbol]) {
-    return tryQuote(symbol, [
-      async () => {
-        const data = await fetchJson(`https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoIds[symbol]}&vs_currencies=usd`);
-        return Number(data[coingeckoIds[symbol]]?.usd);
-      },
-      async () => {
-        const data = await fetchJson(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooCrypto[symbol]}?range=1d&interval=1m`);
-        return Number(data.chart?.result?.[0]?.meta?.regularMarketPrice);
-      },
-      async () => {
-        const data = await fetchJson(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}USDT`);
-        return Number(data.price);
-      }
-    ]);
-  }
-
-  if (bitgetTokenized[symbol]) {
-    return tryQuote(symbol, [
-      async () => {
-        const data = await fetchJson(`https://api.bitget.com/api/v2/spot/market/tickers?symbol=${bitgetTokenized[symbol]}`);
-        return Number(data.data?.[0]?.lastPr);
-      }
-    ]);
-  }
-
-  if (symbol === "BGB") {
-    return tryQuote(symbol, [
-      async () => {
-        const data = await fetchJson("https://api.bitget.com/api/v2/spot/market/tickers?symbol=BGBUSDT");
-        return Number(data.data?.[0]?.lastPr);
-      }
-    ]);
-  }
-
-  if (["CRCL", "MSTR", "ITOT", "SPY"].includes(symbol)) {
-    return tryQuote(symbol, [
-      async () => {
-        const data = await fetchJson(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1d&interval=1m`);
-        return Number(data.chart?.result?.[0]?.meta?.regularMarketPrice);
-      }
-    ]);
-  }
-
-  throw new Error(`No quote source for ${symbol}`);
+  throw new Error(errors.join(" | ") || `no price source for ${symbol}`);
 }
 
 async function loadPrices(symbols) {
   const entries = await Promise.all(symbols.map(async (symbol) => {
     try {
-      const price = await quote(symbol);
-      if (!Number.isFinite(price)) throw new Error("invalid price");
-      return [symbol, price, null];
+      const result = await quote(symbol);
+      return [symbol, result, null];
     } catch (error) {
       return [symbol, null, error.message];
     }
   }));
 
-  const prices = {};
+  const quotes = {};
   const errors = {};
-  for (const [symbol, price, error] of entries) {
+  for (const [symbol, result, error] of entries) {
     if (error) errors[symbol] = error;
-    else prices[symbol] = price;
+    else quotes[symbol] = result;
   }
-  return { prices, errors };
+  return { quotes, errors };
 }
 
 function mockNumber(...keys) {
@@ -178,22 +187,36 @@ async function loadBtcFiveMinuteChangePct() {
   }
 }
 
-function buildSnapshot(holdings, prices, priceErrors) {
+function buildSnapshot(holdings, quotes, priceErrors, rules) {
+  const updatedAt = new Date().toISOString();
+  const forcedAge = mockNumber("DATA_AGE_MINUTES", "SNAPSHOT_AGE_MINUTES");
+  const dataAgeMinutes = Number.isFinite(forcedAge) ? forcedAge : 0;
+  const staleWarn = Number(rules.dataStaleWarnMinutes || 10);
+  const staleBlock = Number(rules.dataStaleBlockMinutes || 30);
+
   const rows = allAssets(holdings).map((asset) => {
-    const price = prices[asset.symbol];
-    const priceOk = Number.isFinite(price);
-    const valuePrice = priceOk ? price : Number(asset.cost || 0);
-    const value = Number(asset.quantity) * valuePrice;
-    const costValue = Number(asset.quantity) * Number(asset.cost || 0);
+    const quoteData = quotes[asset.symbol];
+    const priceOk = Number.isFinite(Number(quoteData?.price));
+    const valuePrice = priceOk ? Number(quoteData.price) : Number(asset.cost || 0);
+    const quantity = Number(asset.quantity || 0);
+    const cost = Number(asset.cost || 0);
+    const value = quantity * valuePrice;
+    const costValue = quantity * cost;
     const pnl = value - costValue;
     return {
       symbol: asset.symbol,
+      name: names[asset.symbol] || asset.symbol,
       type: asset.type,
-      quantity: Number(asset.quantity),
-      cost: Number(asset.cost || 0),
-      price: priceOk ? price : null,
+      quantity,
+      cost,
+      price: priceOk ? Number(quoteData.price) : null,
       priceOk,
+      priceSource: quoteData?.source || null,
+      priceUpdatedAt: quoteData?.updatedAt || null,
       priceError: priceErrors[asset.symbol] || null,
+      dataAgeMinutes,
+      isStale: dataAgeMinutes >= staleWarn,
+      isDataBlocked: dataAgeMinutes >= staleBlock,
       value,
       pnl,
       pnlPct: costValue > 0 ? pnl / costValue * 100 : 0,
@@ -205,15 +228,16 @@ function buildSnapshot(holdings, prices, priceErrors) {
   const cashValue = rows.filter((row) => row.type === "cash").reduce((sum, row) => sum + row.value, 0);
   for (const row of rows) row.weightPct = totalValue > 0 ? row.value / totalValue * 100 : 0;
 
-  const weights = Object.fromEntries(rows.map((row) => [row.symbol, row.weightPct]));
-
   return {
-    updatedAt: new Date().toISOString(),
+    updatedAt,
     source: "github-actions",
     totalValue,
     cashValue,
     cashPct: totalValue > 0 ? cashValue / totalValue * 100 : 0,
-    weights,
+    dataAgeMinutes,
+    isStale: dataAgeMinutes >= staleWarn,
+    isDataBlocked: dataAgeMinutes >= staleBlock,
+    weights: Object.fromEntries(rows.map((row) => [row.symbol, row.weightPct])),
     priceErrors,
     positions: rows
   };
@@ -227,14 +251,32 @@ function isoWeek(date) {
   return `${d.getUTCFullYear()}-${String(Math.ceil((((d - yearStart) / 86400000) + 1) / 7)).padStart(2, "0")}`;
 }
 
+function beijingDateKey(date = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(date);
+}
+
 function addAlert(alerts, alertState, rules, alert) {
   const repeatHours = Number(rules.repeatAlertHours || 24);
   const last = alertState.lastAlerts?.[alert.id];
-  if (last && Date.now() - Date.parse(last) <= repeatHours * 60 * 60 * 1000) return;
+  if (last && Date.now() - Date.parse(last) <= repeatHours * 60 * 60 * 1000) return false;
   const createdAt = new Date().toISOString();
   alertState.lastAlerts ||= {};
   alertState.lastAlerts[alert.id] = createdAt;
   alerts.push({ ...alert, createdAt });
+  return true;
+}
+
+function addTradeAlert(alerts, alertState, rules, alert) {
+  const today = beijingDateKey();
+  if (rules.oneTradePerDay && alertState.lastActiveTradeDate === today) return false;
+  const added = addAlert(alerts, alertState, rules, alert);
+  if (added) alertState.lastActiveTradeDate = today;
+  return added;
 }
 
 function position(snapshot, symbol) {
@@ -271,16 +313,11 @@ function updateRiskState(snapshot, rules, alertState) {
   snapshot.buyPaused = snapshot.buyPauseUntil ? Date.parse(snapshot.buyPauseUntil) > Date.now() : false;
 }
 
-function dipAlreadyTriggered(alertState, id) {
+function alreadyTriggered(alertState, id) {
   return Boolean(alertState.triggeredLevels?.[id]);
 }
 
-function markDipTriggered(alertState, rule, price) {
-  alertState.triggeredLevels ||= {};
-  alertState.triggeredLevels[rule.id] = { triggeredAt: new Date().toISOString(), triggerPrice: price, resetAbove: rule.resetAbove };
-}
-
-function markRuleTriggered(alertState, rule, details = {}) {
+function markTriggered(alertState, rule, details = {}) {
   alertState.triggeredLevels ||= {};
   alertState.triggeredLevels[rule.id] = { triggeredAt: new Date().toISOString(), ...details };
 }
@@ -291,35 +328,55 @@ function projectedWeightPct(snapshot, symbol, addAmount) {
   return ((row?.value || 0) + Number(addAmount || 0)) / snapshot.totalValue * 100;
 }
 
-function resetDipLevels(alertState, rules, btcPrice, ethPrice) {
+function projectedCapBlock(snapshot, rules, symbol, addAmount) {
+  for (const cap of rules.portfolioCaps || []) {
+    if (!(cap.symbols || []).includes(symbol)) continue;
+    const projected = combinedWeight(snapshot, cap.symbols) + (snapshot.totalValue > 0 ? Number(addAmount || 0) / snapshot.totalValue * 100 : 0);
+    if (projected > Number(cap.maxPct)) return { ...cap, projected };
+  }
+  return null;
+}
+
+function resetLevels(alertState, rules, snapshot) {
   alertState.triggeredLevels ||= {};
+  const btc = position(snapshot, "BTC");
+  const eth = position(snapshot, "ETH");
+
   for (const rule of rules.dipBuyRules || []) {
-    if (Number.isFinite(btcPrice) && Number.isFinite(Number(rule.resetAbove)) && btcPrice >= Number(rule.resetAbove)) {
+    if (Number.isFinite(btc?.price) && Number.isFinite(Number(rule.resetAbove)) && btc.price >= Number(rule.resetAbove)) {
+      delete alertState.triggeredLevels[rule.id];
+    }
+  }
+  for (const rule of rules.ethDipRules || []) {
+    if (Number.isFinite(eth?.price) && Number.isFinite(Number(rule.resetAbove)) && eth.price >= Number(rule.resetAbove)) {
+      delete alertState.triggeredLevels[rule.id];
+    }
+  }
+  for (const rule of rules.watchBuyRules || []) {
+    const row = position(snapshot, rule.symbol);
+    if (Number.isFinite(row?.price) && Number.isFinite(Number(rule.resetAbove)) && row.price >= Number(rule.resetAbove)) {
+      delete alertState.triggeredLevels[rule.id];
+    }
+  }
+  for (const rule of rules.trendWatchRules || []) {
+    const row = position(snapshot, rule.symbol);
+    if (Number.isFinite(row?.price) && Number.isFinite(Number(rule.resetBelow)) && row.price <= Number(rule.resetBelow)) {
+      delete alertState.triggeredLevels[rule.id];
+    }
+  }
+  for (const rule of rules.trendFollowRules || []) {
+    if (Number.isFinite(btc?.price) && Number.isFinite(Number(rule.resetBelow)) && btc.price <= Number(rule.resetBelow)) {
       delete alertState.triggeredLevels[rule.id];
     }
   }
   const rapid = rules.rapidDropRules || {};
-  if (Number.isFinite(btcPrice) && Number.isFinite(Number(rapid.resetAbove)) && btcPrice >= Number(rapid.resetAbove)) {
+  if (Number.isFinite(btc?.price) && Number.isFinite(Number(rapid.resetAbove)) && btc.price >= Number(rapid.resetAbove)) {
     if (rapid.buyRuleId) delete alertState.triggeredLevels[rapid.buyRuleId];
   }
-  for (const rule of rules.ethDipRules || []) {
-    if (Number.isFinite(ethPrice) && Number.isFinite(Number(rule.resetAbove)) && ethPrice >= Number(rule.resetAbove)) {
-      delete alertState.triggeredLevels[rule.id];
-    }
-  }
 }
 
-function resetWatchLevels(alertState, rules, snapshot) {
-  alertState.triggeredLevels ||= {};
-  for (const rule of rules.watchBuyRules || []) {
-    const row = position(snapshot, rule.symbol);
-    if (!row || !Number.isFinite(row.price) || !Number.isFinite(Number(rule.resetAbove))) continue;
-    if (row.price >= Number(rule.resetAbove)) delete alertState.triggeredLevels[rule.id];
-  }
-}
-
-function canBuy(snapshot) {
-  return snapshot.cashPct >= 35 && !snapshot.buyPaused;
+function canBuy(snapshot, rules) {
+  return snapshot.cashPct >= Number(rules.cashMinPct || 35) && !snapshot.buyPaused && !snapshot.isDataBlocked;
 }
 
 function formatMoney(value) {
@@ -351,24 +408,37 @@ function formatDateCn(iso) {
   }).format(new Date(iso));
 }
 
-function uniqueSymbols(alerts) {
-  return [...new Set(alerts.flatMap((alert) => String(alert.symbol || "").split(/[+/]/)).filter(Boolean))];
+function dataStatus(snapshot) {
+  if (snapshot.isDataBlocked) return `已过期 ${Number(snapshot.dataAgeMinutes).toFixed(0)} 分钟，禁止按信号买入`;
+  if (snapshot.isStale) return `偏旧 ${Number(snapshot.dataAgeMinutes).toFixed(0)} 分钟，仅观察`;
+  return "10 分钟内，正常";
+}
+
+function rowStatus(row) {
+  if (!row) return "无持仓";
+  if (!row.priceOk) return "价格源失败";
+  if (row.isDataBlocked) return "数据过期";
+  if (row.isStale) return "数据偏旧";
+  return "正常";
 }
 
 function alertTypeLabel(type) {
   return {
     "data-risk": "数据异常",
-    "risk": "现金风控",
+    risk: "现金风控",
     "drawdown-risk": "回撤风控",
     "cap-risk": "组合上限",
     "weight-risk": "仓位超限",
-    "core-fill": "核心仓补足",
     "fixed-dca": "固定定投",
     "dip-buy": "下跌加仓",
+    "rapid-drop-observe": "5分钟急跌观察",
+    "rapid-drop-buy": "5分钟急跌试探",
     "risk-pause": "暂停买入",
     "trend-pause": "禁止追涨",
-    "trend-follow": "上涨追随",
-    "sell": "止盈/减仓",
+    "trend-follow": "BTC上涨追随",
+    "trend-watch": "观察池上涨追随",
+    "watch-buy": "观察池买点",
+    sell: "止盈/再平衡",
     "test-email": "邮件测试"
   }[type] || "规则提醒";
 }
@@ -382,185 +452,18 @@ function severityLabel(severity) {
 }
 
 function alertTitle(alert) {
-  if (alert.type === "test-email") return "邮件通道测试成功";
-  if (alert.type === "data-risk") return "行情数据异常，禁止按信号买入";
-  if (alert.type === "risk") return "现金底线触发，停止新增买入";
-  if (alert.type === "drawdown-risk") return "账户回撤风控触发";
-  if (alert.type === "cap-risk") return "组合相关性或总仓位超限";
-  if (alert.type === "weight-risk") return `${alert.symbol} 仓位超过目标上限`;
-  if (alert.type === "core-fill") return "BTC/ETH 核心仓第一批补足提醒";
-  if (alert.type === "fixed-dca") return "固定定投提醒";
-  if (alert.type === "dip-buy") return `${alert.symbol} 下跌加仓价位触发`;
-  if (alert.type === "risk-pause") return "极端下跌区间，暂停主动买入";
-  if (alert.type === "trend-pause") return "上涨过快，暂不追涨";
-  if (alert.type === "trend-follow") return `${alert.symbol} 上涨追随待确认`;
-  if (alert.type === "sell") return `${alert.symbol} 止盈或减仓规则触发`;
-  return `${alert.symbol || "组合"} 规则提醒`;
+  if (alert.title) return alert.title;
+  return `${alert.symbol || "组合"} ${alertTypeLabel(alert.type)}`;
 }
 
 function positionSummary(snapshot, symbol) {
   const row = position(snapshot, symbol);
   if (!row) return null;
-  const price = row.priceOk ? formatPrice(row.price) : "价格失败";
-  return `${symbol}: 现价 ${price} | 仓位 ${formatPct(row.weightPct)} | 盈亏 ${formatMoney(row.pnl)} (${formatPct(row.pnlPct)})`;
+  return `${symbol}: 现价 ${formatPrice(row.price)} | 来源 ${row.priceSource || "-"} | 仓位 ${formatPct(row.weightPct)} | 盈亏 ${formatMoney(row.pnl)} (${formatPct(row.pnlPct)})`;
 }
 
-function extractFirstNumber(text, regex) {
-  const match = String(text || "").match(regex);
-  return match ? match[1] : null;
-}
-
-function chineseAlertDetail(alert, snapshot) {
-  const message = String(alert.message || "");
-  const action = String(alert.action || "");
-  const details = [];
-
-  if (alert.type === "test-email") {
-    return [
-      "触发规则：手动测试邮件。",
-      "建议动作：不用交易。收到这封邮件，说明 SMTP 邮件链路正常。",
-      "纪律提醒：正式提醒仍只在规则触发时发送。"
-    ];
-  }
-
-  if (alert.type === "data-risk") {
-    const symbols = message.replace("Price source failed for:", "").replace(".", "").trim() || "部分标的";
-    return [
-      `触发规则：${symbols} 行情价格获取失败。`,
-      "建议动作：今天不按系统买入提醒操作，等待下一次刷新。",
-      "纪律提醒：价格源异常时，宁可错过一次，也不要靠猜测下单。"
-    ];
-  }
-
-  if (alert.type === "risk") {
-    return [
-      `触发规则：现金比例低于底线。当前现金比例 ${formatPct(snapshot.cashPct)}。`,
-      "建议动作：停止所有新增买入，优先恢复现金仓。",
-      "纪律提醒：现金仓是二次进攻权，不能被情绪交易消耗掉。"
-    ];
-  }
-
-  if (alert.type === "drawdown-risk") {
-    return [
-      `触发规则：账户从高点回撤达到风控线。当前回撤 ${formatPct(snapshot.drawdownPct || 0)}。`,
-      `建议动作：${message}`,
-      "纪律提醒：回撤扩大时，先控制风险，再讨论抄底。"
-    ];
-  }
-
-  if (alert.type === "cap-risk") {
-    const weight = extractFirstNumber(message, /Current combined weight: ([\d.]+)%/);
-    return [
-      `触发规则：${alert.symbol} 组合仓位超过上限${weight ? `，当前约 ${weight}%` : ""}。`,
-      "建议动作：停止给这个组合继续加仓；如果继续上涨或波动放大，考虑分批降仓。",
-      "纪律提醒：MSTR、CRCL、BTC 不是完全独立分散，相关性会在极端行情里一起放大。"
-    ];
-  }
-
-  if (alert.type === "weight-risk") {
-    const weight = extractFirstNumber(message, /weight is ([\d.]+)%/);
-    return [
-      `触发规则：${alert.symbol} 单项仓位超过目标上限${weight ? `，当前约 ${weight}%` : ""}。`,
-      "建议动作：暂停加仓；只有明显超过硬上限时再考虑减仓。",
-      "纪律提醒：看好不等于无限加仓，仓位上限就是防情绪的边界。"
-    ];
-  }
-
-  if (alert.type === "fixed-dca") {
-    const btcAmount = extractFirstNumber(message, /BTC ([\d.]+) USDT/);
-    const ethAmount = extractFirstNumber(message, /ETH ([\d.]+) USDT/);
-    return [
-      "触发规则：固定定投日到达，且现金比例满足要求。",
-      `建议动作：买入 BTC ${btcAmount || "-"} USDT，买入 ETH ${ethAmount || "-"} USDT。`,
-      "纪律提醒：定投是纪律动作；但现金低于 40% 或回撤风控触发时，以风控优先。"
-    ];
-  }
-
-  if (alert.type === "core-fill") {
-    const btcAmount = extractFirstNumber(message, /BTC ([\d.]+) USDT/);
-    const ethAmount = extractFirstNumber(message, /ETH ([\d.]+) USDT/);
-    const cashReq = extractFirstNumber(action, /cash >= ([\d.]+)%/);
-    const btcMax = extractFirstNumber(action, /BTC <= ([\d.]+)%/);
-    const ethMax = extractFirstNumber(action, /ETH <= ([\d.]+)%/);
-    return [
-      "触发规则：前期核心仓第一批补足条件满足。",
-      `建议动作：买入 BTC ${btcAmount || "-"} USDT，买入 ETH ${ethAmount || "-"} USDT。`,
-      `纪律提醒：这不是追涨，是把 BTC/ETH 核心仓从试探仓补到基础仓；现金必须高于 ${cashReq || "40"}%，交易后 BTC 不超过 ${btcMax || "18"}%、ETH 不超过 ${ethMax || "6"}%。`,
-      "执行要求：只提醒一次，必须人工确认实时价格和交易后仓位后再下单。"
-    ];
-  }
-
-  if (alert.type === "dip-buy") {
-    const btcPrice = extractFirstNumber(message, /BTC level hit: ([\d.]+)/);
-    const btcLevel = extractFirstNumber(message, /<= ([\d.]+)/);
-    const ethPrice = extractFirstNumber(message, /ETH level hit: ([\d.]+)/);
-    const ethLevel = extractFirstNumber(message, /<= ([\d.]+)/);
-    const btcAmount = extractFirstNumber(action, /BTC ([\d.]+) USDT/);
-    const ethAmount = extractFirstNumber(action, /ETH ([\d.]+) USDT/);
-    const buyAmount = extractFirstNumber(action, /Buy ([\d.]+) USDT/);
-    const btcReset = extractFirstNumber(action, /BTC > ([\d.]+)/);
-    const ethReset = extractFirstNumber(action, /ETH > ([\d.]+)/);
-
-    if (alert.symbol === "BTC/ETH" || btcPrice) {
-      return [
-        `触发规则：BTC 现价 ${formatPrice(btcPrice)} <= ${formatPrice(btcLevel)}。`,
-        `建议动作：买入 BTC ${btcAmount || "-"} USDT，买入 ETH ${ethAmount || "-"} USDT。`,
-        `纪律提醒：该价位只触发一次，BTC 重新站上 ${formatPrice(btcReset)} 前不重复提醒。`
-      ];
-    }
-    return [
-      `触发规则：ETH 现价 ${formatPrice(ethPrice)} <= ${formatPrice(ethLevel)}。`,
-      `建议动作：买入 ETH ${buyAmount || "-"} USDT。`,
-      `纪律提醒：该价位只触发一次，ETH 重新站上 ${formatPrice(ethReset)} 前不重复提醒。`
-    ];
-  }
-
-  if (alert.type === "risk-pause") {
-    const btcPrice = extractFirstNumber(message, /BTC level hit: ([\d.]+)/);
-    const btcLevel = extractFirstNumber(message, /<= ([\d.]+)/);
-    const reset = extractFirstNumber(action, /BTC > ([\d.]+)/);
-    return [
-      `触发规则：BTC 进入极端下跌区间，现价 ${formatPrice(btcPrice)} <= ${formatPrice(btcLevel)}。`,
-      "建议动作：暂停主动买入 2-3 天，只观察结构是否企稳。",
-      `纪律提醒：BTC 重新站上 ${formatPrice(reset)} 前，不做新的下跌加仓。`
-    ];
-  }
-
-  if (alert.type === "trend-pause") {
-    const gain = extractFirstNumber(message, /weekly gain is ([\d.]+)%/);
-    return [
-      `触发规则：BTC 单周涨幅过快${gain ? `，当前约 ${gain}%` : ""}。`,
-      "建议动作：不追涨，等待回调或至少 2 日站稳确认。",
-      "纪律提醒：上涨追随不是看到大阳线就买，而是确认趋势后小额跟随。"
-    ];
-  }
-
-  if (alert.type === "trend-follow") {
-    const btcPrice = extractFirstNumber(message, /BTC price ([\d.]+)/);
-    const level = extractFirstNumber(message, />= ([\d.]+)/);
-    return [
-      `触发规则：BTC 现价 ${formatPrice(btcPrice)} >= ${formatPrice(level)}，进入上涨追随观察区。`,
-      `建议动作：${action.replace("Manual confirmation required: BTC should hold above the level for 2 days.", "必须人工确认 BTC 连续 2 日站稳后再执行。")}`,
-      "纪律提醒：若 BTC 单周涨幅超过 15%，宁可不追。"
-    ];
-  }
-
-  if (alert.type === "sell") {
-    const price = extractFirstNumber(message, /Price ([\d.]+)/);
-    const weight = extractFirstNumber(message, /weight ([\d.]+)%/);
-    const sellPct = extractFirstNumber(action, /Suggested sell ratio: ([\d.]+)%/);
-    return [
-      `触发规则：${alert.symbol} 达到止盈或仓位上限。现价 ${formatPrice(price)}，仓位约 ${weight || "-"}%。`,
-      `建议动作：卖出或减仓约 ${sellPct || "-"}%。`,
-      "纪律提醒：止盈不是看空，是把过热仓位换回现金，保留下一次进攻权。"
-    ];
-  }
-
-  return [
-    `触发规则：${message}`,
-    `建议动作：${action || "打开监控卡复核。"}`,
-    "纪律提醒：执行前再次确认平台实时价格、仓位和现金比例。"
-  ];
+function uniqueSymbols(alerts) {
+  return [...new Set(alerts.flatMap((alert) => String(alert.symbol || "").split(/[+/]/)).filter(Boolean))];
 }
 
 function buildEmailContent(alerts, snapshot) {
@@ -568,59 +471,62 @@ function buildEmailContent(alerts, snapshot) {
   const hasHigh = alerts.some((alert) => alert.severity === "high");
   const subjectPrefix = hasHigh ? "【投资风控提醒】" : "【投资监控提醒】";
   const subjectSymbols = symbols.slice(0, 4).join("、") || "组合";
-  const subject = `${subjectPrefix}${subjectSymbols}｜${alerts.length}条信号`;
+  const subject = `${subjectPrefix}${subjectSymbols} ${alerts.length}条信号`;
 
   const header = [
     subjectPrefix.replace(/[【】]/g, ""),
     "",
-    `触发数量：${alerts.length} 条`,
-    `检查时间：${formatDateCn(snapshot.updatedAt)}（北京时间）`,
+    `检查时间：${formatDateCn(snapshot.updatedAt)} 北京时间`,
     `总资产：${formatMoney(snapshot.totalValue)}`,
     `现金比例：${formatPct(snapshot.cashPct)}`,
     `账户回撤：${formatPct(snapshot.drawdownPct || 0)}`,
-    Number.isFinite(Number(snapshot.btcWeeklyGainPct)) ? `BTC周涨幅：${formatPct(snapshot.btcWeeklyGainPct)}` : null
+    `数据状态：${dataStatus(snapshot)}`,
+    Number.isFinite(Number(snapshot.btcFiveMinuteChangePct)) ? `BTC 5分钟涨跌：${formatPct(snapshot.btcFiveMinuteChangePct)}` : null,
+    Number.isFinite(Number(snapshot.btcWeeklyGainPct)) ? `BTC 周涨幅：${formatPct(snapshot.btcWeeklyGainPct)}` : null
   ].filter(Boolean);
 
-  const alertBlocks = alerts.map((alert, index) => {
-    const details = chineseAlertDetail(alert, snapshot);
+  const blocks = alerts.map((alert, index) => {
     const relatedSymbols = String(alert.symbol || "").split(/[+/]/).filter(Boolean);
-    const positionLines = relatedSymbols
-      .map((symbol) => positionSummary(snapshot, symbol))
-      .filter(Boolean);
-
-    return [
-      `—— 信号 ${index + 1}/${alerts.length}：${alertTitle(alert)} ——`,
-      `类型：${alertTypeLabel(alert.type)}｜级别：${severityLabel(alert.severity)}`,
-      ...details,
-      positionLines.length ? `持仓状态：${positionLines.join("；")}` : null
-    ].filter(Boolean).join("\n");
+    const positionLines = relatedSymbols.map((symbol) => positionSummary(snapshot, symbol)).filter(Boolean);
+    const lines = [
+      `【${index + 1}】${alertTitle(alert)}`,
+      `级别：${severityLabel(alert.severity)} | 类型：${alertTypeLabel(alert.type)}`,
+      `结论：${alert.conclusion || alert.message || "打开监控卡复核。"}`,
+      alert.amountText ? `建议金额：${alert.amountText}` : null,
+      alert.reason ? `触发原因：${alert.reason}` : null,
+      alert.reset ? `重置条件：${alert.reset}` : null,
+      alert.invalid ? `失效条件：${alert.invalid}` : null,
+      alert.action ? `建议动作：${alert.action}` : null,
+      alert.discipline ? `纪律提醒：${alert.discipline}` : "纪律提醒：这不是自动下单，执行前必须确认实时价格、现金比例和交易后仓位。",
+      positionLines.length ? `相关持仓：${positionLines.join("；")}` : null
+    ].filter(Boolean);
+    return lines.join("\n");
   });
 
   const footer = [
-    "—— 执行前检查 ——",
-    "1. 这不是自动下单，只是纪律提醒。",
-    "2. 下单前确认平台实时价格、可用现金和交易后仓位。",
-    "3. 若现金低于 35%，任何买入提醒都不执行。",
-    "4. 情绪上头时，先等下一次 5 分钟刷新。"
+    "执行前检查：",
+    "1. 先确认这封邮件对应的是定投、下跌买点、上涨追随，还是止盈/再平衡。",
+    "2. 现金低于 35% 时，任何买入提醒都不执行。",
+    "3. 当天已经执行过主动交易时，不再新增第二笔主动买入。",
+    "4. 如果只是因为情绪上头，默认不买，等下一次监控刷新。"
   ];
 
   return {
     subject,
-    text: [...header, "", ...alertBlocks, "", ...footer].join("\n")
+    text: [...header, "", ...blocks, "", ...footer].join("\n")
   };
 }
 
 function evaluateRules(snapshot, rules, alertState) {
   const alerts = [];
+  updateRiskState(snapshot, rules, alertState);
+  resetLevels(alertState, rules, snapshot);
+
   const btc = position(snapshot, "BTC");
   const eth = position(snapshot, "ETH");
-  const anyCorePriceError = !Number.isFinite(btc?.price) || !Number.isFinite(eth?.price);
-  updateRiskState(snapshot, rules, alertState);
-  resetDipLevels(alertState, rules, btc?.price, eth?.price);
-  resetWatchLevels(alertState, rules, snapshot);
-  const rapidDropRules = rules.rapidDropRules || {};
   const btcFiveMinuteChangePct = Number(snapshot.btcFiveMinuteChangePct);
   const btcFiveMinuteDropPct = Number.isFinite(btcFiveMinuteChangePct) ? Math.max(0, -btcFiveMinuteChangePct) : 0;
+  const rapidDropRules = rules.rapidDropRules || {};
   const rapidDropObserve = btcFiveMinuteDropPct >= Number(rapidDropRules.observeDropPct || Infinity);
   const rapidDropBuy = btcFiveMinuteDropPct >= Number(rapidDropRules.buyDropPct || Infinity);
 
@@ -630,8 +536,25 @@ function evaluateRules(snapshot, rules, alertState) {
       symbol: "DATA",
       type: "data-risk",
       severity: "high",
-      message: `Price source failed for: ${Object.keys(snapshot.priceErrors).join(", ")}.`,
-      action: "No buy alert should be executed while key prices are missing."
+      title: "价格源异常，禁止按失败标的买入",
+      conclusion: `价格源失败：${Object.keys(snapshot.priceErrors).join("、")}`,
+      reason: "部分标的没有拿到有效价格。",
+      action: "失败标的不触发买入邮件，等待下一次刷新。",
+      discipline: "价格源异常时宁可错过一次，也不要靠猜测下单。"
+    });
+  }
+
+  if (snapshot.isDataBlocked) {
+    addAlert(alerts, alertState, rules, {
+      id: "snapshot-data-stale",
+      symbol: "DATA",
+      type: "data-risk",
+      severity: "high",
+      title: "数据已经过期",
+      conclusion: "暂停所有买入信号。",
+      reason: `数据年龄约 ${snapshot.dataAgeMinutes} 分钟，超过 ${rules.dataStaleBlockMinutes} 分钟。`,
+      action: "先修复自动监控或手动刷新快照。",
+      discipline: "过期数据不能指导交易。"
     });
   }
 
@@ -641,8 +564,11 @@ function evaluateRules(snapshot, rules, alertState) {
       symbol: "CASH",
       type: "risk",
       severity: "high",
-      message: `Cash ratio is ${snapshot.cashPct.toFixed(1)}%, below the ${rules.cashMinPct}% floor.`,
-      action: "Stop all buying and rebuild cash."
+      title: "现金底线触发",
+      conclusion: "停止所有新增买入。",
+      reason: `当前现金比例 ${formatPct(snapshot.cashPct)}，低于 ${rules.cashMinPct}% 底线。`,
+      action: "优先恢复现金仓。",
+      discipline: "现金仓是二次进攻权，不能被情绪交易消耗。"
     });
   }
 
@@ -653,8 +579,11 @@ function evaluateRules(snapshot, rules, alertState) {
         symbol: "PORTFOLIO",
         type: "drawdown-risk",
         severity: snapshot.drawdownPct >= 20 ? "high" : "medium",
-        message: rule.message,
-        action: `Current drawdown: ${snapshot.drawdownPct.toFixed(1)}%.`
+        title: `账户回撤达到 ${rule.drawdownPct}%`,
+        conclusion: rule.message,
+        reason: `当前回撤 ${formatPct(snapshot.drawdownPct)}。`,
+        action: rule.pauseDays ? `暂停主动买入 ${rule.pauseDays} 天。` : "降低风险资产加仓速度。",
+        discipline: "回撤扩大时，先控制风险，再讨论抄底。"
       });
     }
   }
@@ -667,227 +596,290 @@ function evaluateRules(snapshot, rules, alertState) {
         symbol: cap.symbols.join("+"),
         type: "cap-risk",
         severity: "medium",
-        message: `${cap.message} Current combined weight: ${weight.toFixed(1)}%.`,
-        action: "Stop adding this basket; consider trimming if it keeps rising."
+        title: "组合相关性上限触发",
+        conclusion: cap.message,
+        reason: `${cap.symbols.join(" + ")} 当前合计仓位 ${formatPct(weight)}，超过 ${cap.maxPct}%。`,
+        action: "停止给该组合继续加仓；若继续上涨或波动放大，考虑分批降仓。",
+        discipline: "相关性高的标的不能当作真正分散。"
       });
     }
   }
 
   for (const [symbol, target] of Object.entries(rules.targets || {})) {
     const row = position(snapshot, symbol);
-    if (!row) continue;
-    if (row.weightPct > Number(target.maxPct)) {
+    if (!row || row.value <= 0) continue;
+    if (Number.isFinite(Number(target.stopAddPct)) && row.weightPct >= Number(target.stopAddPct)) {
       addAlert(alerts, alertState, rules, {
-        id: `${symbol.toLowerCase()}-above-target`,
+        id: `${symbol.toLowerCase()}-stop-add`,
         symbol,
         type: "weight-risk",
         severity: "medium",
-        message: `${symbol} weight is ${row.weightPct.toFixed(1)}%, above the ${target.maxPct}% cap.`,
-        action: "Stop adding. Consider trimming if it keeps rising."
+        title: `${symbol} 达到暂停加仓线`,
+        conclusion: "暂停给该标的加仓。",
+        reason: `${symbol} 当前仓位 ${formatPct(row.weightPct)}，达到或超过 ${target.stopAddPct}%。`,
+        action: "只持有或等待再平衡，不做追买。",
+        discipline: "看好不等于无限加仓。"
       });
     }
   }
 
-  if (canBuy(snapshot) && !anyCorePriceError) {
-    for (const rule of rules.coreFillRules || []) {
-      if (rapidDropObserve) continue;
-      if (!rule.enabled || dipAlreadyTriggered(alertState, rule.id)) continue;
-      const btcAmount = Number(rule.btcAmount || 0);
-      const ethAmount = Number(rule.ethAmount || 0);
-      const requiredCashPct = Number(rule.requireCashPct || 40);
-      const btcAfter = projectedWeightPct(snapshot, "BTC", btcAmount);
-      const ethAfter = projectedWeightPct(snapshot, "ETH", ethAmount);
-      const totalAmount = btcAmount + ethAmount;
-      if (snapshot.cashPct < requiredCashPct || snapshot.cashValue < totalAmount) continue;
-      if (btcAfter > Number(rule.maxBtcWeightPctAfter || Infinity)) continue;
-      if (ethAfter > Number(rule.maxEthWeightPctAfter || Infinity)) continue;
+  const ordinaryBuyAllowed = canBuy(snapshot, rules) && snapshot.cashPct >= Number(rules.ordinaryBuyCashMinPct || 40);
+  const corePriceOk = Number.isFinite(btc?.price) && Number.isFinite(eth?.price);
+  let buySignalThisRun = false;
 
-      const beforeCount = alerts.length;
-      addAlert(alerts, alertState, rules, {
-        id: rule.id,
-        symbol: rule.symbol || "BTC/ETH",
-        type: "core-fill",
-        severity: "medium",
-        message: `Core fill batch ${rule.batch || 1} triggered. Buy BTC ${btcAmount} USDT and ETH ${ethAmount} USDT.`,
-        action: `Execute once after manual confirmation. Required cash >= ${requiredCashPct}%. Max after-fill weights: BTC <= ${rule.maxBtcWeightPctAfter}%, ETH <= ${rule.maxEthWeightPctAfter}%.`
-      });
-      if (alerts.length > beforeCount) {
-        markRuleTriggered(alertState, rule, {
-          btcAmount,
-          ethAmount,
-          btcAfterWeightPct: btcAfter,
-          ethAfterWeightPct: ethAfter
-        });
-      }
-    }
-
+  if (ordinaryBuyAllowed && corePriceOk) {
     const now = new Date();
-    const dca = rules.fixedDca;
-    if (!rapidDropObserve && dca?.enabled && now.getUTCDay() === Number(dca.weekdayUtc) && snapshot.cashPct >= Number(dca.requireCashPct)) {
+    const dca = rules.fixedDca || {};
+    if (!rapidDropObserve && dca.enabled && now.getUTCDay() === Number(dca.weekdayUtc) && snapshot.cashPct >= Number(dca.requireCashPct)) {
       const halfSize = snapshot.drawdownPct >= Number(dca.halfSizeDrawdownPct || 999);
       const btcAmount = halfSize ? Number(dca.btcAmount) / 2 : Number(dca.btcAmount);
       const ethAmount = halfSize ? Number(dca.ethAmount) / 2 : Number(dca.ethAmount);
-      addAlert(alerts, alertState, rules, {
+      const added = addTradeAlert(alerts, alertState, rules, {
         id: `fixed-dca-${isoWeek(now)}`,
         symbol: "BTC/ETH",
         type: "fixed-dca",
         severity: "low",
-        message: `Weekly DCA triggered. Buy BTC ${btcAmount} USDT and ETH ${ethAmount} USDT.`,
-        action: halfSize ? "Half-size DCA because drawdown is elevated." : "Execute only if cash ratio remains above 40%."
+        title: "BTC/ETH 固定定投提醒",
+        conclusion: "可以执行本周固定定投。",
+        amountText: `BTC ${btcAmount} USDT + ETH ${ethAmount} USDT`,
+        reason: "到达固定定投周期，现金比例满足要求。",
+        action: halfSize ? "账户回撤较高，执行半额定投。" : "按固定定投金额执行。",
+        discipline: "定投是纪律动作，但现金和回撤规则优先级更高。"
       });
+      buySignalThisRun ||= added;
     }
 
     if (Number.isFinite(btc?.price) && rapidDropObserve) {
-      const observeRuleId = rapidDropRules.observeRuleId || "rapid-btc-drop-observe";
-      const buyRuleId = rapidDropRules.buyRuleId || "rapid-btc-drop-buy";
       const canRapidBuy =
         rapidDropBuy &&
         btc.price <= Number(rapidDropRules.buyMaxBtcPrice || Infinity) &&
         btc.price > Number(rapidDropRules.riskFloor || 0) &&
         snapshot.cashPct >= Number(rapidDropRules.requireCashPct || 45) &&
-        !dipAlreadyTriggered(alertState, buyRuleId);
+        !alreadyTriggered(alertState, rapidDropRules.buyRuleId || "rapid-btc-drop-buy");
 
       if (canRapidBuy) {
-        const rule = { id: buyRuleId, resetAbove: rapidDropRules.resetAbove };
-        markDipTriggered(alertState, rule, btc.price);
-        addAlert(alerts, alertState, rules, {
-          id: buyRuleId,
+        const rule = { id: rapidDropRules.buyRuleId || "rapid-btc-drop-buy", resetAbove: rapidDropRules.resetAbove };
+        markTriggered(alertState, rule, { triggerPrice: btc.price, resetAbove: rule.resetAbove });
+        const added = addTradeAlert(alerts, alertState, rules, {
+          id: rule.id,
           symbol: "BTC/ETH",
           type: "rapid-drop-buy",
           severity: "medium",
-          message: `BTC 5-minute rapid drop hit: ${btcFiveMinuteDropPct.toFixed(2)}% >= ${rapidDropRules.buyDropPct}%. BTC price ${btc.price.toFixed(2)}.`,
-          action: `Plan: BTC ${rapidDropRules.btcAmount} USDT, ETH ${rapidDropRules.ethAmount} USDT. This is a small test buy only. Reset after BTC > ${rapidDropRules.resetAbove}.`
+          title: "BTC 5分钟急跌试探买入",
+          conclusion: "只允许小额试探，不执行普通下跌加仓。",
+          amountText: `BTC ${rapidDropRules.btcAmount} USDT + ETH ${rapidDropRules.ethAmount} USDT`,
+          reason: `BTC 5分钟跌幅 ${formatPct(btcFiveMinuteDropPct)}，达到 ${rapidDropRules.buyDropPct}% 试探条件。`,
+          reset: `BTC 重新站上 ${formatPrice(rapidDropRules.resetAbove)} 后才重置。`,
+          invalid: `BTC 跌破 ${formatPrice(rapidDropRules.riskFloor)} 时不买，进入暂停观察。`,
+          action: "确认不是流动性异常后，再考虑小额执行。",
+          discipline: "急跌时先活下来，再谈低吸。"
         });
+        buySignalThisRun ||= added;
       } else {
         addAlert(alerts, alertState, rules, {
-          id: observeRuleId,
+          id: rapidDropRules.observeRuleId || "rapid-btc-drop-observe",
           symbol: "BTC",
           type: "rapid-drop-observe",
           severity: "high",
-          message: `BTC 5-minute rapid drop hit: ${btcFiveMinuteDropPct.toFixed(2)}% >= ${rapidDropRules.observeDropPct}%.`,
-          action: `Do not trigger normal dip-buy levels during rapid-drop mode. Observe for ${rapidDropRules.observeHours || "4-24"} hours unless rapid-drop buy conditions are met.`
+          title: "BTC 5分钟急跌观察",
+          conclusion: "暂停普通下跌买点。",
+          reason: `BTC 5分钟跌幅 ${formatPct(btcFiveMinuteDropPct)}，达到 ${rapidDropRules.observeDropPct}% 观察条件。`,
+          action: `观察 ${rapidDropRules.observeHours || "4-24"} 小时，等待结构稳定。`,
+          discipline: "急跌时不要把机械买点变成情绪接刀。"
         });
       }
     }
 
-    let btcDipOrRiskTriggered = false;
-    if (Number.isFinite(btc?.price)) {
+    if (!rapidDropObserve && !buySignalThisRun && Number.isFinite(btc?.price)) {
       const riskFloor = Number(rapidDropRules.riskFloor || 52000);
       const btcRiskMode = btc.price <= riskFloor;
-      const dipCandidates = (rules.dipBuyRules || [])
+      const candidates = (rules.dipBuyRules || [])
         .filter((rule) => btc.price <= Number(rule.btcPriceBelow))
-        .filter((rule) => snapshot.cashPct >= Number(rule.requireCashPct))
-        .filter((rule) => !dipAlreadyTriggered(alertState, rule.id))
-        .filter((rule) => {
-          const isRiskPause = Number(rule.btcAmount || 0) <= 0;
-          if (btcRiskMode) return isRiskPause;
-          if (rapidDropObserve) return isRiskPause;
-          return true;
-        })
+        .filter((rule) => snapshot.cashPct >= Number(rule.requireCashPct || 40))
+        .filter((rule) => !alreadyTriggered(alertState, rule.id))
+        .filter((rule) => btcRiskMode ? Number(rule.btcAmount || 0) <= 0 : Number(rule.btcAmount || 0) > 0)
         .sort((a, b) => Number(a.btcPriceBelow) - Number(b.btcPriceBelow));
-
-      const rule = dipCandidates[0];
+      const rule = candidates[0];
       if (rule) {
-        markDipTriggered(alertState, rule, btc.price);
-        btcDipOrRiskTriggered = true;
-        addAlert(alerts, alertState, rules, {
-          id: rule.id,
-          symbol: "BTC/ETH",
-          type: Number(rule.btcAmount) > 0 ? "dip-buy" : "risk-pause",
-          severity: Number(rule.btcAmount) > 0 ? "medium" : "high",
-          message: `BTC level hit: ${btc.price.toFixed(2)} <= ${rule.btcPriceBelow}.`,
-          action: Number(rule.btcAmount) > 0
-            ? `Plan: BTC ${rule.btcAmount} USDT, ETH ${rule.ethAmount} USDT. Reset only after BTC > ${rule.resetAbove}.`
-            : `${rule.note} Reset only after BTC > ${rule.resetAbove}.`
-        });
+        markTriggered(alertState, rule, { triggerPrice: btc.price, resetAbove: rule.resetAbove });
+        if (Number(rule.btcAmount || 0) <= 0) {
+          addAlert(alerts, alertState, rules, {
+            id: rule.id,
+            symbol: "BTC",
+            type: "risk-pause",
+            severity: "high",
+            title: "BTC 极端下跌暂停",
+            conclusion: "不提醒买入，先观察。",
+            reason: `BTC 现价 ${formatPrice(btc.price)}，低于 ${formatPrice(rule.btcPriceBelow)}。`,
+            reset: `BTC 重新站上 ${formatPrice(rule.resetAbove)} 后再评估。`,
+            action: rule.note,
+            discipline: "极端下跌区间先看结构，不抢反弹。"
+          });
+        } else {
+          const added = addTradeAlert(alerts, alertState, rules, {
+            id: rule.id,
+            symbol: "BTC/ETH",
+            type: "dip-buy",
+            severity: "medium",
+            title: "BTC/ETH 分批下跌加仓",
+            conclusion: "触发预设下跌买点。",
+            amountText: `BTC ${rule.btcAmount} USDT + ETH ${rule.ethAmount} USDT`,
+            reason: `BTC 现价 ${formatPrice(btc.price)}，低于 ${formatPrice(rule.btcPriceBelow)}。`,
+            reset: `BTC 重新站上 ${formatPrice(rule.resetAbove)} 后才允许同档再次触发。`,
+            invalid: "现金低于 40%、价格源失败、当天已有主动交易时不执行。",
+            action: "按计划分批执行，不额外加码。",
+            discipline: "每个下跌档只触发一次，避免低位横盘慢性满仓。"
+          });
+          buySignalThisRun ||= added;
+        }
       }
     }
 
-    for (const rule of rules.ethDipRules || []) {
-      if (rapidDropObserve || btcDipOrRiskTriggered) continue;
-      if (!Number.isFinite(eth?.price)) continue;
-      if (eth.price <= Number(rule.priceBelow) && !dipAlreadyTriggered(alertState, rule.id)) {
-        markDipTriggered(alertState, rule, eth.price);
-        addAlert(alerts, alertState, rules, {
+    if (!rapidDropObserve && !buySignalThisRun && Number.isFinite(eth?.price)) {
+      const candidates = (rules.ethDipRules || [])
+        .filter((rule) => eth.price <= Number(rule.priceBelow))
+        .filter((rule) => !alreadyTriggered(alertState, rule.id))
+        .sort((a, b) => Number(a.priceBelow) - Number(b.priceBelow));
+      const rule = candidates[0];
+      if (rule) {
+        markTriggered(alertState, rule, { triggerPrice: eth.price, resetAbove: rule.resetAbove });
+        const added = addTradeAlert(alerts, alertState, rules, {
           id: rule.id,
           symbol: "ETH",
           type: "dip-buy",
           severity: "medium",
-          message: `ETH level hit: ${eth.price.toFixed(2)} <= ${rule.priceBelow}.`,
-          action: `${rule.message} Reset only after ETH > ${rule.resetAbove}.`
+          title: "ETH 独立下跌买点",
+          conclusion: "触发 ETH 独立买点。",
+          amountText: `ETH ${rule.amount} USDT`,
+          reason: `ETH 现价 ${formatPrice(eth.price)}，低于 ${formatPrice(rule.priceBelow)}。`,
+          reset: `ETH 重新站上 ${formatPrice(rule.resetAbove)} 后才允许同档再次触发。`,
+          invalid: "BTC 急跌观察、现金不足或当天已有主动交易时不执行。",
+          action: rule.message,
+          discipline: "ETH 买点不能和 BTC 急跌买点叠加。"
         });
+        buySignalThisRun ||= added;
       }
     }
 
-    const activeBuyTriggeredThisRun = rapidDropObserve || btcDipOrRiskTriggered || alerts.some((alert) => (
-      ["core-fill", "fixed-dca", "dip-buy", "rapid-drop-buy", "risk-pause"].includes(alert.type)
-    ));
-
-    const triggeredWatchSymbols = new Set();
-    const watchRules = [...(rules.watchBuyRules || [])].sort((a, b) => Number(a.priceBelow) - Number(b.priceBelow));
-    for (const rule of watchRules) {
-      if (activeBuyTriggeredThisRun) continue;
-      if (triggeredWatchSymbols.has(rule.symbol)) continue;
-      const row = position(snapshot, rule.symbol);
-      if (!row || !Number.isFinite(row.price)) continue;
-      if (row.price > Number(rule.priceBelow)) continue;
-      if (snapshot.cashPct < Number(rule.requireCashPct || 40)) continue;
-      if (dipAlreadyTriggered(alertState, rule.id)) continue;
-
-      const amount = Number(rule.amount || 0);
-      const projectedSymbolWeight = projectedWeightPct(snapshot, rule.symbol, amount);
-      if (Number.isFinite(Number(rule.maxSymbolWeightPctAfter)) && projectedSymbolWeight > Number(rule.maxSymbolWeightPctAfter)) continue;
-
-      const groupCap = (rules.portfolioCaps || []).find((cap) => (cap.symbols || []).includes(rule.symbol));
-      const projectedGroupWeight = groupCap
-        ? combinedWeight(snapshot, groupCap.symbols) + (snapshot.totalValue > 0 ? amount / snapshot.totalValue * 100 : 0)
-        : 0;
-      if (groupCap && projectedGroupWeight > Number(groupCap.maxPct)) continue;
-
-      markDipTriggered(alertState, rule, row.price);
-      addAlert(alerts, alertState, rules, {
-        id: rule.id,
-        symbol: rule.symbol,
-        type: "watch-buy",
-        severity: "medium",
-        message: `${rule.symbol} watch-buy level hit: ${row.price.toFixed(2)} <= ${rule.priceBelow}.`,
-        action: `Plan: buy ${rule.symbol} ${amount} USDT. ${rule.message || ""} Reset only after ${rule.symbol} > ${rule.resetAbove}.`
-      });
-      triggeredWatchSymbols.add(rule.symbol);
-    }
-
-    for (const rule of rules.trendFollowRules || []) {
-      if (rapidDropObserve) continue;
-      if (!Number.isFinite(btc?.price) || btc.price < Number(rule.btcPriceAbove)) continue;
-      if (snapshot.btcWeeklyGainPct > Number(rule.maxWeeklyGainPct || 999)) {
-        addAlert(alerts, alertState, rules, {
-          id: `${rule.id}-pause-fast-rise`,
-          symbol: rule.symbol || "BTC",
-          type: "trend-pause",
-          severity: "medium",
-          message: `BTC weekly gain is ${snapshot.btcWeeklyGainPct.toFixed(1)}%, above ${rule.maxWeeklyGainPct}%.`,
-          action: "Do not chase. Wait for pullback or confirmation."
-        });
-        continue;
-      }
-      if (rule.onlyIfBelowWeightPct) {
+    if (!rapidDropObserve && !buySignalThisRun) {
+      const triggeredSymbols = new Set();
+      const watchRules = [...(rules.watchBuyRules || [])].sort((a, b) => Number(a.priceBelow) - Number(b.priceBelow));
+      for (const rule of watchRules) {
+        if (buySignalThisRun || triggeredSymbols.has(rule.symbol)) continue;
         const row = position(snapshot, rule.symbol);
-        if (!row || row.weightPct >= Number(rule.onlyIfBelowWeightPct)) continue;
+        if (!row || !row.priceOk || row.isDataBlocked || row.price > Number(rule.priceBelow)) continue;
+        if (snapshot.cashPct < Number(rule.requireCashPct || rules.ordinaryBuyCashMinPct || 40)) continue;
+        if (alreadyTriggered(alertState, rule.id)) continue;
+        const amount = Number(rule.amount || 0);
+        const projectedSymbolWeight = projectedWeightPct(snapshot, rule.symbol, amount);
+        if (Number.isFinite(Number(rule.maxSymbolWeightPctAfter)) && projectedSymbolWeight > Number(rule.maxSymbolWeightPctAfter)) continue;
+        const capBlock = projectedCapBlock(snapshot, rules, rule.symbol, amount);
+        if (capBlock) continue;
+
+        markTriggered(alertState, rule, { triggerPrice: row.price, resetAbove: rule.resetAbove });
+        const isDefensiveWatch = rule.group === "defensive" || rule.group === "gold";
+        const watchTitle = isDefensiveWatch ? `${rule.symbol} 稳定仓下跌买点` : `${rule.symbol} 观察池下跌买点`;
+        const watchDiscipline = isDefensiveWatch
+          ? "VOO/XAUT 是稳定仓，只按预设价格分批，不追高也不一次性满仓。"
+          : "AI 观察池只在规则买点触发时提醒，不因单日大涨追入。";
+        const added = addTradeAlert(alerts, alertState, rules, {
+          id: rule.id,
+          symbol: rule.symbol,
+          type: "watch-buy",
+          severity: "medium",
+          title: watchTitle,
+          conclusion: "触发观察池预设买点。",
+          amountText: `${rule.symbol} ${amount} USDT`,
+          reason: `${rule.symbol} 现价 ${formatPrice(row.price)}，低于 ${formatPrice(rule.priceBelow)}。`,
+          reset: `${rule.symbol} 重新站上 ${formatPrice(rule.resetAbove)} 后才允许同档再次触发。`,
+          invalid: "现金低于 40%、组合上限超标、BTC 急跌或当天已有主动交易时不执行。",
+          action: rule.message,
+          discipline: watchDiscipline
+        });
+        if (added) {
+          buySignalThisRun = true;
+          triggeredSymbols.add(rule.symbol);
+        }
       }
-      addAlert(alerts, alertState, rules, {
-        id: rule.id,
-        symbol: rule.symbol || "BTC",
-        type: "trend-follow",
-        severity: "low",
-        message: `Trend-follow level hit. BTC price ${btc.price.toFixed(2)} >= ${rule.btcPriceAbove}.`,
-        action: `${rule.action} Manual confirmation required: BTC should hold above the level for 2 days.`
-      });
+    }
+
+    if (!rapidDropObserve && !buySignalThisRun) {
+      for (const rule of rules.trendWatchRules || []) {
+        if (buySignalThisRun) continue;
+        const row = position(snapshot, rule.symbol);
+        if (!row || !row.priceOk || row.isDataBlocked || row.price < Number(rule.priceAbove)) continue;
+        if (snapshot.cashPct < Number(rule.requireCashPct || 45)) continue;
+        if (alreadyTriggered(alertState, rule.id)) continue;
+        const amount = Number(rule.amount || 0);
+        const projectedSymbolWeight = projectedWeightPct(snapshot, rule.symbol, amount);
+        if (Number.isFinite(Number(rule.maxSymbolWeightPctAfter)) && projectedSymbolWeight > Number(rule.maxSymbolWeightPctAfter)) continue;
+        const capBlock = projectedCapBlock(snapshot, rules, rule.symbol, amount);
+        if (capBlock) continue;
+
+        markTriggered(alertState, rule, { triggerPrice: row.price, resetBelow: rule.resetBelow });
+        const added = addTradeAlert(alerts, alertState, rules, {
+          id: rule.id,
+          symbol: rule.symbol,
+          type: "trend-watch",
+          severity: "low",
+          title: `${rule.symbol} 上涨追随观察`,
+          conclusion: "进入上涨追随区，但仍需人工确认。",
+          amountText: `${rule.symbol} ${amount} USDT`,
+          reason: `${rule.symbol} 现价 ${formatPrice(row.price)}，高于 ${formatPrice(rule.priceAbove)}。`,
+          reset: `${rule.symbol} 回落到 ${formatPrice(rule.resetBelow)} 以下后重置。`,
+          invalid: "单日暴拉、现金低于 45%、组合上限超标或当天已有主动交易时不执行。",
+          action: rule.message,
+          discipline: "上涨追随是确认买，不是看见突破就追高。"
+        });
+        buySignalThisRun ||= added;
+      }
+    }
+
+    if (!rapidDropObserve && !buySignalThisRun && Number.isFinite(btc?.price)) {
+      for (const rule of rules.trendFollowRules || []) {
+        if (buySignalThisRun) continue;
+        if (btc.price < Number(rule.btcPriceAbove)) continue;
+        if (snapshot.btcWeeklyGainPct > Number(rule.maxWeeklyGainPct || 999)) {
+          addAlert(alerts, alertState, rules, {
+            id: `${rule.id}-pause-fast-rise`,
+            symbol: rule.symbol || "BTC",
+            type: "trend-pause",
+            severity: "medium",
+            title: "BTC 上涨过快，不追",
+            conclusion: "暂停上涨追随。",
+            reason: `BTC 周涨幅 ${formatPct(snapshot.btcWeeklyGainPct)}，超过 ${rule.maxWeeklyGainPct}%。`,
+            action: "等待回调或横盘确认。",
+            discipline: "上涨追随不是追单，先确认趋势质量。"
+          });
+          continue;
+        }
+        if (alreadyTriggered(alertState, rule.id)) continue;
+        markTriggered(alertState, rule, { triggerPrice: btc.price, resetBelow: rule.resetBelow });
+        const amountText = rule.btcAmount
+          ? `BTC ${rule.btcAmount} USDT + ETH ${rule.ethAmount || 0} USDT`
+          : `BTC ${rule.amount || 0} USDT`;
+        const added = addTradeAlert(alerts, alertState, rules, {
+          id: rule.id,
+          symbol: rule.symbol || "BTC",
+          type: "trend-follow",
+          severity: "low",
+          title: "BTC 上涨追随提醒",
+          conclusion: "进入上涨追随观察区，必须人工确认连续站稳。",
+          amountText,
+          reason: `BTC 现价 ${formatPrice(btc.price)}，高于 ${formatPrice(rule.btcPriceAbove)}。`,
+          reset: `BTC 回落到 ${formatPrice(rule.resetBelow)} 以下后重置。`,
+          invalid: "BTC 单周涨幅超过 15%、现金不足或当天已有主动交易时不执行。",
+          action: rule.action,
+          discipline: "连续 2 日站稳后再考虑，不做单日追涨。"
+        });
+        buySignalThisRun ||= added;
+      }
     }
   }
 
   for (const [symbol, sellRules] of Object.entries(rules.sellRules || {})) {
     const row = position(snapshot, symbol);
-    if (!row) continue;
+    if (!row || row.value <= 0) continue;
     for (const rule of sellRules) {
       const priceHit = Number.isFinite(Number(rule.priceAbove)) && Number.isFinite(row.price) && row.price >= Number(rule.priceAbove);
       const weightHit = Number.isFinite(Number(rule.weightAbovePct)) && row.weightPct >= Number(rule.weightAbovePct);
@@ -897,8 +889,12 @@ function evaluateRules(snapshot, rules, alertState) {
           symbol,
           type: "sell",
           severity: "medium",
-          message: `${symbol} sell/reduce rule hit. Price ${Number.isFinite(row.price) ? row.price.toFixed(4) : "N/A"}, weight ${row.weightPct.toFixed(1)}%.`,
-          action: `Suggested sell ratio: ${rule.sellPct || 0}%. ${rule.message || ""}`
+          title: `${symbol} 止盈或再平衡提醒`,
+          conclusion: "达到止盈或仓位上限规则。",
+          amountText: `建议卖出/减仓 ${rule.sellPct || 0}%`,
+          reason: `${symbol} 现价 ${formatPrice(row.price)}，仓位 ${formatPct(row.weightPct)}。`,
+          action: rule.message,
+          discipline: "止盈不是看空，是把过热仓位换回现金。"
         });
       }
     }
@@ -946,8 +942,8 @@ async function main() {
   if (!holdings || !rules) throw new Error("Missing config files");
 
   const symbols = [...new Set(allAssets(holdings).map((asset) => asset.symbol))];
-  const { prices, errors } = await loadPrices(symbols);
-  const snapshot = buildSnapshot(holdings, prices, errors);
+  const { quotes, errors } = await loadPrices(symbols);
+  const snapshot = buildSnapshot(holdings, quotes, errors, rules);
   snapshot.btcFiveMinuteChangePct = await loadBtcFiveMinuteChangePct();
   const alerts = evaluateRules(snapshot, rules, alertState);
   if (process.env.TEST_EMAIL === "true") {
@@ -956,24 +952,30 @@ async function main() {
       symbol: "TEST",
       type: "test-email",
       severity: "low",
-      message: "手动测试邮件已触发。",
-      action: "如果你收到这封邮件，说明 SMTP 邮件链路正常。"
+      title: "邮件通道测试成功",
+      conclusion: "不用交易。收到这封邮件说明 SMTP 邮件链路正常。",
+      action: "正式提醒仍只在规则触发时发送。",
+      discipline: "测试邮件不代表买卖建议。"
     });
   }
   const email = await sendEmail(alerts, snapshot);
 
-  await writeJson(files.snapshot, snapshot);
-  await writeJson(files.alerts, { updatedAt: snapshot.updatedAt, email, alerts });
-  await writeJson(files.alertState, alertState);
+  if (!noWrite) {
+    await writeJson(files.snapshot, snapshot);
+    await writeJson(files.alerts, { updatedAt: snapshot.updatedAt, email, alerts });
+    await writeJson(files.alertState, alertState);
+  }
 
   console.log(JSON.stringify({
     totalValue: snapshot.totalValue,
     cashPct: snapshot.cashPct,
     drawdownPct: snapshot.drawdownPct,
+    dataStatus: dataStatus(snapshot),
     btcFiveMinuteChangePct: snapshot.btcFiveMinuteChangePct,
     alerts: alerts.length,
     email,
-    priceErrors: errors
+    priceErrors: errors,
+    noWrite
   }, null, 2));
 }
 

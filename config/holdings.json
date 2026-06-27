@@ -1,14 +1,14 @@
 {
   "baseCurrency": "USDT",
   "cash": [
-    { "symbol": "USDT", "quantity": 12684.13874886, "cost": 1, "type": "cash" },
-    { "symbol": "USDGO", "quantity": 1501.94752253, "cost": 1, "type": "cash" }
+    { "symbol": "USDT", "quantity": 12618.88430083, "cost": 1, "type": "cash" },
+    { "symbol": "USDGO", "quantity": 1502.54376978, "cost": 1.0019, "type": "cash" }
   ],
   "positions": [
-    { "symbol": "BTC", "quantity": 0.01835615, "cost": 59924.00, "type": "crypto" },
-    { "symbol": "ETH", "quantity": 0.1605647, "cost": 1557.00, "type": "crypto" },
-    { "symbol": "DOGE", "quantity": 4662.3598142, "cost": 0.07506, "type": "crypto" },
-    { "symbol": "BGB", "quantity": 26.60353409, "cost": 1.9692, "type": "crypto" },
+    { "symbol": "BTC", "quantity": 0.01841215, "cost": 59741.49, "type": "crypto" },
+    { "symbol": "ETH", "quantity": 0.1592747, "cost": 1569.49, "type": "crypto" },
+    { "symbol": "DOGE", "quantity": 5073.6003142, "cost": 0.07489, "type": "crypto" },
+    { "symbol": "BGB", "quantity": 25.91259087, "cost": 1.978, "type": "crypto" },
     { "symbol": "VOO", "quantity": 0, "cost": 0, "type": "watch" },
     { "symbol": "XAUT", "quantity": 0, "cost": 0, "type": "watch" },
     { "symbol": "AVGO", "quantity": 0, "cost": 0, "type": "watch" },
@@ -18,6 +18,7 @@
     { "symbol": "DRAM", "quantity": 0, "cost": 0, "type": "watch" },
     { "symbol": "WDC", "quantity": 0, "cost": 0, "type": "watch" },
     { "symbol": "ASX", "quantity": 0, "cost": 0, "type": "watch" },
-    { "symbol": "AAOI", "quantity": 0, "cost": 0, "type": "watch" }
+    { "symbol": "AAOI", "quantity": 0, "cost": 0, "type": "watch" },
+    { "symbol": "GLW", "quantity": 0, "cost": 0, "type": "watch" }
   ]
 }
