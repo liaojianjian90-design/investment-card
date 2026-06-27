@@ -1,21 +1,8 @@
 {
-  "updatedAt": "2026-06-27T06:55:12.284Z",
+  "updatedAt": "2026-06-27T06:57:23.602Z",
   "email": {
-    "sent": true,
+    "sent": false,
     "missing": []
   },
-  "alerts": [
-    {
-      "id": "doge-stop-add",
-      "symbol": "DOGE",
-      "type": "weight-risk",
-      "severity": "medium",
-      "title": "DOGE 达到暂停加仓线",
-      "conclusion": "暂停给该标的加仓。",
-      "reason": "DOGE 当前仓位 2.4%，达到或超过 2%。",
-      "action": "只持有或等待再平衡，不做追买。",
-      "discipline": "看好不等于无限加仓。",
-      "createdAt": "2026-06-27T06:55:12.443Z"
-    }
-  ]
+  "alerts": []
 }
