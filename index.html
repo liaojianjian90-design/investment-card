@@ -292,30 +292,17 @@
         <div class="rule-box">
           <h3>二、目标仓位与上限</h3>
           <table>
-            <thead><tr><th>模块</th><th>目标/上限</th></tr></thead>
-            <tbody>
-              <tr><td>BTC</td><td>目标 8%-18%，超过 22% 暂停，超过 25% 提醒减仓</td></tr>
-              <tr><td>ETH</td><td>目标 3%-8%，超过 10% 暂停，超过 12% 提醒减仓</td></tr>
-              <tr><td>DOGE</td><td>不补仓，只止盈，上限 2%</td></tr>
-              <tr><td>BGB</td><td>不补仓，反弹可清，上限 1%</td></tr>
-              <tr><td>VOO</td><td>目标 10%-20%，超过 30% 再平衡</td></tr>
-              <tr><td>XAUT</td><td>目标 5%-8%，超过 12% 再平衡</td></tr>
-            </tbody>
+            <thead><tr><th>标的</th><th>当前/目标/上限</th><th>状态</th></tr></thead>
+            <tbody id="targetRows"></tbody>
           </table>
+          <p class="muted">观察池标的即使当前为 0 仓位，也会显示目标和上限，方便建仓前先看纪律边界。</p>
         </div>
 
         <div class="rule-box">
           <h3>三、组合相关性限制</h3>
           <table>
-            <thead><tr><th>组合</th><th>上限</th></tr></thead>
-            <tbody>
-              <tr><td>BTC + ETH + DOGE + BGB</td><td>40%</td></tr>
-              <tr><td>DOGE + BGB</td><td>4%</td></tr>
-              <tr><td>AI/存储/光通信观察池</td><td>15%</td></tr>
-              <tr><td>DRAM + MU + SNDK + WDC</td><td>12%</td></tr>
-              <tr><td>AAOI + FN</td><td>4%</td></tr>
-              <tr><td>VOO + XAUT</td><td>30%</td></tr>
-            </tbody>
+            <thead><tr><th>组合</th><th>当前/上限</th><th>状态</th></tr></thead>
+            <tbody id="capRows"></tbody>
           </table>
         </div>
 
@@ -671,6 +658,44 @@
       return symbols.reduce((sum, symbol) => sum + (snapshot.positions.find((row) => row.symbol === symbol)?.weightPct || 0), 0);
     }
 
+    function targetText(target) {
+      const min = Number(target?.minPct || 0);
+      const targetMax = Number(target?.targetMaxPct || target?.stopAddPct || 0);
+      const stop = Number(target?.stopAddPct || 0);
+      const trim = Number(target?.trimPct || 0);
+      const targetPart = min > 0 ? `目标 ${formatPct(min)}-${formatPct(targetMax)}` : `观察仓上限 ${formatPct(targetMax)}`;
+      const stopPart = stop ? `暂停 ${formatPct(stop)}` : "";
+      const trimPart = trim ? `减仓 ${formatPct(trim)}` : "";
+      return [targetPart, stopPart, trimPart].filter(Boolean).join(" / ");
+    }
+
+    function targetStatus(weight, target) {
+      const stop = Number(target?.stopAddPct || 0);
+      const trim = Number(target?.trimPct || 0);
+      if (trim && weight >= trim) return { label: "超过减仓线", level: "risk" };
+      if (stop && weight >= stop) return { label: "达到暂停线", level: "warn" };
+      if (weight === 0) return { label: "观察中", level: "info" };
+      return { label: "正常", level: "" };
+    }
+
+    function capName(cap) {
+      const key = (cap.id || cap.symbols.join("-")).toLowerCase();
+      if (key.includes("crypto")) return "加密总仓";
+      if (key.includes("doge-bgb")) return "DOGE + BGB 高投机仓";
+      if (key.includes("ai-watch")) return "AI/存储/光通信观察池";
+      if (key.includes("storage")) return "存储周期篮子";
+      if (key.includes("optical")) return "高波动光通信";
+      if (key.includes("defensive")) return "VOO + XAUT 稳定仓";
+      return cap.symbols.join(" + ");
+    }
+
+    function capStatus(weight, maxPct) {
+      if (weight >= maxPct) return { label: "超上限", level: "risk" };
+      if (weight >= maxPct * 0.8) return { label: "接近上限", level: "warn" };
+      if (weight === 0) return { label: "未建仓", level: "info" };
+      return { label: "正常", level: "" };
+    }
+
     function freshness(snapshot) {
       if (snapshot.isDataBlocked) return { label: `过期 ${snapshot.dataAgeMinutes.toFixed(0)} 分钟`, level: "risk" };
       if (snapshot.isStale) return { label: `偏旧 ${snapshot.dataAgeMinutes.toFixed(0)} 分钟`, level: "warn" };
@@ -716,6 +741,39 @@
         <span class="pill ${fresh.level}">${fresh.label}</span>
         ${snapshot.isDataBlocked ? " 数据已超过 30 分钟，禁止按信号买入。" : " 邮件提醒和网页展示均不会自动下单。"}
       `;
+    }
+
+    function renderTargetRules(snapshot, rules) {
+      const targets = rules.targets || {};
+      const order = ["BTC", "ETH", "DOGE", "BGB", "VOO", "XAUT", "AVGO", "FN", "MU", "SNDK", "DRAM", "WDC", "ASX", "AAOI", "GLW"];
+      const symbols = [...order.filter((symbol) => targets[symbol]), ...Object.keys(targets).filter((symbol) => !order.includes(symbol))];
+      document.getElementById("targetRows").innerHTML = symbols.map((symbol) => {
+        const row = snapshot.positions.find((item) => item.symbol === symbol);
+        const weight = Number(row?.weightPct || 0);
+        const status = targetStatus(weight, targets[symbol]);
+        return `
+          <tr>
+            <td><strong>${symbol}</strong><br><span class="muted">${row?.name || names[symbol] || ""}</span></td>
+            <td><strong>${formatPct(weight)}</strong><br><span class="muted">${targetText(targets[symbol])}</span></td>
+            <td><span class="pill ${status.level}">${status.label}</span></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderCapRules(snapshot, rules) {
+      document.getElementById("capRows").innerHTML = (rules.portfolioCaps || []).map((cap) => {
+        const weight = combinedWeight(snapshot, cap.symbols || []);
+        const maxPct = Number(cap.maxPct || 0);
+        const status = capStatus(weight, maxPct);
+        return `
+          <tr>
+            <td><strong>${capName(cap)}</strong><br><span class="muted">${(cap.symbols || []).join(" + ")}</span></td>
+            <td><strong>${formatPct(weight)} / ${formatPct(maxPct)}</strong><br><span class="muted">${cap.message || ""}</span></td>
+            <td><span class="pill ${status.level}">${status.label}</span></td>
+          </tr>
+        `;
+      }).join("");
     }
 
     function renderPositions(snapshot, rules) {
@@ -837,6 +895,8 @@
       }
       const alerts = await safeFetchJson("data/alerts.json", { alerts: [] });
       renderSummary(snapshot);
+      renderTargetRules(snapshot, rules);
+      renderCapRules(snapshot, rules);
       renderPositions(snapshot, rules);
       renderAlerts(alerts, snapshot);
     }
