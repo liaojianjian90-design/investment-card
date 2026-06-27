@@ -13,6 +13,10 @@ on:
     # Use the most common 5-minute syntax first; if GitHub does not trigger it, use an external cron fallback.
     - cron: "*/5 * * * *"
 
+concurrency:
+  group: investment-monitor
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
