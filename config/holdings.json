@@ -1,7 +1,7 @@
 {
   "baseCurrency": "USDT",
   "cash": [
-    { "symbol": "USDT", "quantity": 12618.88430083, "cost": 1, "type": "cash" },
+    { "symbol": "USDT", "quantity": 12218.88430083, "cost": 1, "type": "cash" },
     { "symbol": "USDGO", "quantity": 1502.54376978, "cost": 1.0019, "type": "cash" }
   ],
   "positions": [
@@ -13,10 +13,10 @@
     { "symbol": "XAUT", "quantity": 0, "cost": 0, "type": "watch" },
     { "symbol": "AVGO", "quantity": 0, "cost": 0, "type": "watch" },
     { "symbol": "FN", "quantity": 0, "cost": 0, "type": "watch" },
-    { "symbol": "MU", "quantity": 0, "cost": 0, "type": "watch" },
+    { "symbol": "MU", "quantity": 0.17540371, "cost": 1139.16, "type": "watch" },
     { "symbol": "SNDK", "quantity": 0, "cost": 0, "type": "watch" },
     { "symbol": "DRAM", "quantity": 0, "cost": 0, "type": "watch" },
-    { "symbol": "WDC", "quantity": 0, "cost": 0, "type": "watch" },
+    { "symbol": "WDC", "quantity": 0.3305247, "cost": 604.3, "type": "watch" },
     { "symbol": "ASX", "quantity": 0, "cost": 0, "type": "watch" },
     { "symbol": "AAOI", "quantity": 0, "cost": 0, "type": "watch" },
     { "symbol": "GLW", "quantity": 0, "cost": 0, "type": "watch" }
