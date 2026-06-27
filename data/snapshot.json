@@ -1,16 +1,16 @@
 {
-  "updatedAt": "2026-06-27T00:40:13.473Z",
+  "updatedAt": "2026-06-27T00:45:13.866Z",
   "source": "github-actions",
-  "totalValue": 15930.410307976996,
+  "totalValue": 15931.508440121894,
   "cashValue": 14186.086271389999,
-  "cashPct": 89.05035085183246,
+  "cashPct": 89.04421276056807,
   "weights": {
-    "USDT": 79.62217233355592,
-    "USDGO": 9.428178518276548,
-    "BTC": 6.894613597617239,
-    "ETH": 1.582383325593148,
-    "DOGE": 2.1991255069153106,
-    "BGB": 0.27352671804185597,
+    "USDT": 79.61668411081702,
+    "USDGO": 9.427528649751062,
+    "BTC": 6.899323225614099,
+    "ETH": 1.5833929610438693,
+    "DOGE": 2.199412900248384,
+    "BGB": 0.2736581525255648,
     "VOO": 0,
     "XAUT": 0,
     "AVGO": 0,
@@ -35,7 +35,7 @@
       "value": 12684.13874886,
       "pnl": 0,
       "pnlPct": 0,
-      "weightPct": 79.62217233355592
+      "weightPct": 79.61668411081702
     },
     {
       "symbol": "USDGO",
@@ -48,59 +48,59 @@
       "value": 1501.94752253,
       "pnl": 0,
       "pnlPct": 0,
-      "weightPct": 9.428178518276548
+      "weightPct": 9.427528649751062
     },
     {
       "symbol": "BTC",
       "type": "crypto",
       "quantity": 0.01835615,
       "cost": 59924,
-      "price": 59835,
+      "price": 59880,
       "priceOk": true,
       "priceError": null,
-      "value": 1098.3402352500002,
-      "pnl": -1.6336973499999203,
-      "pnlPct": -0.14852146051664716,
-      "weightPct": 6.894613597617239
+      "value": 1099.1662620000002,
+      "pnl": -0.8076705999999376,
+      "pnlPct": -0.07342634003069988,
+      "weightPct": 6.899323225614099
     },
     {
       "symbol": "ETH",
       "type": "crypto",
       "quantity": 0.1605647,
       "cost": 1557,
-      "price": 1569.96,
+      "price": 1571.07,
       "priceOk": true,
       "priceError": null,
-      "value": 252.080156412,
-      "pnl": 2.080918512000011,
-      "pnlPct": 0.8323699421965363,
-      "weightPct": 1.582383325593148
+      "value": 252.258383229,
+      "pnl": 2.259145329000006,
+      "pnlPct": 0.9036608863198483,
+      "weightPct": 1.5833929610438693
     },
     {
       "symbol": "DOGE",
       "type": "crypto",
       "quantity": 4662.3598142,
       "cost": 0.07506,
-      "price": 0.07514,
+      "price": 0.075155,
       "priceOk": true,
       "priceError": null,
-      "value": 350.329716438988,
-      "pnl": 0.37298878513598765,
-      "pnlPct": 0.10658140154542678,
-      "weightPct": 2.1991255069153106
+      "value": 350.39965183620103,
+      "pnl": 0.4429241823490315,
+      "pnlPct": 0.12656541433520752,
+      "weightPct": 2.199412900248384
     },
     {
       "symbol": "BGB",
       "type": "crypto",
       "quantity": 26.60353409,
       "cost": 1.9692,
-      "price": 1.6379,
+      "price": 1.6388,
       "priceOk": true,
       "priceError": null,
-      "value": 43.573928486011,
-      "pnl": -8.813750844017001,
-      "pnlPct": -16.8240910014219,
-      "weightPct": 0.27352671804185597
+      "value": 43.597871666692,
+      "pnl": -8.789807663336,
+      "pnlPct": -16.77838716229941,
+      "weightPct": 0.2736581525255648
     },
     {
       "symbol": "VOO",
@@ -159,7 +159,7 @@
       "type": "watch",
       "quantity": 0,
       "cost": 0,
-      "price": 1135.48,
+      "price": 1136.2,
       "priceOk": true,
       "priceError": null,
       "value": 0,
@@ -233,10 +233,10 @@
       "weightPct": 0
     }
   ],
-  "btcFiveMinuteChangePct": 0.025843093408277194,
+  "btcFiveMinuteChangePct": -0.009320466310105392,
   "highWatermark": 15942.432019943328,
-  "drawdownPct": 0.07540701413243231,
-  "btcWeeklyGainPct": -0.4608064945435188,
+  "drawdownPct": 0.06851890481809225,
+  "btcWeeklyGainPct": -0.38594623369709874,
   "buyPauseUntil": null,
   "buyPaused": false
 }
