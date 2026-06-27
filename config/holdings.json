@@ -1,7 +1,7 @@
 {
   "baseCurrency": "USDT",
   "cash": [
-    { "symbol": "USDT", "quantity": 12418.88430083, "cost": 1, "type": "cash" },
+    { "symbol": "USDT", "quantity": 12218.88430083, "cost": 1, "type": "cash" },
     { "symbol": "USDGO", "quantity": 1502.54376978, "cost": 1.0019, "type": "cash" }
   ],
   "positions": [
