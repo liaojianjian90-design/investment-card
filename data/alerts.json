@@ -1,24 +1,8 @@
 {
-  "updatedAt": "2026-06-27T13:05:14.438Z",
+  "updatedAt": "2026-06-27T13:10:14.007Z",
   "email": {
-    "sent": true,
+    "sent": false,
     "missing": []
   },
-  "alerts": [
-    {
-      "id": "watch-dram-72",
-      "symbol": "DRAM",
-      "type": "watch-buy",
-      "severity": "medium",
-      "title": "DRAM 观察池下跌买点",
-      "conclusion": "触发观察池预设买点。",
-      "amountText": "DRAM 120 USDT",
-      "reason": "DRAM 现价 71.99，低于 72.00。",
-      "reset": "DRAM 重新站上 76.00 后才允许同档再次触发。",
-      "invalid": "现金低于 40%、组合上限超标、BTC 急跌或当天已有主动交易时不执行。",
-      "action": "DRAM 第一档存储 ETF 买点。",
-      "discipline": "AI 观察池只在规则买点触发时提醒，不因单日大涨追入。",
-      "createdAt": "2026-06-27T13:05:14.629Z"
-    }
-  ]
+  "alerts": []
 }
