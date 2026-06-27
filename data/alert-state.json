@@ -4,8 +4,16 @@
     "week": "2026-26",
     "btcPrice": 60359.49
   },
-  "triggeredLevels": {},
+  "triggeredLevels": {
+    "watch-dram-72": {
+      "triggeredAt": "2026-06-27T13:05:14.615Z",
+      "triggerPrice": 71.99,
+      "resetAbove": 76
+    }
+  },
   "lastAlerts": {
-    "doge-stop-add": "2026-06-27T06:55:12.443Z"
-  }
+    "doge-stop-add": "2026-06-27T06:55:12.443Z",
+    "watch-dram-72": "2026-06-27T13:05:14.629Z"
+  },
+  "lastActiveTradeDate": "2026-06-27"
 }
