@@ -1,1 +1,11 @@
-{}
+{
+  "highWatermark": 15911.42773457286,
+  "weeklyReference": {
+    "week": "2026-26",
+    "btcPrice": 60359.49
+  },
+  "triggeredLevels": {},
+  "lastAlerts": {
+    "doge-stop-add": "2026-06-27T06:55:12.443Z"
+  }
+}
