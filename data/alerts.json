@@ -1,20 +1,8 @@
 {
-  "updatedAt": "2026-06-28T11:18:31.506Z",
+  "updatedAt": "2026-06-28T11:20:13.756Z",
   "email": {
-    "sent": true,
+    "sent": false,
     "missing": []
   },
-  "alerts": [
-    {
-      "id": "manual-test-email-1782645511687",
-      "symbol": "TEST",
-      "type": "test-email",
-      "severity": "low",
-      "title": "邮件通道测试成功",
-      "conclusion": "不用交易。收到这封邮件说明 SMTP 邮件链路正常。",
-      "action": "正式提醒仍只在规则触发时发送。",
-      "discipline": "测试邮件不代表买卖建议。",
-      "createdAt": "2026-06-28T11:18:31.687Z"
-    }
-  ]
+  "alerts": []
 }
