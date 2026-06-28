@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { calculateHealthSummary, getV4Rules } from "../src/lib/investmentHealth.mjs";
 
 const root = process.cwd();
 const isDryRun = process.argv.includes("--dry-run");
@@ -30,6 +31,12 @@ const names = {
   VOO: "Vanguard S&P 500 ETF",
   XAUT: "Tether Gold",
   AVGO: "Broadcom",
+  MRVL: "Marvell Technology",
+  ANET: "Arista Networks",
+  TSM: "Taiwan Semiconductor Manufacturing",
+  ASML: "ASML Holding",
+  SMH: "VanEck Semiconductor ETF",
+  SOXX: "iShares Semiconductor ETF",
   FN: "Fabrinet",
   MU: "Micron",
   SNDK: "SanDisk",
@@ -82,7 +89,7 @@ function allAssets(holdings) {
 }
 
 async function fetchJson(url) {
-  const res = await fetch(url, { headers: { "user-agent": "investment-monitor-card/3.0" } });
+  const res = await fetch(url, { headers: { "user-agent": "investment-monitor-card/5.0" } });
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${url}`);
   return res.json();
 }
@@ -279,6 +286,141 @@ function addTradeAlert(alerts, alertState, rules, alert) {
   return added;
 }
 
+function addWeeklyAlert(alerts, alertState, rules, baseId, alert) {
+  return addAlert(alerts, alertState, rules, { ...alert, id: `${baseId}-${isoWeek(new Date())}` });
+}
+
+function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
+  const v5 = getV4Rules(rules);
+  const emailPolicy = v5.emailPolicy || {};
+  if (emailPolicy.enabled === false) return;
+
+  const cashPct = Number(snapshot.cashPct || 0);
+  const btcWeight = position(snapshot, "BTC")?.weightPct || 0;
+  const ethWeight = position(snapshot, "ETH")?.weightPct || 0;
+  const vooWeight = position(snapshot, "VOO")?.weightPct || 0;
+  const xautWeight = position(snapshot, "XAUT")?.weightPct || 0;
+  const specSymbols = v5.speculativeLayer?.symbols || ["DOGE", "BGB"];
+  const themeSymbols = v5.themeLayer?.symbols || [];
+  const specWeight = combinedWeight(snapshot, specSymbols);
+  const themeWeight = combinedWeight(snapshot, themeSymbols);
+  const corePlusStable = btcWeight + ethWeight + vooWeight + xautWeight;
+  const cashStructurePct = Number(emailPolicy.sendStructureWhenCashAbovePct ?? 0.80) * 100;
+  const coreCashPct = Number(emailPolicy.sendCoreMissingWhenCashAbovePct ?? 0.75) * 100;
+  const stableCashPct = Number(emailPolicy.sendStableMissingWhenCashAbovePct ?? 0.75) * 100;
+  const noNewSpecPct = Number(emailPolicy.sendSpeculativeNoNewBuyAbove ?? v5.speculativeLayer?.noNewBuyAbove ?? 0.025) * 100;
+  const reduceOnlySpecPct = Number(emailPolicy.sendSpeculativeReduceOnlyAbove ?? v5.speculativeLayer?.reduceOnlyAbove ?? 0.03) * 100;
+
+  if (cashPct > cashStructurePct) {
+    addWeeklyAlert(alerts, alertState, rules, "v5-cash-high-structure", {
+      symbol: "CASH",
+      type: "structure",
+      severity: "low",
+      title: "现金过高，资金效率偏低",
+      conclusion: "账户很安全，但长期资产配置不足。",
+      reason: `当前现金比例 ${formatPct(cashPct)}，超过 ${formatPct(cashStructurePct)}。`,
+      action: "不要一次性打光现金；优先用小额、分批方式补 BTC/ETH 最低核心仓，并建立 VOO/XAUT 底仓。",
+      discipline: "现金是防守和二次进攻权，但长期 80%+ 现金会降低资金效率。"
+    });
+  }
+
+  if (cashPct >= coreCashPct && (btcWeight < 8 || ethWeight < 3)) {
+    addWeeklyAlert(alerts, alertState, rules, "v5-core-missing", {
+      symbol: "BTC/ETH",
+      type: "core-fill",
+      severity: "low",
+      title: "BTC/ETH 核心仓不足",
+      conclusion: "优先把 BTC 补到 8% 以上、ETH 补到 3% 以上。",
+      reason: `当前 BTC ${formatPct(btcWeight)}，ETH ${formatPct(ethWeight)}，现金 ${formatPct(cashPct)}。`,
+      amountText: "每周合计不超过账户总值 2%",
+      action: "只做慢补，不追涨；现金低于 65% 后暂停结构补仓。",
+      discipline: "BTC/ETH 是加密核心仓，但不是无限加仓。"
+    });
+  }
+
+  if (cashPct >= stableCashPct && (vooWeight <= 0 || xautWeight <= 0)) {
+    addWeeklyAlert(alerts, alertState, rules, "v5-stable-missing", {
+      symbol: "VOO/XAUT",
+      type: "stable-build",
+      severity: "low",
+      title: "VOO/XAUT 长期稳定层缺位",
+      conclusion: "建议分批建立 VOO 与 XAUT 底仓。",
+      reason: `当前 VOO ${formatPct(vooWeight)}，XAUT ${formatPct(xautWeight)}。`,
+      amountText: "VOO 每次 200-300 USDT；XAUT 每次 100-200 USDT",
+      action: "底仓建设不必只等极端低价，但必须分批执行。",
+      discipline: "VOO/XAUT 是稳定层，不是短线交易仓。"
+    });
+  }
+
+  if (specWeight >= noNewSpecPct) {
+    addAlert(alerts, alertState, rules, {
+      id: "v5-spec-no-new-buy",
+      symbol: specSymbols.join("+"),
+      type: "spec-risk",
+      severity: specWeight >= reduceOnlySpecPct ? "medium" : "medium",
+      title: "DOGE/BGB 投机仓禁止新增",
+      conclusion: specWeight >= reduceOnlySpecPct ? "已进入只减不补区。" : "已达到禁止新增区。",
+      reason: `${specSymbols.join(" + ")} 当前合计仓位 ${formatPct(specWeight)}。`,
+      action: "不要补 DOGE，不要补 BGB；后续以反弹减仓为主。",
+      discipline: "投机仓不能用摊低成本的方式变成主仓。"
+    });
+  }
+
+  if (themeWeight >= Number(v5.themeLayer?.hardMax ?? 0.15) * 100) {
+    addAlert(alerts, alertState, rules, {
+      id: "v5-theme-hard-max",
+      symbol: "AI",
+      type: "theme-gate",
+      severity: "high",
+      title: "AI观察仓超过硬上限",
+      conclusion: "停止新增 AI/半导体/存储/光通信仓位。",
+      reason: `AI观察仓当前合计 ${formatPct(themeWeight)}，超过硬上限 15%。`,
+      action: "只允许复盘或再平衡，不允许继续扩大主题仓。",
+      discipline: "相关性高的 AI 资产不能当成真正分散。"
+    });
+  } else if (corePlusStable < 25 && themeWeight >= Number(v5.themeLayer?.maxBeforeCoreComplete ?? 0.05) * 100) {
+    addAlert(alerts, alertState, rules, {
+      id: "v5-theme-before-core-complete",
+      symbol: "AI",
+      type: "theme-gate",
+      severity: "medium",
+      title: "核心仓未完成，AI观察仓暂停扩大",
+      conclusion: "BTC/ETH/VOO/XAUT 未达最低结构前，AI观察仓最高建议 5%。",
+      reason: `核心+稳定层 ${formatPct(corePlusStable)}，AI观察仓 ${formatPct(themeWeight)}。`,
+      action: "优先补核心仓和稳定层；AI 标的只观察，不抢先扩大。",
+      discipline: "AI观察仓用于收益增强，不是账户底盘。"
+    });
+  }
+
+  if (v5.mrvlRule?.enabled) {
+    const mrvlWeight = position(snapshot, "MRVL")?.weightPct || 0;
+    if (mrvlWeight <= 0) {
+      addWeeklyAlert(alerts, alertState, rules, "v5-mrvl-observe", {
+        symbol: "MRVL",
+        type: "theme-gate",
+        severity: "low",
+        title: "MRVL 加入 AI 观察池",
+        conclusion: "MRVL 可作为 AI互联/定制芯片观察仓，但不触发优先买入。",
+        reason: "MRVL 与 MU/WDC 不完全重复，可补充 AI 数据中心网络与定制芯片观察维度。",
+        action: corePlusStable < 25 ? "核心仓未达标前只观察，不发买入邮件。" : "若核心仓基本达标且 AI仓低于 5%，才考虑 0.5%-1% 小额试仓。",
+        discipline: "MRVL 不是核心仓，单只 AI 股票不能替代 BTC/ETH/VOO/XAUT。"
+      });
+    } else if (mrvlWeight >= Number(v5.mrvlRule.hardMaxPct || 0.02) * 100) {
+      addAlert(alerts, alertState, rules, {
+        id: "v5-mrvl-hard-max",
+        symbol: "MRVL",
+        type: "theme-gate",
+        severity: "medium",
+        title: "MRVL 达到硬上限",
+        conclusion: "MRVL 只允许持有或再平衡，不再新增。",
+        reason: `MRVL 当前仓位 ${formatPct(mrvlWeight)}。`,
+        action: "复核是否需要降低单一 AI 股票集中度。",
+        discipline: "单只 AI 股票上限必须比主题总仓更严格。"
+      });
+    }
+  }
+}
+
 function position(snapshot, symbol) {
   return snapshot.positions.find((row) => row.symbol === symbol);
 }
@@ -425,6 +567,11 @@ function rowStatus(row) {
 function alertTypeLabel(type) {
   return {
     "data-risk": "数据异常",
+    structure: "结构提醒",
+    "core-fill": "核心仓不足",
+    "stable-build": "稳定层底仓",
+    "spec-risk": "投机仓风控",
+    "theme-gate": "AI观察仓限制",
     risk: "现金风控",
     "drawdown-risk": "回撤风控",
     "cap-risk": "组合上限",
@@ -439,6 +586,7 @@ function alertTypeLabel(type) {
     "trend-watch": "观察池上涨追随",
     "watch-buy": "观察池买点",
     sell: "止盈/再平衡",
+    rebalance: "再平衡",
     "test-email": "邮件测试"
   }[type] || "规则提醒";
 }
@@ -469,7 +617,16 @@ function uniqueSymbols(alerts) {
 function buildEmailContent(alerts, snapshot) {
   const symbols = uniqueSymbols(alerts);
   const hasHigh = alerts.some((alert) => alert.severity === "high");
-  const subjectPrefix = hasHigh ? "【投资风控提醒】" : "【投资监控提醒】";
+  const hasSell = alerts.some((alert) => alert.type === "sell" || alert.type === "rebalance");
+  const structureTypes = new Set(["structure", "core-fill", "stable-build", "spec-risk", "theme-gate"]);
+  const hasStructure = alerts.some((alert) => structureTypes.has(alert.type));
+  const subjectPrefix = hasHigh
+    ? "【投资风控提醒】"
+    : hasSell
+      ? "【投资再平衡提醒】"
+      : hasStructure
+        ? "【投资结构提醒】"
+        : "【投资监控提醒】";
   const subjectSymbols = symbols.slice(0, 4).join("、") || "组合";
   const subject = `${subjectPrefix}${subjectSymbols} ${alerts.length}条信号`;
 
@@ -505,10 +662,12 @@ function buildEmailContent(alerts, snapshot) {
 
   const footer = [
     "执行前检查：",
-    "1. 先确认这封邮件对应的是定投、下跌买点、上涨追随，还是止盈/再平衡。",
-    "2. 现金低于 35% 时，任何买入提醒都不执行。",
-    "3. 当天已经执行过主动交易时，不再新增第二笔主动买入。",
-    "4. 如果只是因为情绪上头，默认不买，等下一次监控刷新。"
+    "1. 先确认这封邮件对应的是结构提醒、买点、风控，还是止盈/再平衡。",
+    "2. 顺序必须是：数据有效 → 现金安全 → 回撤可控 → 冷却期通过 → 仓位合规 → 价格触发。",
+    "3. 现金低于 35% 时，任何新增买入提醒都不执行；现金低于 40% 时暂停普通加仓。",
+    "4. 当天已经执行过主动交易时，不再新增第二笔主动买入。",
+    "5. AI观察仓只做收益增强，MRVL/ANET/AVGO 不替代 BTC/ETH/VOO/XAUT 核心配置。",
+    "6. 如果只是因为情绪上头，默认不买，等下一次监控刷新。"
   ];
 
   return {
@@ -622,6 +781,8 @@ function evaluateRules(snapshot, rules, alertState) {
       });
     }
   }
+
+  addV5StructuralAlerts(alerts, alertState, rules, snapshot);
 
   const ordinaryBuyAllowed = canBuy(snapshot, rules) && snapshot.cashPct >= Number(rules.ordinaryBuyCashMinPct || 40);
   const corePriceOk = Number.isFinite(btc?.price) && Number.isFinite(eth?.price);
@@ -946,6 +1107,7 @@ async function main() {
   const snapshot = buildSnapshot(holdings, quotes, errors, rules);
   snapshot.btcFiveMinuteChangePct = await loadBtcFiveMinuteChangePct();
   const alerts = evaluateRules(snapshot, rules, alertState);
+  snapshot.healthSummary = calculateHealthSummary(snapshot, rules);
   if (process.env.TEST_EMAIL === "true") {
     addAlert(alerts, alertState, rules, {
       id: `manual-test-email-${Date.now()}`,

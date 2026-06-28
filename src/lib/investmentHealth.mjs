@@ -34,7 +34,7 @@ export const DEFAULT_V4_RULES = {
     targetMax: 0.10,
     hardMax: 0.15,
     maxBeforeCoreComplete: 0.05,
-    symbols: ["AVGO", "FN", "MU", "SNDK", "DRAM", "WDC", "ASX", "AAOI", "GLW"]
+    symbols: ["AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"]
   },
   speculativeLayer: {
     targetMax: 0.02,
@@ -86,7 +86,7 @@ export function getV4Rules(rules = {}) {
       maxAgeMinutes: Number(rules.dataStaleBlockMinutes ?? DEFAULT_V4_RULES.dataFreshness.maxAgeMinutes)
     }
   };
-  return deepMerge(deepMerge(DEFAULT_V4_RULES, legacyFreshness), rules.v4Rules || {});
+  return deepMerge(deepMerge(deepMerge(DEFAULT_V4_RULES, legacyFreshness), rules.v4Rules || {}), rules.v5Rules || {});
 }
 
 export function safeNumber(value, fallback = 0) {
@@ -283,13 +283,13 @@ export function calculateAssetLayers(snapshot, rules = {}) {
     },
     {
       id: "theme",
-      name: "主题进攻层",
+      name: "AI观察仓",
       symbols: themeSymbols,
       value: groupValue(snapshot, themeSymbols),
       weightPct: themeWeight,
       targetText: "目标 5%-10%，硬上限 15%；核心未稳前不超过 5%",
       status: themeStatus,
-      advice: corePlusStableWeight < 25 ? "核心仓和稳定层未完成前，AI/存储/光通信不要抢跑。" : "主题仓可作为收益增强，但不能超过硬上限。"
+      advice: corePlusStableWeight < 25 ? "核心仓和稳定层未完成前，AI/半导体/存储/光通信不要抢跑。" : "主题仓可作为收益增强，但不能超过硬上限。"
     },
     {
       id: "speculative",
@@ -375,11 +375,11 @@ export function calculateHealthScore(snapshot, rules = {}) {
 
   if (themeWeight > pct(v4.themeLayer.targetMax)) {
     components.themeControl.score -= 5;
-    components.themeControl.reasons.push("主题仓超过 10%，谨慎加仓。");
+    components.themeControl.reasons.push("AI观察仓超过 10%，谨慎加仓。");
   }
   if (themeWeight > pct(v4.themeLayer.hardMax)) {
     components.themeControl.score -= 8;
-    components.themeControl.reasons.push("主题仓超过 15%，停止新增主题仓。");
+    components.themeControl.reasons.push("AI观察仓超过 15%，停止新增主题仓。");
   }
 
   if (freshness.isStale) {
@@ -460,7 +460,7 @@ export function generateSystemJudgement(snapshot, rules = {}) {
   if (btcWeight < 8 || ethWeight < 3) messages.push("核心增长层不足，BTC/ETH 应优先补到第一阶段目标，再考虑扩大主题仓。 ");
   if (vooWeight === 0 || xautWeight === 0) messages.push("长期稳定层缺位，建议分批建立 VOO 与 XAUT 底仓。 ");
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) messages.push("投机仓已偏高，不建议继续补 DOGE/BGB，后续应以反弹减仓为主。 ");
-  if (themeWeight > pct(v4.themeLayer.targetMax)) messages.push("主题仓偏高，AI/存储/光通信不应继续主动加仓。 ");
+  if (themeWeight > pct(v4.themeLayer.targetMax)) messages.push("主题仓偏高，AI/半导体/存储/光通信不应继续主动加仓。 ");
   if (!messages.length) messages.push("当前系统结构健康，可以继续按既定买点、现金底线和每月再平衡执行。 ");
   return messages.map((item) => item.trim());
 }
@@ -484,7 +484,7 @@ export function generateAllowedActions(snapshot, rules = {}) {
   if (cashPct >= 75 && (btcWeight < 8 || ethWeight < 3)) actions.push("允许小额补 BTC/ETH 核心仓，每周合计不超过账户 2%。");
   if (cashPct >= 75 && vooWeight === 0) actions.push("允许分批建立 VOO 底仓，不必等待完美低点。 ");
   if (cashPct >= 75 && xautWeight === 0) actions.push("允许分批建立 XAUT 底仓，用作稳定层。 ");
-  if (corePlusStable >= 25 && themeWeight < pct(v4.themeLayer.targetMax)) actions.push("主题仓可小额观察，但必须低于 10% 并服从买点。 ");
+  if (corePlusStable >= 25 && themeWeight < pct(v4.themeLayer.targetMax)) actions.push("AI观察仓可小额观察，但必须低于 10% 并服从买点；MRVL 只能小仓试错。 ");
   actions.push("允许做月度复盘、更新持仓成本和检查价格源。 ");
   return [...new Set(actions.map((item) => item.trim()))];
 }
@@ -514,7 +514,7 @@ export function generateForbiddenActions(snapshot, rules = {}) {
   if ((btcWeight < 8 || ethWeight < 3 || vooWeight === 0 || xautWeight === 0) && themeWeight >= pct(v4.themeLayer.maxBeforeCoreComplete)) {
     forbidden.push("不要在核心仓不足时优先加主题股。 ");
   }
-  if (themeWeight >= pct(v4.themeLayer.hardMax)) forbidden.push("不要继续新增 AI/存储/光通信主题仓。 ");
+  if (themeWeight >= pct(v4.themeLayer.hardMax)) forbidden.push("不要继续新增 AI/半导体/存储/光通信主题仓。 ");
   forbidden.push("不要因为刚买就跌而立刻补同一个标的。 ");
   if (cooldown.blockedSymbols.length) forbidden.push(`冷却中标的不要补仓：${cooldown.blockedSymbols.join("、")}。`);
   return [...new Set(forbidden.map((item) => item.trim()))];
@@ -561,7 +561,7 @@ export function generateRebalanceAlerts(snapshot, rules = {}) {
   for (const [symbol, limit, message] of checks) {
     if (weightPct(snapshot, symbol) > limit) alerts.push(message);
   }
-  if (groupWeightPct(snapshot, v4.themeLayer.symbols) > pct(v4.themeLayer.hardMax)) alerts.push("AI/存储/光通信超过 15%，停止新增。 ");
+  if (groupWeightPct(snapshot, v4.themeLayer.symbols) > pct(v4.themeLayer.hardMax)) alerts.push("AI/半导体/存储/光通信超过 15%，停止新增。 ");
   if (groupWeightPct(snapshot, v4.speculativeLayer.symbols) > pct(v4.speculativeLayer.reduceOnlyAbove)) alerts.push("DOGE + BGB 超过 3%，反弹减仓。 ");
   if (cashPct > 80) alerts.push("现金超过 80%，资金效率偏低。 ");
   if (cashPct < 40) alerts.push("现金低于 40%，防守不足。 ");

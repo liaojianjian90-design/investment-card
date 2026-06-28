@@ -1,7 +1,7 @@
 {
-  "name": "\u6295\u8d44\u6267\u884c\u5361",
-  "short_name": "\u6295\u8d44\u5361",
-  "description": "Investment discipline, allocation, DCA and learning card.",
+  "name": "投资健康卡 5.0",
+  "short_name": "投资卡5.0",
+  "description": "核心配置、AI观察、邮件风控和仓位纪律仪表盘。",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

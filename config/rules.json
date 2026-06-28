@@ -95,6 +95,42 @@
       "targetMaxPct": 2,
       "stopAddPct": 2,
       "trimPct": 3
+    },
+    "MRVL": {
+      "minPct": 0,
+      "targetMaxPct": 1.5,
+      "stopAddPct": 1.5,
+      "trimPct": 2
+    },
+    "ANET": {
+      "minPct": 0,
+      "targetMaxPct": 1.5,
+      "stopAddPct": 1.5,
+      "trimPct": 2
+    },
+    "TSM": {
+      "minPct": 0,
+      "targetMaxPct": 2,
+      "stopAddPct": 2,
+      "trimPct": 3
+    },
+    "ASML": {
+      "minPct": 0,
+      "targetMaxPct": 1.5,
+      "stopAddPct": 1.5,
+      "trimPct": 2
+    },
+    "SMH": {
+      "minPct": 0,
+      "targetMaxPct": 3,
+      "stopAddPct": 3,
+      "trimPct": 5
+    },
+    "SOXX": {
+      "minPct": 0,
+      "targetMaxPct": 3,
+      "stopAddPct": 3,
+      "trimPct": 5
     }
   },
   "portfolioCaps": [
@@ -122,17 +158,23 @@
       "id": "cap-ai-watch-15",
       "symbols": [
         "AVGO",
-        "FN",
+        "MRVL",
+        "ANET",
         "MU",
-        "SNDK",
-        "DRAM",
         "WDC",
-        "ASX",
+        "DRAM",
+        "SNDK",
+        "TSM",
+        "ASML",
+        "SMH",
+        "SOXX",
+        "FN",
         "AAOI",
-        "GLW"
+        "GLW",
+        "ASX"
       ],
       "maxPct": 15,
-      "message": "AI/存储/光通信观察池超过 15%，不再新增主题仓。"
+      "message": "AI/半导体/存储/光通信观察池超过 15%，不再新增主题仓。"
     },
     {
       "id": "cap-storage-12",
@@ -162,6 +204,28 @@
       ],
       "maxPct": 30,
       "message": "VOO + XAUT 稳定仓超过 30%，暂停防守仓新增。"
+    },
+    {
+      "id": "cap-ai-core-before-complete-5",
+      "symbols": [
+        "AVGO",
+        "MRVL",
+        "ANET",
+        "MU",
+        "WDC",
+        "DRAM",
+        "SNDK",
+        "TSM",
+        "ASML",
+        "SMH",
+        "SOXX",
+        "FN",
+        "AAOI",
+        "GLW",
+        "ASX"
+      ],
+      "maxPct": 15,
+      "message": "AI观察池硬上限 15%；核心仓未达标时，系统另行限制到 5%。"
     }
   ],
   "drawdownRules": [
@@ -791,6 +855,54 @@
         "sellPct": 20,
         "message": "GLW 超过 3%，提醒再平衡。"
       }
+    ],
+    "MRVL": [
+      {
+        "id": "mrvl-weight-2",
+        "weightAbovePct": 2,
+        "sellPct": 20,
+        "message": "MRVL 超过 2%，提醒降低 AI 互联/定制芯片集中度。"
+      }
+    ],
+    "ANET": [
+      {
+        "id": "anet-weight-2",
+        "weightAbovePct": 2,
+        "sellPct": 20,
+        "message": "ANET 超过 2%，提醒降低 AI 网络设备集中度。"
+      }
+    ],
+    "TSM": [
+      {
+        "id": "tsm-weight-3",
+        "weightAbovePct": 3,
+        "sellPct": 20,
+        "message": "TSM 超过 3%，提醒复核半导体制造仓位。"
+      }
+    ],
+    "ASML": [
+      {
+        "id": "asml-weight-2",
+        "weightAbovePct": 2,
+        "sellPct": 20,
+        "message": "ASML 超过 2%，提醒复核半导体设备仓位。"
+      }
+    ],
+    "SMH": [
+      {
+        "id": "smh-weight-5",
+        "weightAbovePct": 5,
+        "sellPct": 20,
+        "message": "SMH 超过 5%，提醒复核半导体 ETF 仓位。"
+      }
+    ],
+    "SOXX": [
+      {
+        "id": "soxx-weight-5",
+        "weightAbovePct": 5,
+        "sellPct": 20,
+        "message": "SOXX 超过 5%，提醒复核半导体 ETF 仓位。"
+      }
     ]
   },
   "v4Rules": {
@@ -831,15 +943,46 @@
       "maxBeforeCoreComplete": 0.05,
       "symbols": [
         "AVGO",
-        "FN",
+        "MRVL",
+        "ANET",
         "MU",
-        "SNDK",
-        "DRAM",
         "WDC",
-        "ASX",
+        "DRAM",
+        "SNDK",
+        "TSM",
+        "ASML",
+        "SMH",
+        "SOXX",
+        "FN",
         "AAOI",
-        "GLW"
-      ]
+        "GLW",
+        "ASX"
+      ],
+      "subGroups": {
+        "aiChipNetwork": [
+          "AVGO",
+          "MRVL",
+          "ANET"
+        ],
+        "aiStorage": [
+          "MU",
+          "WDC",
+          "DRAM",
+          "SNDK"
+        ],
+        "semiInfra": [
+          "TSM",
+          "ASML",
+          "SMH",
+          "SOXX"
+        ],
+        "highBetaOptical": [
+          "FN",
+          "AAOI",
+          "GLW",
+          "ASX"
+        ]
+      }
     },
     "speculativeLayer": {
       "targetMax": 0.02,
@@ -866,6 +1009,166 @@
       "enabled": true,
       "sameSymbolBuyHours": 48,
       "postBuyNoDipBuyHours": 24
+    },
+    "versionName": "投资健康卡 5.0：核心配置 + AI观察 + 邮件风控版",
+    "mrvlRule": {
+      "enabled": true,
+      "role": "AI互联 / 定制芯片 / 数据中心网络观察仓",
+      "firstBuyPct": 0.005,
+      "normalWatchPct": 0.01,
+      "targetMaxPct": 0.015,
+      "hardMaxPct": 0.02,
+      "requireCoreMinimumComplete": true,
+      "mailWhenUnheld": "observe_only",
+      "note": "MRVL 可以加入 AI 观察池，但不是核心仓；核心仓未达标时只显示观察，不触发买入邮件。"
+    },
+    "emailPolicy": {
+      "enabled": true,
+      "highPriorityImmediate": true,
+      "structuralWeekly": true,
+      "structureReminderMaxPerWeek": 1,
+      "singleTradeAlertPerDay": true,
+      "sendStructureWhenCashAbovePct": 0.8,
+      "sendCoreMissingWhenCashAbovePct": 0.75,
+      "sendStableMissingWhenCashAbovePct": 0.75,
+      "sendSpeculativeNoNewBuyAbove": 0.025,
+      "sendSpeculativeReduceOnlyAbove": 0.03,
+      "dataBlockSubject": "【投资风控提醒】数据过期，禁止交易判断",
+      "structureSubject": "【投资结构提醒】现金过高 + 核心仓不足",
+      "rebalanceSubject": "【投资再平衡提醒】达到止盈或减仓条件"
+    }
+  },
+  "v5Rules": {
+    "cashLayer": {
+      "targetMatureMin": 0.55,
+      "targetMatureMax": 0.6,
+      "phase1Target": 0.75,
+      "phase2Target": 0.65,
+      "pauseNormalBuyBelow": 0.4,
+      "stopNewBuyBelow": 0.35,
+      "defenseModeBelow": 0.3
+    },
+    "coreGrowthLayer": {
+      "btcFirstTargetMin": 0.08,
+      "btcMatureTargetMin": 0.1,
+      "btcMatureTargetMax": 0.12,
+      "ethFirstTargetMin": 0.03,
+      "ethMatureTargetMin": 0.04,
+      "ethMatureTargetMax": 0.06,
+      "btcEthTotalTargetMin": 0.15,
+      "btcEthTotalTargetMax": 0.18,
+      "weeklyCoreBuyLimitPct": 0.02
+    },
+    "stableLayer": {
+      "vooFirstTargetMin": 0.04,
+      "vooFirstTargetMax": 0.06,
+      "vooMatureTargetMin": 0.1,
+      "vooMatureTargetMax": 0.12,
+      "xautFirstTargetMin": 0.02,
+      "xautFirstTargetMax": 0.03,
+      "xautMatureTargetMin": 0.05,
+      "xautMatureTargetMax": 0.07
+    },
+    "themeLayer": {
+      "targetMin": 0.05,
+      "targetMax": 0.1,
+      "hardMax": 0.15,
+      "maxBeforeCoreComplete": 0.05,
+      "symbols": [
+        "AVGO",
+        "MRVL",
+        "ANET",
+        "MU",
+        "WDC",
+        "DRAM",
+        "SNDK",
+        "TSM",
+        "ASML",
+        "SMH",
+        "SOXX",
+        "FN",
+        "AAOI",
+        "GLW",
+        "ASX"
+      ],
+      "subGroups": {
+        "aiChipNetwork": [
+          "AVGO",
+          "MRVL",
+          "ANET"
+        ],
+        "aiStorage": [
+          "MU",
+          "WDC",
+          "DRAM",
+          "SNDK"
+        ],
+        "semiInfra": [
+          "TSM",
+          "ASML",
+          "SMH",
+          "SOXX"
+        ],
+        "highBetaOptical": [
+          "FN",
+          "AAOI",
+          "GLW",
+          "ASX"
+        ]
+      }
+    },
+    "speculativeLayer": {
+      "targetMax": 0.02,
+      "noNewBuyAbove": 0.025,
+      "reduceOnlyAbove": 0.03,
+      "hardWarningAbove": 0.04,
+      "symbols": [
+        "DOGE",
+        "BGB"
+      ]
+    },
+    "dataFreshness": {
+      "maxAgeMinutes": 30,
+      "warnAgeMinutes": 10
+    },
+    "drawdownRules": {
+      "lightRisk": 0.05,
+      "reduceBuySize": 0.1,
+      "pauseAggressiveBuy": 0.15,
+      "pauseActiveBuy": 0.2,
+      "pauseActiveBuyDays": 7
+    },
+    "tradeCooldown": {
+      "enabled": true,
+      "sameSymbolBuyHours": 48,
+      "postBuyNoDipBuyHours": 24
+    },
+    "versionName": "投资健康卡 5.0：核心配置 + AI观察 + 邮件风控版",
+    "mrvlRule": {
+      "enabled": true,
+      "role": "AI互联 / 定制芯片 / 数据中心网络观察仓",
+      "firstBuyPct": 0.005,
+      "normalWatchPct": 0.01,
+      "targetMaxPct": 0.015,
+      "hardMaxPct": 0.02,
+      "requireCoreMinimumComplete": true,
+      "mailWhenUnheld": "observe_only",
+      "note": "MRVL 可以加入 AI 观察池，但不是核心仓；核心仓未达标时只显示观察，不触发买入邮件。"
+    },
+    "emailPolicy": {
+      "enabled": true,
+      "highPriorityImmediate": true,
+      "structuralWeekly": true,
+      "structureReminderMaxPerWeek": 1,
+      "singleTradeAlertPerDay": true,
+      "sendStructureWhenCashAbovePct": 0.8,
+      "sendCoreMissingWhenCashAbovePct": 0.75,
+      "sendStableMissingWhenCashAbovePct": 0.75,
+      "sendSpeculativeNoNewBuyAbove": 0.025,
+      "sendSpeculativeReduceOnlyAbove": 0.03,
+      "dataBlockSubject": "【投资风控提醒】数据过期，禁止交易判断",
+      "structureSubject": "【投资结构提醒】现金过高 + 核心仓不足",
+      "rebalanceSubject": "【投资再平衡提醒】达到止盈或减仓条件"
     }
   }
 }
