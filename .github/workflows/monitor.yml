@@ -1,6 +1,10 @@
 name: Investment Health Card 5.0 Monitor
 
 on:
+  push:
+    paths:
+      - "data/manual-trades.json"
+      - "config/holdings.json"
   workflow_dispatch:
     inputs:
       test_email:
@@ -32,9 +36,10 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run local self-check
         run: npm test
