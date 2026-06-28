@@ -292,6 +292,81 @@
       .metric { min-height: auto; }
       .metric .value { font-size: 20px; }
     }
+
+
+    /* v7 mobile visual optimization: keep all modules and content, reduce vertical pressure on phones. */
+    @media (max-width: 720px) {
+      body { line-height: 1.45; }
+      .shell { width: min(100% - 12px, 560px); margin-bottom: 32px; }
+      .hero { padding: 14px 2px 8px; }
+      .eyebrow { font-size: 10px; letter-spacing: 0.08em; }
+      h1 { margin-top: 4px; font-size: clamp(24px, 8vw, 34px); }
+      h2 { font-size: 19px; margin-bottom: 10px; }
+      h3 { font-size: 15px; margin-bottom: 7px; }
+      .subtitle { margin-top: 7px; font-size: 13px; line-height: 1.5; }
+
+      .card { padding: 12px; margin: 8px 0; border-radius: 14px; box-shadow: 0 8px 20px rgba(28, 23, 15, 0.055); }
+      .section-note { margin-top: -2px; margin-bottom: 9px; font-size: 12px; line-height: 1.5; }
+      .notice { margin-top: 9px; padding: 9px 10px; border-radius: 10px; font-size: 12px; }
+      .grid { gap: 8px; }
+
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric { padding: 9px 10px; border-radius: 11px; min-height: 64px; }
+      .metric .label { font-size: 11px; }
+      .metric .value { font-size: 17px; line-height: 1.25; }
+
+      .health-shell { gap: 9px; }
+      .score-panel { padding: 11px; border-radius: 13px; display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; align-items: center; }
+      .score-number { font-size: 44px; }
+      .score-grade { margin-top: 0; }
+      .score-panel .bar { grid-column: 1 / -1; margin-top: 0; }
+      .score-panel p { grid-column: 1 / -1; margin: 0; font-size: 12px; }
+      .score-components { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .score-component, .layer-card, .phase-card, .action-card, .rule-box, .editor-item, .alert-item { padding: 10px; border-radius: 12px; }
+      .score-component .mini { font-size: 11px; }
+
+      .layers-grid, .action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .layer-card { min-height: 126px; gap: 5px; }
+      .layer-head { gap: 5px; }
+      .layer-value { font-size: 15px; }
+      .layer-symbols, .layer-target { font-size: 11px; }
+      .layer-advice { font-size: 12px; }
+      .pill { padding: 3px 8px; font-size: 11px; }
+
+      .phase-grid, .rule-grid { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 4px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+      .phase-card { min-width: 82%; scroll-snap-align: start; }
+      .rule-box { min-width: 82%; scroll-snap-align: start; }
+      .rule-list { padding-left: 16px; }
+      .rule-list li, .clean-list li { margin: 4px 0; }
+      .clean-list { padding-left: 17px; }
+
+      .asset-card { padding: 9px 10px; border-radius: 12px; }
+      .asset-card + .asset-card { margin-top: 7px; }
+      .asset-head { margin-bottom: 7px; }
+      .asset-row { font-size: 12px; padding-top: 5px; margin-top: 5px; }
+      .symbol { font-size: 15px; }
+      .type { font-size: 11px; }
+
+      .trade-grid, .sync-grid, .editor-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .editor-item.full, .sync-grid .editor-item:first-child { grid-column: 1 / -1; }
+      label { font-size: 11px; }
+      input, textarea, select { border-radius: 10px; padding: 8px 9px; font-size: 14px; }
+      .editor-actions { gap: 7px; margin-top: 10px; }
+      button { flex: 1 1 auto; padding: 9px 10px; border-radius: 10px; font-size: 13px; }
+      .trade-history { gap: 6px; margin-top: 9px; }
+      .trade-row { padding: 8px 9px; border-radius: 10px; font-size: 12px; }
+
+      table { font-size: 12px; }
+      th, td { padding: 8px 6px; }
+      .judgement-list { padding-left: 17px; }
+      .judgement-list li { margin: 4px 0; }
+    }
+
+    @media (max-width: 380px) {
+      .summary-grid, .layers-grid, .action-grid, .score-components, .trade-grid, .sync-grid, .editor-grid { grid-template-columns: 1fr; }
+      .phase-card, .rule-box { min-width: 90%; }
+    }
+
   </style>
 </head>
 <body>
