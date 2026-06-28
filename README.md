@@ -411,3 +411,8 @@ data/manual-trades.json
 
 5.0 手动云端版已为行情请求增加 10 秒超时，并为 `Run 5.0 monitor` 步骤设置 3 分钟超时。
 如果 GitHub Actions 页面显示黄色圆圈 `In progress`，先点左侧 `monitor` 查看具体卡在哪一步；如果是行情 API 超时，系统会把该标的标记为价格源异常，而不是无限等待。
+
+
+### GitHub Actions npm ci 卡住修复
+
+如果工作流卡在 `Install dependencies / npm ci`，请确认 `package-lock.json` 中的 `nodemailer` 下载地址是 `https://registry.npmjs.org/`，不要使用本地或私有镜像地址。本版本已把安装步骤改为使用 npm 官方 registry，并设置 2 分钟安装超时，避免任务长期卡住。
