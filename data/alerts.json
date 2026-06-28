@@ -1,71 +1,8 @@
 {
-  "updatedAt": "2026-06-28T15:06:56.987Z",
+  "updatedAt": "2026-06-28T15:10:16.927Z",
   "email": {
-    "sent": true,
+    "sent": false,
     "missing": []
   },
-  "alerts": [
-    {
-      "symbol": "CASH",
-      "type": "structure",
-      "severity": "low",
-      "title": "现金过高，资金效率偏低",
-      "conclusion": "账户很安全，但长期资产配置不足。",
-      "reason": "当前现金比例 86.3%，超过 80.0%。",
-      "action": "不要一次性打光现金；优先用小额、分批方式补 BTC/ETH 最低核心仓，并建立 VOO/XAUT 底仓。",
-      "discipline": "现金是防守和二次进攻权，但长期 80%+ 现金会降低资金效率。",
-      "id": "v5-cash-high-structure-2026-26",
-      "createdAt": "2026-06-28T15:06:57.255Z"
-    },
-    {
-      "symbol": "BTC/ETH",
-      "type": "core-fill",
-      "severity": "low",
-      "title": "BTC/ETH 核心仓不足",
-      "conclusion": "优先把 BTC 补到 8% 以上、ETH 补到 3% 以上。",
-      "reason": "当前 BTC 7.0%，ETH 1.6%，现金 86.3%。",
-      "amountText": "每周合计不超过账户总值 2%",
-      "action": "只做慢补，不追涨；现金低于 65% 后暂停结构补仓。",
-      "discipline": "BTC/ETH 是加密核心仓，但不是无限加仓。",
-      "id": "v5-core-missing-2026-26",
-      "createdAt": "2026-06-28T15:06:57.255Z"
-    },
-    {
-      "symbol": "VOO/XAUT",
-      "type": "stable-build",
-      "severity": "low",
-      "title": "VOO/XAUT 长期稳定层缺位",
-      "conclusion": "建议分批建立 VOO 与 XAUT 底仓。",
-      "reason": "当前 VOO 0.0%，XAUT 0.0%。",
-      "amountText": "VOO 每次 200-300 USDT；XAUT 每次 100-200 USDT",
-      "action": "底仓建设不必只等极端低价，但必须分批执行。",
-      "discipline": "VOO/XAUT 是稳定层，不是短线交易仓。",
-      "id": "v5-stable-missing-2026-26",
-      "createdAt": "2026-06-28T15:06:57.255Z"
-    },
-    {
-      "id": "v5-spec-no-new-buy",
-      "symbol": "DOGE+BGB",
-      "type": "spec-risk",
-      "severity": "medium",
-      "title": "DOGE/BGB 投机仓禁止新增",
-      "conclusion": "已达到禁止新增区。",
-      "reason": "DOGE + BGB 当前合计仓位 2.6%。",
-      "action": "不要补 DOGE，不要补 BGB；后续以反弹减仓为主。",
-      "discipline": "投机仓不能用摊低成本的方式变成主仓。",
-      "createdAt": "2026-06-28T15:06:57.256Z"
-    },
-    {
-      "symbol": "MRVL",
-      "type": "theme-gate",
-      "severity": "low",
-      "title": "MRVL 加入 AI 观察池",
-      "conclusion": "MRVL 可作为 AI互联/定制芯片观察仓，但不触发优先买入。",
-      "reason": "MRVL 与 MU/WDC 不完全重复，可补充 AI 数据中心网络与定制芯片观察维度。",
-      "action": "核心仓未达标前只观察，不发买入邮件。",
-      "discipline": "MRVL 不是核心仓，单只 AI 股票不能替代 BTC/ETH/VOO/XAUT。",
-      "id": "v5-mrvl-observe-2026-26",
-      "createdAt": "2026-06-28T15:06:57.256Z"
-    }
-  ]
+  "alerts": []
 }
