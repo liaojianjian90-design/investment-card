@@ -91,9 +91,24 @@ function allAssets(holdings) {
 }
 
 async function fetchJson(url) {
-  const res = await fetch(url, { headers: { "user-agent": "investment-monitor-card/5.0" } });
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${url}`);
-  return res.json();
+  const timeoutMs = Number(process.env.PRICE_FETCH_TIMEOUT_MS || 10000);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      headers: { "user-agent": "investment-monitor-card/5.0" },
+      signal: controller.signal
+    });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${url}`);
+    return await res.json();
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error(`timeout after ${timeoutMs}ms: ${url}`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 async function bitgetQuote(symbol) {

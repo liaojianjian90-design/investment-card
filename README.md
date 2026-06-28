@@ -405,3 +405,9 @@ data/manual-trades.json
 ```
 
 `npm run monitor` 会从 `config/holdings.json` 作为基础仓位，叠加 `data/manual-trades.json` 的交易流水，再生成最新快照。这样不会把前端写成自动交易工具，也不会把敏感密钥暴露在 GitHub Pages 前端。
+
+
+### GitHub Actions 长时间运行或卡住
+
+5.0 手动云端版已为行情请求增加 10 秒超时，并为 `Run 5.0 monitor` 步骤设置 3 分钟超时。
+如果 GitHub Actions 页面显示黄色圆圈 `In progress`，先点左侧 `monitor` 查看具体卡在哪一步；如果是行情 API 超时，系统会把该标的标记为价格源异常，而不是无限等待。
