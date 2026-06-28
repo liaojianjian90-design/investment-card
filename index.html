@@ -294,7 +294,7 @@
     }
 
 
-    /* v7 mobile visual optimization: keep all modules and content, reduce vertical pressure on phones. */
+    /* v8 mobile visual optimization: keep all modules and content, reduce vertical pressure on phones; no horizontal sliding cards. */
     @media (max-width: 720px) {
       body { line-height: 1.45; }
       .shell { width: min(100% - 12px, 560px); margin-bottom: 32px; }
@@ -333,9 +333,8 @@
       .layer-advice { font-size: 12px; }
       .pill { padding: 3px 8px; font-size: 11px; }
 
-      .phase-grid, .rule-grid { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 4px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
-      .phase-card { min-width: 82%; scroll-snap-align: start; }
-      .rule-box { min-width: 82%; scroll-snap-align: start; }
+      .phase-grid, .rule-grid { display: grid; grid-template-columns: 1fr; overflow: visible; gap: 8px; padding-bottom: 0; }
+      .phase-card, .rule-box { min-width: 0; scroll-snap-align: unset; }
       .rule-list { padding-left: 16px; }
       .rule-list li, .clean-list li { margin: 4px 0; }
       .clean-list { padding-left: 17px; }
@@ -364,7 +363,6 @@
 
     @media (max-width: 380px) {
       .summary-grid, .layers-grid, .action-grid, .score-components, .trade-grid, .sync-grid, .editor-grid { grid-template-columns: 1fr; }
-      .phase-card, .rule-box { min-width: 90%; }
     }
 
   </style>
@@ -741,21 +739,27 @@
     };
 
     const bitgetSymbols = {
-      BTC: "BTCUSDT",
-      ETH: "ETHUSDT",
-      DOGE: "DOGEUSDT",
-      BGB: "BGBUSDT",
-      XAUT: "XAUTUSDT",
-      VOO: "RVOOUSDT",
-      AVGO: "RAVGOUSDT",
-      FN: "RFNUSDT",
-      MU: "RMUUSDT",
-      SNDK: "RSNDKUSDT",
-      DRAM: "RDRAMUSDT",
-      WDC: "RWDCUSDT",
-      ASX: "RASXUSDT",
-      AAOI: "RAAOIUSDT",
-      GLW: "RGLWUSDT"
+      BTC: ["BTCUSDT"],
+      ETH: ["ETHUSDT"],
+      DOGE: ["DOGEUSDT"],
+      BGB: ["BGBUSDT"],
+      XAUT: ["XAUTUSDT"],
+      VOO: ["RVOOUSDT", "VOOUSDT"],
+      AVGO: ["RAVGOUSDT", "AVGOUSDT"],
+      MRVL: ["MRVLUSDT", "RMRVLUSDT"],
+      ANET: ["RANETUSDT", "ANETUSDT"],
+      TSM: ["RTSMUSDT", "TSMUSDT"],
+      ASML: ["RASMLUSDT", "ASMLUSDT"],
+      SMH: ["RSMHUSDT", "SMHUSDT"],
+      SOXX: ["RSOXXUSDT", "SOXXUSDT"],
+      FN: ["RFNUSDT", "FNUSDT"],
+      MU: ["RMUUSDT", "MUUSDT"],
+      SNDK: ["RSNDKUSDT", "SNDKUSDT"],
+      DRAM: ["RDRAMUSDT", "DRAMUSDT"],
+      WDC: ["RWDCUSDT", "WDCUSDT"],
+      ASX: ["RASXUSDT", "ASXUSDT"],
+      AAOI: ["RAAOIUSDT", "AAOIUSDT"],
+      GLW: ["RGLWUSDT", "GLWUSDT"]
     };
 
     const yahooSymbols = {
@@ -867,10 +871,19 @@
       const sources = [];
       if (bitgetSymbols[symbol]) {
         sources.push(async () => {
-          const data = await fetchJson(`https://api.bitget.com/api/v2/spot/market/tickers?symbol=${bitgetSymbols[symbol]}`);
-          const price = Number(data.data?.[0]?.lastPr);
-          if (!Number.isFinite(price) || price <= 0) throw new Error(`invalid Bitget price for ${bitgetSymbols[symbol]}`);
-          return { price, source: `Bitget ${bitgetSymbols[symbol]}` };
+          const pairs = Array.isArray(bitgetSymbols[symbol]) ? bitgetSymbols[symbol] : [bitgetSymbols[symbol]];
+          const errors = [];
+          for (const pair of pairs) {
+            try {
+              const data = await fetchJson(`https://api.bitget.com/api/v2/spot/market/tickers?symbol=${pair}`);
+              const price = Number(data.data?.[0]?.lastPr);
+              if (!Number.isFinite(price) || price <= 0) throw new Error(`invalid Bitget price for ${pair}`);
+              return { price, source: `Bitget ${pair}` };
+            } catch (error) {
+              errors.push(`${pair}: ${error.message}`);
+            }
+          }
+          throw new Error(errors.join(" | "));
         });
       }
       if (yahooSymbols[symbol]) sources.push(() => yahooQuote(symbol), () => stooqQuote(symbol));
@@ -1264,13 +1277,13 @@
     }
 
     function statusFor(row, snapshot, rules) {
+      if (row.type === "watch" && Number(row.quantity || 0) <= 0) return { label: "观察池，未建仓", level: "info" };
       if (snapshot.isDataBlocked) return { label: "数据过期，禁止买入", level: "risk" };
       if (!row.priceOk) return { label: "价格源失败，等待刷新", level: "risk" };
       if (row.type === "cash") return { label: "现金弹药仓", level: snapshot.cashPct < rules.cashMinPct ? "risk" : "" };
       if (snapshot.cashPct < Number(rules.cashMinPct || 35)) return { label: "现金低于底线", level: "risk" };
       if (row.symbol === "DOGE") return { label: "只止盈，不补仓", level: "warn" };
       if (row.symbol === "BGB") return { label: "不补仓，反弹可清", level: "warn" };
-      if (row.type === "watch" && row.quantity === 0) return { label: "观察池，等买点", level: "info" };
       const target = rules.targets?.[row.symbol];
       if (target?.trimPct && row.weightPct >= Number(target.trimPct)) return { label: "达到减仓线", level: "risk" };
       if (target?.stopAddPct && row.weightPct >= Number(target.stopAddPct)) return { label: "暂停加仓", level: "warn" };
@@ -1388,7 +1401,7 @@
 
       const notice = document.getElementById("dataNotice");
       notice.innerHTML = `
-        <strong>价格源：</strong>加密与 XAUT 优先 Bitget；代币化证券优先 Bitget。当前数据状态：
+        <strong>价格源：</strong>优先 Bitget（已配置 MRVL/RANET/RTSM/RASML/RSMH/RSOXX 等候选映射，部分标的会自动尝试 R 前缀和无 R 前缀两种交易对）；Bitget 无可用价格时再尝试 Yahoo Finance / Stooq。当前数据状态：
         <span class="pill ${fresh.level}">${fresh.label}</span>
         ${snapshot.isDataBlocked ? " 数据已超过 30 分钟，禁止按信号买入。" : " 邮件提醒和网页展示均不会自动下单；邮件只在结构、风控、买点、止盈或再平衡触发时发送。"}
       `;
@@ -1470,7 +1483,11 @@
     }
 
     function renderAlerts(alertData, snapshot) {
-      const priceErrors = Object.keys(snapshot.priceErrors || {});
+      const rowBySymbol = new Map((snapshot.positions || []).map((row) => [row.symbol, row]));
+      const priceErrors = Object.keys(snapshot.priceErrors || {}).filter((symbol) => {
+        const row = rowBySymbol.get(symbol);
+        return !(row?.type === "watch" && Number(row.quantity || 0) <= 0);
+      });
       const alerts = [...(alertData?.alerts || [])].filter((item) => {
         const symbols = String(item.symbol || "").split(/[+/]/).filter(Boolean);
         return !symbols.length || symbols.every((symbol) => symbol === "DATA" || symbol === "CASH" || symbol === "PORTFOLIO" || symbol === "TEST" || allowedSymbols.has(symbol));

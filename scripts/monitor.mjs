@@ -50,21 +50,27 @@ const names = {
 };
 
 const bitgetSymbols = {
-  BTC: "BTCUSDT",
-  ETH: "ETHUSDT",
-  DOGE: "DOGEUSDT",
-  BGB: "BGBUSDT",
-  XAUT: "XAUTUSDT",
-  VOO: "RVOOUSDT",
-  AVGO: "RAVGOUSDT",
-  FN: "RFNUSDT",
-  MU: "RMUUSDT",
-  SNDK: "RSNDKUSDT",
-  DRAM: "RDRAMUSDT",
-  WDC: "RWDCUSDT",
-  ASX: "RASXUSDT",
-  AAOI: "RAAOIUSDT",
-  GLW: "RGLWUSDT"
+  BTC: ["BTCUSDT"],
+  ETH: ["ETHUSDT"],
+  DOGE: ["DOGEUSDT"],
+  BGB: ["BGBUSDT"],
+  XAUT: ["XAUTUSDT"],
+  VOO: ["RVOOUSDT", "VOOUSDT"],
+  AVGO: ["RAVGOUSDT", "AVGOUSDT"],
+  MRVL: ["MRVLUSDT", "RMRVLUSDT"],
+  ANET: ["RANETUSDT", "ANETUSDT"],
+  TSM: ["RTSMUSDT", "TSMUSDT"],
+  ASML: ["RASMLUSDT", "ASMLUSDT"],
+  SMH: ["RSMHUSDT", "SMHUSDT"],
+  SOXX: ["RSOXXUSDT", "SOXXUSDT"],
+  FN: ["RFNUSDT", "FNUSDT"],
+  MU: ["RMUUSDT", "MUUSDT"],
+  SNDK: ["RSNDKUSDT", "SNDKUSDT"],
+  DRAM: ["RDRAMUSDT", "DRAMUSDT"],
+  WDC: ["RWDCUSDT", "WDCUSDT"],
+  ASX: ["RASXUSDT", "ASXUSDT"],
+  AAOI: ["RAAOIUSDT", "AAOIUSDT"],
+  GLW: ["RGLWUSDT", "GLWUSDT"]
 };
 
 const yahooSymbols = {
@@ -149,13 +155,25 @@ async function fetchJson(url) {
   }
 }
 
-async function bitgetQuote(symbol) {
-  const pair = bitgetSymbols[symbol];
-  if (!pair) throw new Error(`no Bitget symbol for ${symbol}`);
+async function bitgetPairQuote(pair) {
   const data = await fetchJson(`https://api.bitget.com/api/v2/spot/market/tickers?symbol=${pair}`);
   const price = Number(data.data?.[0]?.lastPr);
-  if (!Number.isFinite(price)) throw new Error(`invalid Bitget price for ${pair}`);
+  if (!Number.isFinite(price) || price <= 0) throw new Error(`invalid Bitget price for ${pair}`);
   return { price, source: `Bitget ${pair}` };
+}
+
+async function bitgetQuote(symbol) {
+  const pairs = Array.isArray(bitgetSymbols[symbol]) ? bitgetSymbols[symbol] : [bitgetSymbols[symbol]].filter(Boolean);
+  if (!pairs.length) throw new Error(`no Bitget symbol for ${symbol}`);
+  const errors = [];
+  for (const pair of pairs) {
+    try {
+      return await bitgetPairQuote(pair);
+    } catch (error) {
+      errors.push(`${pair}: ${error.message}`);
+    }
+  }
+  throw new Error(errors.join(" | "));
 }
 
 async function yahooQuote(symbol) {
@@ -709,6 +727,7 @@ function dataStatus(snapshot) {
 
 function rowStatus(row) {
   if (!row) return "无持仓";
+  if (row.type === "watch" && Number(row.quantity || 0) <= 0) return "观察池未建仓";
   if (!row.priceOk) return "价格源失败";
   if (row.isDataBlocked) return "数据过期";
   if (row.isStale) return "数据偏旧";
@@ -840,14 +859,18 @@ function evaluateRules(snapshot, rules, alertState) {
   const rapidDropObserve = btcFiveMinuteDropPct >= Number(rapidDropRules.observeDropPct || Infinity);
   const rapidDropBuy = btcFiveMinuteDropPct >= Number(rapidDropRules.buyDropPct || Infinity);
 
-  if (Object.keys(snapshot.priceErrors || {}).length) {
+  const actionablePriceErrors = Object.keys(snapshot.priceErrors || {}).filter((symbol) => {
+    const row = position(snapshot, symbol);
+    return !(row?.type === "watch" && Number(row.quantity || 0) <= 0);
+  });
+  if (actionablePriceErrors.length) {
     addAlert(alerts, alertState, rules, {
       id: "price-source-error",
       symbol: "DATA",
       type: "data-risk",
       severity: "high",
       title: "价格源异常，禁止按失败标的买入",
-      conclusion: `价格源失败：${Object.keys(snapshot.priceErrors).join("、")}`,
+      conclusion: `价格源失败：${actionablePriceErrors.join("、")}`,
       reason: "部分标的没有拿到有效价格。",
       action: "失败标的不触发买入邮件，等待下一次刷新。",
       discipline: "价格源异常时宁可错过一次，也不要靠猜测下单。"
