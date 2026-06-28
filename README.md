@@ -425,3 +425,9 @@ data/manual-trades.json
 2. **MRVL / ANET / TSM / ASML / SMH / SOXX 价格源失败**：新增 Yahoo Finance 与 Stooq 作为美股和 ETF 的备用价格源。Bitget tokenized stock 行情不可用时，系统会自动尝试备用源。
 
 上传本版后，请在网页端刷新并可追加 `?v=503` 清缓存；如果仍看到旧仓位，可点击“恢复默认配置”清除旧本地缓存。
+
+### v5 手机端价格源修复说明
+
+如果电脑端价格正常、手机端显示 MRVL/ANET/TSM/ASML/SMH/SOXX 价格源失败，通常是手机端存在本地交易缓存，浏览器会尝试前端直连 Yahoo/Stooq；移动端网络或跨域策略可能失败。v5 已改为：优先使用 GitHub Actions 生成的 `data/snapshot.json` 价格作为手机端备用价格，前端直连失败时不再把这些美股/ETF 标记为价格源失败。
+
+手机端更新后建议访问：`?v=504`，必要时清除浏览器站点数据或点击页面中的“恢复默认配置”。

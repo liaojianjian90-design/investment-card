@@ -809,13 +809,17 @@
       throw new Error(errors.join(" | ") || `no price source for ${symbol}`);
     }
 
-    async function loadPrices(symbols) {
+    async function loadPrices(symbols, fallbackQuotes = {}) {
       const quotes = {};
       const priceErrors = {};
       await Promise.all(symbols.map(async (symbol) => {
         try {
           quotes[symbol] = await quote(symbol);
         } catch (error) {
+          if (fallbackQuotes[symbol]) {
+            quotes[symbol] = { ...fallbackQuotes[symbol], source: `${fallbackQuotes[symbol].source || "GitHub快照"} / 前端备用` };
+            return;
+          }
           priceErrors[symbol] = error.message || "price source failed";
         }
       }));
@@ -899,6 +903,23 @@
       snapshot.cashValue = Number(snapshot.cashValue || cashValue);
       snapshot.cashPct = Number(snapshot.cashPct || (snapshot.totalValue > 0 ? snapshot.cashValue / snapshot.totalValue * 100 : 0));
       return decorateSnapshot(snapshot, rules);
+    }
+
+    function quotesFromSnapshot(snapshot) {
+      const quotes = {};
+      if (!snapshot || !Array.isArray(snapshot.positions)) return quotes;
+      snapshot.positions.forEach((row) => {
+        const price = Number(row.price);
+        if (row.symbol && Number.isFinite(price) && price > 0) {
+          quotes[row.symbol] = {
+            price,
+            source: row.priceSource || "GitHub快照",
+            updatedAt: row.priceUpdatedAt || snapshot.updatedAt || new Date().toISOString(),
+            fromSnapshot: true
+          };
+        }
+      });
+      return quotes;
     }
 
     function localHoldings() {
@@ -1394,6 +1415,8 @@
     async function loadDisplayData() {
       const rules = await safeFetchJson("config/rules.json", FALLBACK_RULES);
       const remoteHoldings = sanitizeHoldings(await safeFetchJson("config/holdings.json", DEFAULT_HOLDINGS)) || DEFAULT_HOLDINGS;
+      const remoteSnapshot = normalizeSnapshot(await safeFetchJson("data/snapshot.json", null), rules);
+      const snapshotQuotes = quotesFromSnapshot(remoteSnapshot);
       const saved = localHoldings();
       const trades = localTrades();
       const holdings = saved || (trades.length ? applyTradesToHoldings(remoteHoldings, trades) : remoteHoldings);
@@ -1402,12 +1425,12 @@
 
       let snapshot;
       if (saved || trades.length) {
-        const { quotes, priceErrors } = await loadPrices([...new Set(allAssets(holdings).map((asset) => asset.symbol))]);
+        const { quotes, priceErrors } = await loadPrices([...new Set(allAssets(holdings).map((asset) => asset.symbol))], snapshotQuotes);
         snapshot = buildSnapshot(holdings, quotes, priceErrors, saved ? "local-browser" : "local-trades", rules);
       } else {
-        snapshot = normalizeSnapshot(await safeFetchJson("data/snapshot.json", null), rules);
+        snapshot = remoteSnapshot;
         if (!snapshot) {
-          const { quotes, priceErrors } = await loadPrices([...new Set(allAssets(remoteHoldings).map((asset) => asset.symbol))]);
+          const { quotes, priceErrors } = await loadPrices([...new Set(allAssets(remoteHoldings).map((asset) => asset.symbol))], snapshotQuotes);
           snapshot = buildSnapshot(remoteHoldings, quotes, priceErrors, "default-browser", rules);
         }
       }
