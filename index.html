@@ -211,16 +211,77 @@
     button.secondary { background: var(--green-soft); color: var(--green); }
     button.danger { background: var(--red-soft); color: var(--red); }
 
+
+    .health-shell {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .score-panel {
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, var(--green-soft), #fffefa);
+      border: 1px solid var(--line);
+    }
+
+    .score-number {
+      font-size: clamp(48px, 11vw, 76px);
+      line-height: 0.95;
+      font-weight: 1000;
+      letter-spacing: -0.05em;
+      color: var(--green);
+    }
+
+    .score-grade { margin-top: 10px; }
+    .score-components { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .score-component, .layer-card, .phase-card, .action-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fffefa;
+    }
+
+    .score-component strong, .layer-card strong { display: block; }
+    .score-component .mini { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #ebe6d9;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .bar > i { display: block; height: 100%; background: var(--green); border-radius: inherit; }
+
+    .layers-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .layer-card { min-height: 176px; display: flex; flex-direction: column; gap: 8px; }
+    .layer-head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+    .layer-symbols { color: var(--muted); font-size: 12px; word-break: break-word; }
+    .layer-value { font-size: 18px; font-weight: 1000; }
+    .layer-target { color: var(--muted); font-size: 12px; }
+    .layer-advice { font-size: 13px; margin-top: auto; }
+
+    .action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .phase-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .clean-list { margin: 8px 0 0; padding-left: 20px; }
+    .clean-list li { margin: 6px 0; }
+    .empty-hint { color: var(--muted); }
+    .judgement-list { margin: 0; padding-left: 20px; }
+
+
     @media (max-width: 920px) {
       .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .rule-grid, .editor-grid { grid-template-columns: 1fr 1fr; }
+      .rule-grid, .editor-grid, .layers-grid { grid-template-columns: 1fr 1fr; }
+      .phase-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 720px) {
       .shell { width: min(100% - 20px, 560px); margin-bottom: 48px; }
       .hero { padding-top: 20px; }
       .card { border-radius: 18px; padding: 16px; }
-      .summary-grid, .rule-grid, .editor-grid { grid-template-columns: 1fr; }
+      .summary-grid, .rule-grid, .editor-grid, .layers-grid, .action-grid, .score-components { grid-template-columns: 1fr; }
+      .health-shell { grid-template-columns: 1fr; }
       .desktop-table { display: none; }
       .position-cards { display: block; }
       .metric { min-height: auto; }
@@ -245,6 +306,47 @@
         <strong>数据边界：</strong>网页会优先使用你在本机保存的仓位；邮件提醒使用 GitHub 仓库里的默认仓位配置。
         前端不会保存 GitHub Token、邮箱密码或交易所 API Key。
       </div>
+    </section>
+
+    <section class="card">
+      <h2>投资健康评分</h2>
+      <p class="section-note">4.0 评分把现金、核心仓、稳定层、主题仓、投机仓、数据新鲜度和回撤放在同一个仪表盘里，不生成自动交易指令。</p>
+      <div id="v4Health"></div>
+      <div class="notice" id="v4Judgement"></div>
+    </section>
+
+    <section class="card">
+      <h2>资产五层结构</h2>
+      <p class="section-note">目标不是把现金一次性打光，而是按层级完成：安全现金层 → 核心增长层 → 长期稳定层 → 主题进攻层 → 投机清理层。</p>
+      <div class="grid layers-grid" id="v4Layers"></div>
+    </section>
+
+    <section class="card">
+      <h2>今日动作纪律</h2>
+      <div class="grid action-grid">
+        <div class="action-card">
+          <h3>今日允许动作</h3>
+          <div id="v4AllowedActions"></div>
+        </div>
+        <div class="action-card">
+          <h3>今日禁止动作</h3>
+          <div id="v4ForbiddenActions"></div>
+        </div>
+        <div class="action-card">
+          <h3>冷却机制</h3>
+          <div id="v4Cooldown"></div>
+        </div>
+        <div class="action-card">
+          <h3>再平衡提醒</h3>
+          <div id="v4Rebalance"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>分阶段执行计划</h2>
+      <p class="section-note">计划金额按当前总资产和现金比例动态估算，只作为仓位结构路线图，不是一次性买入建议。</p>
+      <div class="grid phase-grid" id="v4PhasePlan"></div>
     </section>
 
     <section class="card">
@@ -274,8 +376,8 @@
     </section>
 
     <section class="card">
-      <h2>交易纪律系统 3.0</h2>
-      <p class="section-note">优先级：价格源和数据状态 → 现金底线 → 账户回撤 → 组合上限 → BTC/ETH 分批 → VOO/XAUT → AI 观察池 → 上涨追随。</p>
+      <h2>投资纪律系统 4.0</h2>
+      <p class="section-note">优先级：数据有效性 → 现金安全 → 回撤状态 → 投机仓限制 → 核心仓缺口 → 稳定层底仓 → 主题仓上限 → 趋势跟随。</p>
 
       <div class="grid rule-grid">
         <div class="rule-box">
@@ -388,7 +490,8 @@
     </section>
   </main>
 
-  <script>
+  <script type="module">
+    import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs";
     const STORAGE_KEY = "investment-monitor-local-holdings-v3";
 
     const DEFAULT_HOLDINGS = {
@@ -718,6 +821,96 @@
       return { label: snapshot.isStale ? "数据偏旧，仅观察" : "持有观察", level: snapshot.isStale ? "warn" : "" };
     }
 
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function listHtml(items, emptyText = "暂无需要处理的事项。") {
+      const cleanItems = (items || []).filter(Boolean);
+      if (!cleanItems.length) return `<div class="empty-hint">${escapeHtml(emptyText)}</div>`;
+      return `<ul class="clean-list">${cleanItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+    }
+
+    function levelClass(level) {
+      if (level === "risk") return "risk";
+      if (level === "warn") return "warn";
+      if (level === "info") return "info";
+      return "";
+    }
+
+    function renderV4Dashboard(snapshot, rules) {
+      const summary = calculateHealthSummary(snapshot, rules);
+      const score = summary.score;
+      const scorePct = Math.max(0, Math.min(100, score.total));
+      document.getElementById("v4Health").innerHTML = `
+        <div class="health-shell">
+          <div class="score-panel">
+            <div class="score-number">${score.total}</div>
+            <div class="score-grade"><span class="pill ${score.grade === "高风险" ? "risk" : score.grade === "偏激进" ? "warn" : score.grade === "偏保守" ? "info" : ""}">${escapeHtml(score.grade)}</span></div>
+            <div class="bar"><i style="width:${scorePct}%"></i></div>
+            <p class="muted">满分 100。评分越高，说明结构越均衡、纪律越完整。</p>
+          </div>
+          <div>
+            <div class="score-components">
+              ${score.components.map((item) => `
+                <div class="score-component">
+                  <strong>${escapeHtml(item.label)}：${item.score}/${item.max}</strong>
+                  <div class="mini">${escapeHtml(item.reasons[0] || "正常")}</div>
+                </div>
+              `).join("")}
+            </div>
+            <div class="notice">
+              <strong>最重要的 3 条建议：</strong>${listHtml(score.topAdvice, "暂无额外建议。")}
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("v4Judgement").innerHTML = `
+        <strong>当前系统判断：</strong>
+        <ul class="judgement-list">${summary.judgement.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      `;
+
+      document.getElementById("v4Layers").innerHTML = summary.layers.map((layer) => `
+        <article class="layer-card">
+          <div class="layer-head">
+            <strong>${escapeHtml(layer.name)}</strong>
+            <span class="pill ${levelClass(layer.status.level)}">${escapeHtml(layer.status.label)}</span>
+          </div>
+          <div class="layer-symbols">${escapeHtml(layer.symbols.join(" / "))}</div>
+          <div class="layer-value">${formatMoney(layer.value)}</div>
+          <div class="muted">当前仓位 ${formatPct(layer.weightPct)}</div>
+          <div class="layer-target">${escapeHtml(layer.targetText)}</div>
+          <div class="layer-advice">${escapeHtml(layer.advice)}</div>
+        </article>
+      `).join("");
+
+      document.getElementById("v4AllowedActions").innerHTML = listHtml(summary.allowedActions, "暂无允许动作。 ");
+      document.getElementById("v4ForbiddenActions").innerHTML = listHtml(summary.forbiddenActions, "暂无禁止动作。 ");
+      document.getElementById("v4Cooldown").innerHTML = `
+        <span class="pill ${summary.cooldown.status === "冷却中" ? "warn" : summary.cooldown.configured ? "" : "info"}">${escapeHtml(summary.cooldown.status)}</span>
+        ${listHtml(summary.cooldown.messages, "冷却机制暂未配置。")}
+      `;
+      document.getElementById("v4Rebalance").innerHTML = listHtml(summary.rebalanceAlerts, "当前没有触发再平衡提醒。 ");
+      document.getElementById("v4PhasePlan").innerHTML = summary.phasePlan.map((phase) => `
+        <article class="phase-card">
+          <h3>${escapeHtml(phase.name)}</h3>
+          <div class="metric">
+            <div class="label">按当前仓位估算可动用</div>
+            <div class="value">${formatMoney(phase.deployAmount)}</div>
+          </div>
+          <p class="muted">${escapeHtml(phase.target)}</p>
+          ${listHtml(phase.steps)}
+        </article>
+      `).join("");
+    }
+
     function renderSummary(snapshot) {
       const sourceLabel = snapshot.source === "local-browser" ? "本机仓位" : snapshot.source === "github-actions" ? "GitHub监控" : snapshot.source || "默认数据";
       const fresh = freshness(snapshot);
@@ -894,6 +1087,7 @@
         }
       }
       const alerts = await safeFetchJson("data/alerts.json", { alerts: [] });
+      renderV4Dashboard(snapshot, rules);
       renderSummary(snapshot);
       renderTargetRules(snapshot, rules);
       renderCapRules(snapshot, rules);

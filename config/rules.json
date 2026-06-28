@@ -6,35 +6,186 @@
   "dataStaleWarnMinutes": 10,
   "dataStaleBlockMinutes": 30,
   "targets": {
-    "BTC": { "minPct": 8, "targetMaxPct": 18, "stopAddPct": 22, "trimPct": 25 },
-    "ETH": { "minPct": 3, "targetMaxPct": 8, "stopAddPct": 10, "trimPct": 12 },
-    "DOGE": { "minPct": 0, "targetMaxPct": 2, "stopAddPct": 2, "trimPct": 3 },
-    "BGB": { "minPct": 0, "targetMaxPct": 1, "stopAddPct": 1, "trimPct": 2 },
-    "VOO": { "minPct": 10, "targetMaxPct": 20, "stopAddPct": 20, "trimPct": 30 },
-    "XAUT": { "minPct": 5, "targetMaxPct": 8, "stopAddPct": 8, "trimPct": 12 },
-    "AVGO": { "minPct": 0, "targetMaxPct": 4, "stopAddPct": 4, "trimPct": 5 },
-    "FN": { "minPct": 0, "targetMaxPct": 3, "stopAddPct": 3, "trimPct": 4 },
-    "MU": { "minPct": 0, "targetMaxPct": 3, "stopAddPct": 3, "trimPct": 4 },
-    "SNDK": { "minPct": 0, "targetMaxPct": 2, "stopAddPct": 2, "trimPct": 3 },
-    "DRAM": { "minPct": 0, "targetMaxPct": 5, "stopAddPct": 5, "trimPct": 7 },
-    "WDC": { "minPct": 0, "targetMaxPct": 2, "stopAddPct": 2, "trimPct": 3 },
-    "ASX": { "minPct": 0, "targetMaxPct": 2, "stopAddPct": 2, "trimPct": 3 },
-    "AAOI": { "minPct": 0, "targetMaxPct": 1, "stopAddPct": 1, "trimPct": 1.5 },
-    "GLW": { "minPct": 0, "targetMaxPct": 2, "stopAddPct": 2, "trimPct": 3 }
+    "BTC": {
+      "minPct": 8,
+      "targetMaxPct": 18,
+      "stopAddPct": 22,
+      "trimPct": 25
+    },
+    "ETH": {
+      "minPct": 3,
+      "targetMaxPct": 8,
+      "stopAddPct": 10,
+      "trimPct": 12
+    },
+    "DOGE": {
+      "minPct": 0,
+      "targetMaxPct": 2,
+      "stopAddPct": 2,
+      "trimPct": 3
+    },
+    "BGB": {
+      "minPct": 0,
+      "targetMaxPct": 1,
+      "stopAddPct": 1,
+      "trimPct": 2
+    },
+    "VOO": {
+      "minPct": 10,
+      "targetMaxPct": 20,
+      "stopAddPct": 20,
+      "trimPct": 30
+    },
+    "XAUT": {
+      "minPct": 5,
+      "targetMaxPct": 8,
+      "stopAddPct": 8,
+      "trimPct": 12
+    },
+    "AVGO": {
+      "minPct": 0,
+      "targetMaxPct": 4,
+      "stopAddPct": 4,
+      "trimPct": 5
+    },
+    "FN": {
+      "minPct": 0,
+      "targetMaxPct": 3,
+      "stopAddPct": 3,
+      "trimPct": 4
+    },
+    "MU": {
+      "minPct": 0,
+      "targetMaxPct": 3,
+      "stopAddPct": 3,
+      "trimPct": 4
+    },
+    "SNDK": {
+      "minPct": 0,
+      "targetMaxPct": 2,
+      "stopAddPct": 2,
+      "trimPct": 3
+    },
+    "DRAM": {
+      "minPct": 0,
+      "targetMaxPct": 5,
+      "stopAddPct": 5,
+      "trimPct": 7
+    },
+    "WDC": {
+      "minPct": 0,
+      "targetMaxPct": 2,
+      "stopAddPct": 2,
+      "trimPct": 3
+    },
+    "ASX": {
+      "minPct": 0,
+      "targetMaxPct": 2,
+      "stopAddPct": 2,
+      "trimPct": 3
+    },
+    "AAOI": {
+      "minPct": 0,
+      "targetMaxPct": 1,
+      "stopAddPct": 1,
+      "trimPct": 1.5
+    },
+    "GLW": {
+      "minPct": 0,
+      "targetMaxPct": 2,
+      "stopAddPct": 2,
+      "trimPct": 3
+    }
   },
   "portfolioCaps": [
-    { "id": "cap-crypto-40", "symbols": ["BTC", "ETH", "DOGE", "BGB"], "maxPct": 40, "message": "加密相关总仓超过 40%，暂停加密新增买入。" },
-    { "id": "cap-doge-bgb-4", "symbols": ["DOGE", "BGB"], "maxPct": 4, "message": "DOGE + BGB 高投机仓超过 4%，停止补仓。" },
-    { "id": "cap-ai-watch-15", "symbols": ["AVGO", "FN", "MU", "SNDK", "DRAM", "WDC", "ASX", "AAOI", "GLW"], "maxPct": 15, "message": "AI/存储/光通信观察池超过 15%，不再新增主题仓。" },
-    { "id": "cap-storage-12", "symbols": ["DRAM", "MU", "SNDK", "WDC"], "maxPct": 12, "message": "存储周期篮子超过 12%，不再追加 DRAM/MU/SNDK/WDC。" },
-    { "id": "cap-optical-high-beta-4", "symbols": ["AAOI", "FN"], "maxPct": 4, "message": "高波动光通信组合超过 4%，暂停 AAOI/FN 买入。" },
-    { "id": "cap-defensive-30", "symbols": ["VOO", "XAUT"], "maxPct": 30, "message": "VOO + XAUT 稳定仓超过 30%，暂停防守仓新增。" }
+    {
+      "id": "cap-crypto-40",
+      "symbols": [
+        "BTC",
+        "ETH",
+        "DOGE",
+        "BGB"
+      ],
+      "maxPct": 40,
+      "message": "加密相关总仓超过 40%，暂停加密新增买入。"
+    },
+    {
+      "id": "cap-doge-bgb-4",
+      "symbols": [
+        "DOGE",
+        "BGB"
+      ],
+      "maxPct": 4,
+      "message": "DOGE + BGB 高投机仓超过 4%，停止补仓。"
+    },
+    {
+      "id": "cap-ai-watch-15",
+      "symbols": [
+        "AVGO",
+        "FN",
+        "MU",
+        "SNDK",
+        "DRAM",
+        "WDC",
+        "ASX",
+        "AAOI",
+        "GLW"
+      ],
+      "maxPct": 15,
+      "message": "AI/存储/光通信观察池超过 15%，不再新增主题仓。"
+    },
+    {
+      "id": "cap-storage-12",
+      "symbols": [
+        "DRAM",
+        "MU",
+        "SNDK",
+        "WDC"
+      ],
+      "maxPct": 12,
+      "message": "存储周期篮子超过 12%，不再追加 DRAM/MU/SNDK/WDC。"
+    },
+    {
+      "id": "cap-optical-high-beta-4",
+      "symbols": [
+        "AAOI",
+        "FN"
+      ],
+      "maxPct": 4,
+      "message": "高波动光通信组合超过 4%，暂停 AAOI/FN 买入。"
+    },
+    {
+      "id": "cap-defensive-30",
+      "symbols": [
+        "VOO",
+        "XAUT"
+      ],
+      "maxPct": 30,
+      "message": "VOO + XAUT 稳定仓超过 30%，暂停防守仓新增。"
+    }
   ],
   "drawdownRules": [
-    { "id": "dd-10", "drawdownPct": 10, "message": "账户回撤达到 10%，停止 DOGE/BGB/AAOI 等高波动标的新增买入。" },
-    { "id": "dd-15", "drawdownPct": 15, "message": "账户回撤达到 15%，只允许 BTC/ETH 半额定投和 VOO/XAUT 小额防守买入。" },
-    { "id": "dd-20", "drawdownPct": 20, "pauseDays": 7, "message": "账户回撤达到 20%，暂停所有主动买入 7 天。" },
-    { "id": "dd-30", "drawdownPct": 30, "message": "账户回撤达到 30%，优先降低 DOGE/BGB/AAOI 和超限主题仓风险。" }
+    {
+      "id": "dd-10",
+      "drawdownPct": 10,
+      "message": "账户回撤达到 10%，停止 DOGE/BGB/AAOI 等高波动标的新增买入。"
+    },
+    {
+      "id": "dd-15",
+      "drawdownPct": 15,
+      "message": "账户回撤达到 15%，只允许 BTC/ETH 半额定投和 VOO/XAUT 小额防守买入。"
+    },
+    {
+      "id": "dd-20",
+      "drawdownPct": 20,
+      "pauseDays": 7,
+      "message": "账户回撤达到 20%，暂停所有主动买入 7 天。"
+    },
+    {
+      "id": "dd-30",
+      "drawdownPct": 30,
+      "message": "账户回撤达到 30%，优先降低 DOGE/BGB/AAOI 和超限主题仓风险。"
+    }
   ],
   "fixedDca": {
     "enabled": true,
@@ -75,103 +226,646 @@
     }
   ],
   "dipBuyRules": [
-    { "id": "dip-btc-58000", "btcPriceBelow": 58000, "resetAbove": 59200, "requireCashPct": 40, "btcAmount": 250, "ethAmount": 80, "note": "BTC 第一档轻加仓。" },
-    { "id": "dip-btc-57000", "btcPriceBelow": 57000, "resetAbove": 58200, "requireCashPct": 40, "btcAmount": 350, "ethAmount": 100, "note": "BTC 第二档加仓。" },
-    { "id": "dip-btc-56000", "btcPriceBelow": 56000, "resetAbove": 57200, "requireCashPct": 40, "btcAmount": 450, "ethAmount": 120, "note": "BTC 第三档加仓。" },
-    { "id": "dip-btc-55000", "btcPriceBelow": 55000, "resetAbove": 56500, "requireCashPct": 40, "btcAmount": 600, "ethAmount": 180, "note": "BTC 深度加仓。" },
-    { "id": "risk-btc-52000", "btcPriceBelow": 52000, "resetAbove": 54000, "requireCashPct": 35, "btcAmount": 0, "ethAmount": 0, "note": "BTC 跌破 52000 时暂停主动买入，观察 2-3 天后再评估。" }
+    {
+      "id": "dip-btc-58000",
+      "btcPriceBelow": 58000,
+      "resetAbove": 59200,
+      "requireCashPct": 40,
+      "btcAmount": 250,
+      "ethAmount": 80,
+      "note": "BTC 第一档轻加仓。"
+    },
+    {
+      "id": "dip-btc-57000",
+      "btcPriceBelow": 57000,
+      "resetAbove": 58200,
+      "requireCashPct": 40,
+      "btcAmount": 350,
+      "ethAmount": 100,
+      "note": "BTC 第二档加仓。"
+    },
+    {
+      "id": "dip-btc-56000",
+      "btcPriceBelow": 56000,
+      "resetAbove": 57200,
+      "requireCashPct": 40,
+      "btcAmount": 450,
+      "ethAmount": 120,
+      "note": "BTC 第三档加仓。"
+    },
+    {
+      "id": "dip-btc-55000",
+      "btcPriceBelow": 55000,
+      "resetAbove": 56500,
+      "requireCashPct": 40,
+      "btcAmount": 600,
+      "ethAmount": 180,
+      "note": "BTC 深度加仓。"
+    },
+    {
+      "id": "risk-btc-52000",
+      "btcPriceBelow": 52000,
+      "resetAbove": 54000,
+      "requireCashPct": 35,
+      "btcAmount": 0,
+      "ethAmount": 0,
+      "note": "BTC 跌破 52000 时暂停主动买入，观察 2-3 天后再评估。"
+    }
   ],
   "ethDipRules": [
-    { "id": "eth-1500", "priceBelow": 1500, "resetAbove": 1600, "amount": 300, "message": "ETH 跌到 1500 以下，提醒买入 300 USDT。" },
-    { "id": "eth-1350", "priceBelow": 1350, "resetAbove": 1450, "amount": 500, "message": "ETH 跌到 1350 以下，提醒买入 500 USDT。" }
+    {
+      "id": "eth-1500",
+      "priceBelow": 1500,
+      "resetAbove": 1600,
+      "amount": 300,
+      "message": "ETH 跌到 1500 以下，提醒买入 300 USDT。"
+    },
+    {
+      "id": "eth-1350",
+      "priceBelow": 1350,
+      "resetAbove": 1450,
+      "amount": 500,
+      "message": "ETH 跌到 1350 以下，提醒买入 500 USDT。"
+    }
   ],
   "watchBuyRules": [
-    { "id": "watch-voo-655", "symbol": "VOO", "priceBelow": 655, "resetAbove": 672, "amount": 200, "requireCashPct": 40, "maxSymbolWeightPctAfter": 30, "group": "defensive", "message": "VOO 第一档回调买点。" },
-    { "id": "watch-voo-625", "symbol": "VOO", "priceBelow": 625, "resetAbove": 655, "amount": 300, "requireCashPct": 40, "maxSymbolWeightPctAfter": 30, "group": "defensive", "message": "VOO 第二档深回调买点。" },
-    { "id": "watch-xaut-4000", "symbol": "XAUT", "priceBelow": 4000, "resetAbove": 4100, "amount": 200, "requireCashPct": 40, "maxSymbolWeightPctAfter": 12, "group": "gold", "message": "XAUT 第一档黄金配置买点。" },
-    { "id": "watch-xaut-3850", "symbol": "XAUT", "priceBelow": 3850, "resetAbove": 4000, "amount": 300, "requireCashPct": 40, "maxSymbolWeightPctAfter": 12, "group": "gold", "message": "XAUT 第二档黄金配置买点。" },
-    { "id": "watch-avgo-350", "symbol": "AVGO", "priceBelow": 350, "resetAbove": 367, "amount": 120, "requireCashPct": 40, "maxSymbolWeightPctAfter": 4, "group": "ai", "message": "AVGO 第一档 AI 网络芯片买点。" },
-    { "id": "watch-avgo-325", "symbol": "AVGO", "priceBelow": 325, "resetAbove": 350, "amount": 180, "requireCashPct": 40, "maxSymbolWeightPctAfter": 4, "group": "ai", "message": "AVGO 第二档深回调买点。" },
-    { "id": "watch-fn-500", "symbol": "FN", "priceBelow": 500, "resetAbove": 525, "amount": 100, "requireCashPct": 40, "maxSymbolWeightPctAfter": 3, "group": "optical", "message": "FN 第一档光通信供应链买点。" },
-    { "id": "watch-fn-470", "symbol": "FN", "priceBelow": 470, "resetAbove": 500, "amount": 150, "requireCashPct": 40, "maxSymbolWeightPctAfter": 3, "group": "optical", "message": "FN 第二档深回调买点。" },
-    { "id": "watch-mu-1080", "symbol": "MU", "priceBelow": 1080, "resetAbove": 1135, "amount": 120, "requireCashPct": 40, "maxSymbolWeightPctAfter": 3, "group": "storage", "message": "MU 第一档存储周期买点。" },
-    { "id": "watch-mu-1020", "symbol": "MU", "priceBelow": 1020, "resetAbove": 1080, "amount": 180, "requireCashPct": 40, "maxSymbolWeightPctAfter": 3, "group": "storage", "message": "MU 第二档深回调买点。" },
-    { "id": "watch-sndk-2000", "symbol": "SNDK", "priceBelow": 2000, "resetAbove": 2100, "amount": 80, "requireCashPct": 40, "maxSymbolWeightPctAfter": 2, "group": "storage", "message": "SNDK 第一档 NAND 买点。" },
-    { "id": "watch-sndk-1850", "symbol": "SNDK", "priceBelow": 1850, "resetAbove": 2000, "amount": 120, "requireCashPct": 40, "maxSymbolWeightPctAfter": 2, "group": "storage", "message": "SNDK 第二档深回调买点。" },
-    { "id": "watch-dram-72", "symbol": "DRAM", "priceBelow": 72, "resetAbove": 76, "amount": 120, "requireCashPct": 40, "maxSymbolWeightPctAfter": 5, "group": "storage", "message": "DRAM 第一档存储 ETF 买点。" },
-    { "id": "watch-dram-66", "symbol": "DRAM", "priceBelow": 66, "resetAbove": 72, "amount": 180, "requireCashPct": 40, "maxSymbolWeightPctAfter": 5, "group": "storage", "message": "DRAM 第二档深回调买点。" },
-    { "id": "watch-wdc-560", "symbol": "WDC", "priceBelow": 560, "resetAbove": 590, "amount": 80, "requireCashPct": 40, "maxSymbolWeightPctAfter": 2, "group": "storage", "message": "WDC 第一档存储买点。" },
-    { "id": "watch-wdc-520", "symbol": "WDC", "priceBelow": 520, "resetAbove": 560, "amount": 120, "requireCashPct": 40, "maxSymbolWeightPctAfter": 2, "group": "storage", "message": "WDC 第二档深回调买点。" },
-    { "id": "watch-asx-38", "symbol": "ASX", "priceBelow": 38, "resetAbove": 40, "amount": 80, "requireCashPct": 40, "maxSymbolWeightPctAfter": 2, "group": "ai", "message": "ASX 第一档先进封装买点。" },
-    { "id": "watch-asx-35", "symbol": "ASX", "priceBelow": 35, "resetAbove": 38, "amount": 120, "requireCashPct": 40, "maxSymbolWeightPctAfter": 2, "group": "ai", "message": "ASX 第二档深回调买点。" },
-    { "id": "watch-aaoi-125", "symbol": "AAOI", "priceBelow": 125, "resetAbove": 135, "amount": 60, "requireCashPct": 40, "maxSymbolWeightPctAfter": 1, "group": "optical", "message": "AAOI 第一档高波动光通信买点。" },
-    { "id": "watch-aaoi-110", "symbol": "AAOI", "priceBelow": 110, "resetAbove": 125, "amount": 100, "requireCashPct": 40, "maxSymbolWeightPctAfter": 1, "group": "optical", "message": "AAOI 第二档深回调买点。" },
-    { "id": "watch-glw-205", "symbol": "GLW", "priceBelow": 205, "resetAbove": 215, "amount": 80, "requireCashPct": 40, "maxSymbolWeightPctAfter": 2, "group": "optical", "message": "GLW 第一档光通信材料买点。" },
-    { "id": "watch-glw-190", "symbol": "GLW", "priceBelow": 190, "resetAbove": 205, "amount": 120, "requireCashPct": 40, "maxSymbolWeightPctAfter": 2, "group": "optical", "message": "GLW 第二档深回调买点。" }
+    {
+      "id": "watch-voo-655",
+      "symbol": "VOO",
+      "priceBelow": 655,
+      "resetAbove": 672,
+      "amount": 200,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 30,
+      "group": "defensive",
+      "message": "VOO 第一档回调买点。"
+    },
+    {
+      "id": "watch-voo-625",
+      "symbol": "VOO",
+      "priceBelow": 625,
+      "resetAbove": 655,
+      "amount": 300,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 30,
+      "group": "defensive",
+      "message": "VOO 第二档深回调买点。"
+    },
+    {
+      "id": "watch-xaut-4000",
+      "symbol": "XAUT",
+      "priceBelow": 4000,
+      "resetAbove": 4100,
+      "amount": 200,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 12,
+      "group": "gold",
+      "message": "XAUT 第一档黄金配置买点。"
+    },
+    {
+      "id": "watch-xaut-3850",
+      "symbol": "XAUT",
+      "priceBelow": 3850,
+      "resetAbove": 4000,
+      "amount": 300,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 12,
+      "group": "gold",
+      "message": "XAUT 第二档黄金配置买点。"
+    },
+    {
+      "id": "watch-avgo-350",
+      "symbol": "AVGO",
+      "priceBelow": 350,
+      "resetAbove": 367,
+      "amount": 120,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 4,
+      "group": "ai",
+      "message": "AVGO 第一档 AI 网络芯片买点。"
+    },
+    {
+      "id": "watch-avgo-325",
+      "symbol": "AVGO",
+      "priceBelow": 325,
+      "resetAbove": 350,
+      "amount": 180,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 4,
+      "group": "ai",
+      "message": "AVGO 第二档深回调买点。"
+    },
+    {
+      "id": "watch-fn-500",
+      "symbol": "FN",
+      "priceBelow": 500,
+      "resetAbove": 525,
+      "amount": 100,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 3,
+      "group": "optical",
+      "message": "FN 第一档光通信供应链买点。"
+    },
+    {
+      "id": "watch-fn-470",
+      "symbol": "FN",
+      "priceBelow": 470,
+      "resetAbove": 500,
+      "amount": 150,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 3,
+      "group": "optical",
+      "message": "FN 第二档深回调买点。"
+    },
+    {
+      "id": "watch-mu-1080",
+      "symbol": "MU",
+      "priceBelow": 1080,
+      "resetAbove": 1135,
+      "amount": 120,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 3,
+      "group": "storage",
+      "message": "MU 第一档存储周期买点。"
+    },
+    {
+      "id": "watch-mu-1020",
+      "symbol": "MU",
+      "priceBelow": 1020,
+      "resetAbove": 1080,
+      "amount": 180,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 3,
+      "group": "storage",
+      "message": "MU 第二档深回调买点。"
+    },
+    {
+      "id": "watch-sndk-2000",
+      "symbol": "SNDK",
+      "priceBelow": 2000,
+      "resetAbove": 2100,
+      "amount": 80,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 2,
+      "group": "storage",
+      "message": "SNDK 第一档 NAND 买点。"
+    },
+    {
+      "id": "watch-sndk-1850",
+      "symbol": "SNDK",
+      "priceBelow": 1850,
+      "resetAbove": 2000,
+      "amount": 120,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 2,
+      "group": "storage",
+      "message": "SNDK 第二档深回调买点。"
+    },
+    {
+      "id": "watch-dram-72",
+      "symbol": "DRAM",
+      "priceBelow": 72,
+      "resetAbove": 76,
+      "amount": 120,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 5,
+      "group": "storage",
+      "message": "DRAM 第一档存储 ETF 买点。"
+    },
+    {
+      "id": "watch-dram-66",
+      "symbol": "DRAM",
+      "priceBelow": 66,
+      "resetAbove": 72,
+      "amount": 180,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 5,
+      "group": "storage",
+      "message": "DRAM 第二档深回调买点。"
+    },
+    {
+      "id": "watch-wdc-560",
+      "symbol": "WDC",
+      "priceBelow": 560,
+      "resetAbove": 590,
+      "amount": 80,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 2,
+      "group": "storage",
+      "message": "WDC 第一档存储买点。"
+    },
+    {
+      "id": "watch-wdc-520",
+      "symbol": "WDC",
+      "priceBelow": 520,
+      "resetAbove": 560,
+      "amount": 120,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 2,
+      "group": "storage",
+      "message": "WDC 第二档深回调买点。"
+    },
+    {
+      "id": "watch-asx-38",
+      "symbol": "ASX",
+      "priceBelow": 38,
+      "resetAbove": 40,
+      "amount": 80,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 2,
+      "group": "ai",
+      "message": "ASX 第一档先进封装买点。"
+    },
+    {
+      "id": "watch-asx-35",
+      "symbol": "ASX",
+      "priceBelow": 35,
+      "resetAbove": 38,
+      "amount": 120,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 2,
+      "group": "ai",
+      "message": "ASX 第二档深回调买点。"
+    },
+    {
+      "id": "watch-aaoi-125",
+      "symbol": "AAOI",
+      "priceBelow": 125,
+      "resetAbove": 135,
+      "amount": 60,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 1,
+      "group": "optical",
+      "message": "AAOI 第一档高波动光通信买点。"
+    },
+    {
+      "id": "watch-aaoi-110",
+      "symbol": "AAOI",
+      "priceBelow": 110,
+      "resetAbove": 125,
+      "amount": 100,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 1,
+      "group": "optical",
+      "message": "AAOI 第二档深回调买点。"
+    },
+    {
+      "id": "watch-glw-205",
+      "symbol": "GLW",
+      "priceBelow": 205,
+      "resetAbove": 215,
+      "amount": 80,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 2,
+      "group": "optical",
+      "message": "GLW 第一档光通信材料买点。"
+    },
+    {
+      "id": "watch-glw-190",
+      "symbol": "GLW",
+      "priceBelow": 190,
+      "resetAbove": 205,
+      "amount": 120,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 2,
+      "group": "optical",
+      "message": "GLW 第二档深回调买点。"
+    }
   ],
   "trendWatchRules": [
-    { "id": "trend-voo-685", "symbol": "VOO", "priceAbove": 685, "resetBelow": 670, "amount": 100, "requireCashPct": 45, "maxSymbolWeightPctAfter": 30, "message": "VOO 上涨确认后小额跟随。" },
-    { "id": "trend-xaut-4200", "symbol": "XAUT", "priceAbove": 4200, "resetBelow": 4100, "amount": 100, "requireCashPct": 45, "maxSymbolWeightPctAfter": 12, "message": "XAUT 黄金趋势确认后小额跟随。" },
-    { "id": "trend-avgo-390", "symbol": "AVGO", "priceAbove": 390, "resetBelow": 370, "amount": 100, "requireCashPct": 45, "maxSymbolWeightPctAfter": 4, "message": "AVGO 突破确认后小额跟随。" },
-    { "id": "trend-fn-550", "symbol": "FN", "priceAbove": 550, "resetBelow": 525, "amount": 80, "requireCashPct": 45, "maxSymbolWeightPctAfter": 3, "message": "FN 突破确认后小额跟随。" },
-    { "id": "trend-mu-1200", "symbol": "MU", "priceAbove": 1200, "resetBelow": 1135, "amount": 100, "requireCashPct": 45, "maxSymbolWeightPctAfter": 3, "message": "MU 突破确认后小额跟随。" },
-    { "id": "trend-sndk-2250", "symbol": "SNDK", "priceAbove": 2250, "resetBelow": 2100, "amount": 80, "requireCashPct": 45, "maxSymbolWeightPctAfter": 2, "message": "SNDK 突破确认后小额跟随。" },
-    { "id": "trend-dram-82", "symbol": "DRAM", "priceAbove": 82, "resetBelow": 76, "amount": 80, "requireCashPct": 45, "maxSymbolWeightPctAfter": 5, "message": "DRAM 突破确认后小额跟随。" },
-    { "id": "trend-wdc-620", "symbol": "WDC", "priceAbove": 620, "resetBelow": 590, "amount": 80, "requireCashPct": 45, "maxSymbolWeightPctAfter": 2, "message": "WDC 突破确认后小额跟随。" },
-    { "id": "trend-asx-42", "symbol": "ASX", "priceAbove": 42, "resetBelow": 40, "amount": 60, "requireCashPct": 45, "maxSymbolWeightPctAfter": 2, "message": "ASX 突破确认后小额跟随。" },
-    { "id": "trend-aaoi-145", "symbol": "AAOI", "priceAbove": 145, "resetBelow": 135, "amount": 50, "requireCashPct": 45, "maxSymbolWeightPctAfter": 1, "message": "AAOI 突破确认后小额跟随。" },
-    { "id": "trend-glw-230", "symbol": "GLW", "priceAbove": 230, "resetBelow": 215, "amount": 60, "requireCashPct": 45, "maxSymbolWeightPctAfter": 2, "message": "GLW 突破确认后小额跟随。" }
+    {
+      "id": "trend-voo-685",
+      "symbol": "VOO",
+      "priceAbove": 685,
+      "resetBelow": 670,
+      "amount": 100,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 30,
+      "message": "VOO 上涨确认后小额跟随。"
+    },
+    {
+      "id": "trend-xaut-4200",
+      "symbol": "XAUT",
+      "priceAbove": 4200,
+      "resetBelow": 4100,
+      "amount": 100,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 12,
+      "message": "XAUT 黄金趋势确认后小额跟随。"
+    },
+    {
+      "id": "trend-avgo-390",
+      "symbol": "AVGO",
+      "priceAbove": 390,
+      "resetBelow": 370,
+      "amount": 100,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 4,
+      "message": "AVGO 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-fn-550",
+      "symbol": "FN",
+      "priceAbove": 550,
+      "resetBelow": 525,
+      "amount": 80,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 3,
+      "message": "FN 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-mu-1200",
+      "symbol": "MU",
+      "priceAbove": 1200,
+      "resetBelow": 1135,
+      "amount": 100,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 3,
+      "message": "MU 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-sndk-2250",
+      "symbol": "SNDK",
+      "priceAbove": 2250,
+      "resetBelow": 2100,
+      "amount": 80,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 2,
+      "message": "SNDK 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-dram-82",
+      "symbol": "DRAM",
+      "priceAbove": 82,
+      "resetBelow": 76,
+      "amount": 80,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 5,
+      "message": "DRAM 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-wdc-620",
+      "symbol": "WDC",
+      "priceAbove": 620,
+      "resetBelow": 590,
+      "amount": 80,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 2,
+      "message": "WDC 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-asx-42",
+      "symbol": "ASX",
+      "priceAbove": 42,
+      "resetBelow": 40,
+      "amount": 60,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 2,
+      "message": "ASX 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-aaoi-145",
+      "symbol": "AAOI",
+      "priceAbove": 145,
+      "resetBelow": 135,
+      "amount": 50,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 1,
+      "message": "AAOI 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-glw-230",
+      "symbol": "GLW",
+      "priceAbove": 230,
+      "resetBelow": 215,
+      "amount": 60,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 2,
+      "message": "GLW 突破确认后小额跟随。"
+    }
   ],
   "trendFollowRules": [
-    { "id": "trend-btc-65000", "btcPriceAbove": 65000, "resetBelow": 63000, "maxWeeklyGainPct": 15, "symbol": "BTC", "amount": 300, "action": "BTC 连续站上 65000 后，提醒买入 BTC 300 USDT。" },
-    { "id": "trend-btc-70000", "btcPriceAbove": 70000, "resetBelow": 67500, "maxWeeklyGainPct": 15, "symbol": "BTC/ETH", "btcAmount": 300, "ethAmount": 100, "action": "BTC 站上 70000 且 ETH 同步走强后，提醒 BTC 300 + ETH 100。" }
+    {
+      "id": "trend-btc-65000",
+      "btcPriceAbove": 65000,
+      "resetBelow": 63000,
+      "maxWeeklyGainPct": 15,
+      "symbol": "BTC",
+      "amount": 300,
+      "action": "BTC 连续站上 65000 后，提醒买入 BTC 300 USDT。"
+    },
+    {
+      "id": "trend-btc-70000",
+      "btcPriceAbove": 70000,
+      "resetBelow": 67500,
+      "maxWeeklyGainPct": 15,
+      "symbol": "BTC/ETH",
+      "btcAmount": 300,
+      "ethAmount": 100,
+      "action": "BTC 站上 70000 且 ETH 同步走强后，提醒 BTC 300 + ETH 100。"
+    }
   ],
   "sellRules": {
     "DOGE": [
-      { "id": "doge-0085", "priceAbove": 0.085, "sellPct": 30, "message": "DOGE 第一档止盈。" },
-      { "id": "doge-0095", "priceAbove": 0.095, "sellPct": 50, "message": "DOGE 强势止盈。" }
+      {
+        "id": "doge-0085",
+        "priceAbove": 0.085,
+        "sellPct": 30,
+        "message": "DOGE 第一档止盈。"
+      },
+      {
+        "id": "doge-0095",
+        "priceAbove": 0.095,
+        "sellPct": 50,
+        "message": "DOGE 强势止盈。"
+      }
     ],
     "BGB": [
-      { "id": "bgb-weight-2", "weightAbovePct": 2, "sellPct": 50, "message": "BGB 超过 2%，反弹可逐步清理。" }
+      {
+        "id": "bgb-weight-2",
+        "weightAbovePct": 2,
+        "sellPct": 50,
+        "message": "BGB 超过 2%，反弹可逐步清理。"
+      }
     ],
     "BTC": [
-      { "id": "btc-weight-25", "weightAbovePct": 25, "sellPct": 10, "message": "BTC 超过 25%，提醒小幅减仓回到现金。" }
+      {
+        "id": "btc-weight-25",
+        "weightAbovePct": 25,
+        "sellPct": 10,
+        "message": "BTC 超过 25%，提醒小幅减仓回到现金。"
+      }
     ],
     "ETH": [
-      { "id": "eth-weight-12", "weightAbovePct": 12, "sellPct": 10, "message": "ETH 超过 12%，提醒小幅减仓回到现金。" }
+      {
+        "id": "eth-weight-12",
+        "weightAbovePct": 12,
+        "sellPct": 10,
+        "message": "ETH 超过 12%，提醒小幅减仓回到现金。"
+      }
     ],
     "VOO": [
-      { "id": "voo-weight-30", "weightAbovePct": 30, "sellPct": 10, "message": "VOO 超过 30%，提醒再平衡。" }
+      {
+        "id": "voo-weight-30",
+        "weightAbovePct": 30,
+        "sellPct": 10,
+        "message": "VOO 超过 30%，提醒再平衡。"
+      }
     ],
     "XAUT": [
-      { "id": "xaut-weight-12", "weightAbovePct": 12, "sellPct": 10, "message": "XAUT 超过 12%，提醒再平衡。" }
+      {
+        "id": "xaut-weight-12",
+        "weightAbovePct": 12,
+        "sellPct": 10,
+        "message": "XAUT 超过 12%，提醒再平衡。"
+      }
     ],
     "AVGO": [
-      { "id": "avgo-weight-5", "weightAbovePct": 5, "sellPct": 20, "message": "AVGO 超过 5%，提醒降低主题集中度。" }
+      {
+        "id": "avgo-weight-5",
+        "weightAbovePct": 5,
+        "sellPct": 20,
+        "message": "AVGO 超过 5%，提醒降低主题集中度。"
+      }
     ],
     "FN": [
-      { "id": "fn-weight-4", "weightAbovePct": 4, "sellPct": 20, "message": "FN 超过 4%，提醒降低高波动光通信仓位。" }
+      {
+        "id": "fn-weight-4",
+        "weightAbovePct": 4,
+        "sellPct": 20,
+        "message": "FN 超过 4%，提醒降低高波动光通信仓位。"
+      }
     ],
     "MU": [
-      { "id": "mu-weight-4", "weightAbovePct": 4, "sellPct": 20, "message": "MU 超过 4%，提醒降低存储周期仓位。" }
+      {
+        "id": "mu-weight-4",
+        "weightAbovePct": 4,
+        "sellPct": 20,
+        "message": "MU 超过 4%，提醒降低存储周期仓位。"
+      }
     ],
     "SNDK": [
-      { "id": "sndk-weight-3", "weightAbovePct": 3, "sellPct": 20, "message": "SNDK 超过 3%，提醒降低存储周期仓位。" }
+      {
+        "id": "sndk-weight-3",
+        "weightAbovePct": 3,
+        "sellPct": 20,
+        "message": "SNDK 超过 3%，提醒降低存储周期仓位。"
+      }
     ],
     "DRAM": [
-      { "id": "dram-weight-7", "weightAbovePct": 7, "sellPct": 20, "message": "DRAM 超过 7%，提醒降低存储主题集中度。" }
+      {
+        "id": "dram-weight-7",
+        "weightAbovePct": 7,
+        "sellPct": 20,
+        "message": "DRAM 超过 7%，提醒降低存储主题集中度。"
+      }
     ],
     "WDC": [
-      { "id": "wdc-weight-3", "weightAbovePct": 3, "sellPct": 20, "message": "WDC 超过 3%，提醒降低存储周期仓位。" }
+      {
+        "id": "wdc-weight-3",
+        "weightAbovePct": 3,
+        "sellPct": 20,
+        "message": "WDC 超过 3%，提醒降低存储周期仓位。"
+      }
     ],
     "ASX": [
-      { "id": "asx-weight-3", "weightAbovePct": 3, "sellPct": 20, "message": "ASX 超过 3%，提醒降低先进封装仓位。" }
+      {
+        "id": "asx-weight-3",
+        "weightAbovePct": 3,
+        "sellPct": 20,
+        "message": "ASX 超过 3%，提醒降低先进封装仓位。"
+      }
     ],
     "AAOI": [
-      { "id": "aaoi-weight-1-5", "weightAbovePct": 1.5, "sellPct": 30, "message": "AAOI 超过 1.5%，提醒降低高波动仓位。" }
+      {
+        "id": "aaoi-weight-1-5",
+        "weightAbovePct": 1.5,
+        "sellPct": 30,
+        "message": "AAOI 超过 1.5%，提醒降低高波动仓位。"
+      }
     ],
     "GLW": [
-      { "id": "glw-weight-3", "weightAbovePct": 3, "sellPct": 20, "message": "GLW 超过 3%，提醒再平衡。" }
+      {
+        "id": "glw-weight-3",
+        "weightAbovePct": 3,
+        "sellPct": 20,
+        "message": "GLW 超过 3%，提醒再平衡。"
+      }
     ]
+  },
+  "v4Rules": {
+    "cashLayer": {
+      "targetMatureMin": 0.55,
+      "targetMatureMax": 0.6,
+      "phase1Target": 0.75,
+      "phase2Target": 0.65,
+      "pauseNormalBuyBelow": 0.4,
+      "stopNewBuyBelow": 0.35,
+      "defenseModeBelow": 0.3
+    },
+    "coreGrowthLayer": {
+      "btcFirstTargetMin": 0.08,
+      "btcMatureTargetMin": 0.1,
+      "btcMatureTargetMax": 0.12,
+      "ethFirstTargetMin": 0.03,
+      "ethMatureTargetMin": 0.04,
+      "ethMatureTargetMax": 0.06,
+      "btcEthTotalTargetMin": 0.15,
+      "btcEthTotalTargetMax": 0.18,
+      "weeklyCoreBuyLimitPct": 0.02
+    },
+    "stableLayer": {
+      "vooFirstTargetMin": 0.04,
+      "vooFirstTargetMax": 0.06,
+      "vooMatureTargetMin": 0.1,
+      "vooMatureTargetMax": 0.12,
+      "xautFirstTargetMin": 0.02,
+      "xautFirstTargetMax": 0.03,
+      "xautMatureTargetMin": 0.05,
+      "xautMatureTargetMax": 0.07
+    },
+    "themeLayer": {
+      "targetMin": 0.05,
+      "targetMax": 0.1,
+      "hardMax": 0.15,
+      "maxBeforeCoreComplete": 0.05,
+      "symbols": [
+        "AVGO",
+        "FN",
+        "MU",
+        "SNDK",
+        "DRAM",
+        "WDC",
+        "ASX",
+        "AAOI",
+        "GLW"
+      ]
+    },
+    "speculativeLayer": {
+      "targetMax": 0.02,
+      "noNewBuyAbove": 0.025,
+      "reduceOnlyAbove": 0.03,
+      "hardWarningAbove": 0.04,
+      "symbols": [
+        "DOGE",
+        "BGB"
+      ]
+    },
+    "dataFreshness": {
+      "maxAgeMinutes": 30,
+      "warnAgeMinutes": 10
+    },
+    "drawdownRules": {
+      "lightRisk": 0.05,
+      "reduceBuySize": 0.1,
+      "pauseAggressiveBuy": 0.15,
+      "pauseActiveBuy": 0.2,
+      "pauseActiveBuyDays": 7
+    },
+    "tradeCooldown": {
+      "enabled": true,
+      "sameSymbolBuyHours": 48,
+      "postBuyNoDipBuyHours": 24
+    }
   }
 }
