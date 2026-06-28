@@ -705,6 +705,15 @@
     const coingeckoIds = { BTC: "bitcoin", ETH: "ethereum", DOGE: "dogecoin" };
     const allowedSymbols = new Set(allAssets(DEFAULT_HOLDINGS).map((asset) => asset.symbol));
 
+    function activePriceSymbols(rules) {
+      const symbols = new Set(["BTC", "ETH", "DOGE", "BGB", "XAUT"]);
+      (rules.watchBuyRules || []).forEach((rule) => rule.symbol && symbols.add(rule.symbol));
+      (rules.trendWatchRules || []).forEach((rule) => rule.symbol && symbols.add(rule.symbol));
+      (rules.trendFollowRules || []).forEach((rule) => rule.symbol && symbols.add(rule.symbol));
+      Object.keys(rules.sellRules || {}).forEach((symbol) => symbols.add(symbol));
+      return symbols;
+    }
+
     function allAssets(holdings) {
       return [...(holdings.cash || []), ...(holdings.positions || [])];
     }
@@ -809,21 +818,43 @@
       throw new Error(errors.join(" | ") || `no price source for ${symbol}`);
     }
 
-    async function loadPrices(symbols, fallbackQuotes = {}) {
+    async function loadPrices(assets, fallbackQuotes = {}, activeSymbols = new Set()) {
       const quotes = {};
       const priceErrors = {};
-      await Promise.all(symbols.map(async (symbol) => {
+      const priceWarnings = {};
+      await Promise.all(assets.map(async (asset) => {
+        const symbol = asset.symbol;
+        const quantity = Number(asset.quantity || 0);
+        if (quantity <= 0 && symbol !== "USDT" && symbol !== "USDGO") {
+          if (fallbackQuotes[symbol]) {
+            quotes[symbol] = {
+              ...fallbackQuotes[symbol],
+              source: `${fallbackQuotes[symbol].source || "GitHub快照"} / 零仓位观察备用`,
+              cachedFallback: true
+            };
+          }
+          return;
+        }
         try {
           quotes[symbol] = await quote(symbol);
         } catch (error) {
+          const message = error.message || "price source failed";
           if (fallbackQuotes[symbol]) {
-            quotes[symbol] = { ...fallbackQuotes[symbol], source: `${fallbackQuotes[symbol].source || "GitHub快照"} / 前端备用` };
+            quotes[symbol] = {
+              ...fallbackQuotes[symbol],
+              source: `${fallbackQuotes[symbol].source || "GitHub快照"} / 前端快照备用`,
+              cachedFallback: true,
+              livePriceError: message
+            };
+            priceWarnings[symbol] = message;
             return;
           }
-          priceErrors[symbol] = error.message || "price source failed";
+          // 零仓位观察标的不需要手机端实时拉价，避免 MRVL/ANET/TSM 等观察池误报价格源失败。
+          if (quantity <= 0) return;
+          priceErrors[symbol] = message;
         }
       }));
-      return { quotes, priceErrors };
+      return { quotes, priceErrors, priceWarnings };
     }
 
     function sanitizeHoldings(holdings) {
@@ -834,7 +865,7 @@
       return { baseCurrency: "USDT", cash, positions };
     }
 
-    function buildSnapshot(holdings, quotes = {}, priceErrors = {}, source = "local-browser", rules = FALLBACK_RULES) {
+    function buildSnapshot(holdings, quotes = {}, priceErrors = {}, source = "local-browser", rules = FALLBACK_RULES, priceWarnings = {}) {
       const updatedAt = new Date().toISOString();
       const positions = allAssets(holdings).map((asset) => {
         const quoteData = quotes[asset.symbol];
@@ -854,6 +885,8 @@
           priceOk,
           priceSource: quoteData?.source || null,
           priceUpdatedAt: quoteData?.updatedAt || null,
+          priceCachedFallback: Boolean(quoteData?.cachedFallback),
+          priceWarning: priceWarnings[asset.symbol] || quoteData?.livePriceError || null,
           priceError: priceErrors[asset.symbol] || null,
           value,
           pnl: value - costValue,
@@ -873,6 +906,7 @@
         cashValue,
         cashPct: totalValue > 0 ? cashValue / totalValue * 100 : 0,
         priceErrors,
+        priceWarnings,
         positions
       }, rules);
     }
@@ -920,6 +954,12 @@
         }
       });
       return quotes;
+    }
+
+    function snapshotMissingSymbols(snapshot, holdings) {
+      if (!snapshot || !Array.isArray(snapshot.positions)) return true;
+      const inSnapshot = new Set(snapshot.positions.map((row) => row.symbol));
+      return allAssets(holdings).some((asset) => !inSnapshot.has(asset.symbol));
     }
 
     function localHoldings() {
@@ -1424,15 +1464,13 @@
       renderLocalTrades();
 
       let snapshot;
-      if (saved || trades.length) {
-        const { quotes, priceErrors } = await loadPrices([...new Set(allAssets(holdings).map((asset) => asset.symbol))], snapshotQuotes);
-        snapshot = buildSnapshot(holdings, quotes, priceErrors, saved ? "local-browser" : "local-trades", rules);
+      const shouldRebuildInBrowser = Boolean(saved || trades.length || !remoteSnapshot || remoteSnapshot.isDataBlocked || snapshotMissingSymbols(remoteSnapshot, remoteHoldings));
+      if (shouldRebuildInBrowser) {
+        const { quotes, priceErrors, priceWarnings } = await loadPrices(allAssets(holdings), snapshotQuotes, activePriceSymbols(rules));
+        const source = saved ? "local-browser" : trades.length ? "local-trades" : remoteSnapshot?.isDataBlocked ? "browser-refresh" : "default-browser";
+        snapshot = buildSnapshot(holdings, quotes, priceErrors, source, rules, priceWarnings);
       } else {
         snapshot = remoteSnapshot;
-        if (!snapshot) {
-          const { quotes, priceErrors } = await loadPrices([...new Set(allAssets(remoteHoldings).map((asset) => asset.symbol))], snapshotQuotes);
-          snapshot = buildSnapshot(remoteHoldings, quotes, priceErrors, "default-browser", rules);
-        }
       }
       const alerts = await safeFetchJson("data/alerts.json", { alerts: [] });
       renderV4Dashboard(snapshot, rules);

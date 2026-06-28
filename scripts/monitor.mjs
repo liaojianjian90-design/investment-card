@@ -107,6 +107,23 @@ async function writeJson(file, data) {
   await fs.writeFile(file, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 }
 
+function quotesFromSnapshot(snapshot) {
+  const quotes = {};
+  if (!snapshot || !Array.isArray(snapshot.positions)) return quotes;
+  for (const row of snapshot.positions) {
+    const price = Number(row.price);
+    if (row.symbol && Number.isFinite(price) && price > 0) {
+      quotes[row.symbol] = {
+        price,
+        source: row.priceSource || "GitHub快照",
+        updatedAt: row.priceUpdatedAt || snapshot.updatedAt || new Date().toISOString(),
+        fromSnapshot: true
+      };
+    }
+  }
+  return quotes;
+}
+
 function allAssets(holdings) {
   return [...(holdings.cash || []), ...(holdings.positions || [])];
 }
@@ -241,23 +258,48 @@ async function quote(symbol) {
   throw new Error(errors.join(" | ") || `no price source for ${symbol}`);
 }
 
-async function loadPrices(symbols) {
-  const entries = await Promise.all(symbols.map(async (symbol) => {
+async function loadPrices(assets, fallbackQuotes = {}, activeSymbols = new Set()) {
+  const entries = await Promise.all(assets.map(async (asset) => {
+    const symbol = asset.symbol;
+    const quantity = Number(asset.quantity || 0);
+    if (quantity <= 0 && symbol !== "USDT" && symbol !== "USDGO") {
+      if (fallbackQuotes[symbol]) {
+        return [symbol, {
+          ...fallbackQuotes[symbol],
+          source: `${fallbackQuotes[symbol].source || "GitHub快照"} / 零仓位观察备用`,
+          cachedFallback: true
+        }, null, null];
+      }
+      return [symbol, null, null, null];
+    }
     try {
       const result = await quote(symbol);
-      return [symbol, result, null];
+      return [symbol, result, null, null];
     } catch (error) {
-      return [symbol, null, error.message];
+      const message = error.message || "price source failed";
+      if (fallbackQuotes[symbol]) {
+        return [symbol, {
+          ...fallbackQuotes[symbol],
+          source: `${fallbackQuotes[symbol].source || "GitHub快照"} / GitHub快照备用`,
+          cachedFallback: true,
+          livePriceError: message
+        }, null, message];
+      }
+      // 零仓位观察标的只用于观察池展示；没有价格时不应让手机端整页出现“价格源失败”。
+      if (quantity <= 0) return [symbol, null, null, null];
+      return [symbol, null, message, null];
     }
   }));
 
   const quotes = {};
   const errors = {};
-  for (const [symbol, result, error] of entries) {
+  const warnings = {};
+  for (const [symbol, result, error, warning] of entries) {
+    if (result) quotes[symbol] = result;
     if (error) errors[symbol] = error;
-    else quotes[symbol] = result;
+    if (warning) warnings[symbol] = warning;
   }
-  return { quotes, errors };
+  return { quotes, errors, warnings };
 }
 
 function mockNumber(...keys) {
@@ -267,6 +309,15 @@ function mockNumber(...keys) {
     if (Number.isFinite(value)) return value;
   }
   return null;
+}
+
+function activePriceSymbols(rules) {
+  const symbols = new Set(["BTC", "ETH", "DOGE", "BGB", "XAUT"]);
+  for (const rule of rules.watchBuyRules || []) if (rule.symbol) symbols.add(rule.symbol);
+  for (const rule of rules.trendWatchRules || []) if (rule.symbol) symbols.add(rule.symbol);
+  for (const rule of rules.trendFollowRules || []) if (rule.symbol) symbols.add(rule.symbol);
+  for (const symbol of Object.keys(rules.sellRules || {})) symbols.add(symbol);
+  return symbols;
 }
 
 async function loadBtcFiveMinuteChangePct() {
@@ -291,7 +342,7 @@ async function loadBtcFiveMinuteChangePct() {
   }
 }
 
-function buildSnapshot(holdings, quotes, priceErrors, rules) {
+function buildSnapshot(holdings, quotes, priceErrors, rules, priceWarnings = {}) {
   const updatedAt = new Date().toISOString();
   const forcedAge = mockNumber("DATA_AGE_MINUTES", "SNAPSHOT_AGE_MINUTES");
   const dataAgeMinutes = Number.isFinite(forcedAge) ? forcedAge : 0;
@@ -317,6 +368,8 @@ function buildSnapshot(holdings, quotes, priceErrors, rules) {
       priceOk,
       priceSource: quoteData?.source || null,
       priceUpdatedAt: quoteData?.updatedAt || null,
+      priceCachedFallback: Boolean(quoteData?.cachedFallback),
+      priceWarning: priceWarnings[asset.symbol] || quoteData?.livePriceError || null,
       priceError: priceErrors[asset.symbol] || null,
       dataAgeMinutes,
       isStale: dataAgeMinutes >= staleWarn,
@@ -343,6 +396,7 @@ function buildSnapshot(holdings, quotes, priceErrors, rules) {
     isDataBlocked: dataAgeMinutes >= staleBlock,
     weights: Object.fromEntries(rows.map((row) => [row.symbol, row.weightPct])),
     priceErrors,
+    priceWarnings,
     positions: rows
   };
 }
@@ -948,7 +1002,7 @@ function evaluateRules(snapshot, rules, alertState) {
       }
     }
 
-    if (!rapidDropObserve && !buySignalThisRun && Number.isFinite(btc?.price)) {
+    if (!rapidDropObserve && !buySignalThisRun && Number.isFinite(btc?.price) && !btc.priceCachedFallback) {
       const riskFloor = Number(rapidDropRules.riskFloor || 52000);
       const btcRiskMode = btc.price <= riskFloor;
       const candidates = (rules.dipBuyRules || [])
@@ -993,7 +1047,7 @@ function evaluateRules(snapshot, rules, alertState) {
       }
     }
 
-    if (!rapidDropObserve && !buySignalThisRun && Number.isFinite(eth?.price)) {
+    if (!rapidDropObserve && !buySignalThisRun && Number.isFinite(eth?.price) && !eth.priceCachedFallback) {
       const candidates = (rules.ethDipRules || [])
         .filter((rule) => eth.price <= Number(rule.priceBelow))
         .filter((rule) => !alreadyTriggered(alertState, rule.id))
@@ -1025,7 +1079,7 @@ function evaluateRules(snapshot, rules, alertState) {
       for (const rule of watchRules) {
         if (buySignalThisRun || triggeredSymbols.has(rule.symbol)) continue;
         const row = position(snapshot, rule.symbol);
-        if (!row || !row.priceOk || row.isDataBlocked || row.price > Number(rule.priceBelow)) continue;
+        if (!row || !row.priceOk || row.priceCachedFallback || row.isDataBlocked || row.price > Number(rule.priceBelow)) continue;
         if (snapshot.cashPct < Number(rule.requireCashPct || rules.ordinaryBuyCashMinPct || 40)) continue;
         if (alreadyTriggered(alertState, rule.id)) continue;
         const amount = Number(rule.amount || 0);
@@ -1065,7 +1119,7 @@ function evaluateRules(snapshot, rules, alertState) {
       for (const rule of rules.trendWatchRules || []) {
         if (buySignalThisRun) continue;
         const row = position(snapshot, rule.symbol);
-        if (!row || !row.priceOk || row.isDataBlocked || row.price < Number(rule.priceAbove)) continue;
+        if (!row || !row.priceOk || row.priceCachedFallback || row.isDataBlocked || row.price < Number(rule.priceAbove)) continue;
         if (snapshot.cashPct < Number(rule.requireCashPct || 45)) continue;
         if (alreadyTriggered(alertState, rule.id)) continue;
         const amount = Number(rule.amount || 0);
@@ -1093,7 +1147,7 @@ function evaluateRules(snapshot, rules, alertState) {
       }
     }
 
-    if (!rapidDropObserve && !buySignalThisRun && Number.isFinite(btc?.price)) {
+    if (!rapidDropObserve && !buySignalThisRun && Number.isFinite(btc?.price) && !btc.priceCachedFallback) {
       for (const rule of rules.trendFollowRules || []) {
         if (buySignalThisRun) continue;
         if (btc.price < Number(rule.btcPriceAbove)) continue;
@@ -1139,7 +1193,7 @@ function evaluateRules(snapshot, rules, alertState) {
     const row = position(snapshot, symbol);
     if (!row || row.value <= 0) continue;
     for (const rule of sellRules) {
-      const priceHit = Number.isFinite(Number(rule.priceAbove)) && Number.isFinite(row.price) && row.price >= Number(rule.priceAbove);
+      const priceHit = Number.isFinite(Number(rule.priceAbove)) && Number.isFinite(row.price) && !row.priceCachedFallback && row.price >= Number(rule.priceAbove);
       const weightHit = Number.isFinite(Number(rule.weightAbovePct)) && row.weightPct >= Number(rule.weightAbovePct);
       if (priceHit || weightHit) {
         addAlert(alerts, alertState, rules, {
@@ -1201,10 +1255,12 @@ async function main() {
   if (!baseHoldings || !rules) throw new Error("Missing config files");
 
   const { holdings, meta: manualTradeSync } = applyManualTrades(baseHoldings, manualTradesData);
+  const previousSnapshot = await readJson(files.snapshot, null);
+  const fallbackQuotes = quotesFromSnapshot(previousSnapshot);
   const bitgetSync = { enabled: false, used: false, source: "disabled-manual-mode" };
-  const symbols = [...new Set(allAssets(holdings).map((asset) => asset.symbol))];
-  const { quotes, errors } = await loadPrices(symbols);
-  const snapshot = buildSnapshot(holdings, quotes, errors, rules);
+  const assets = allAssets(holdings);
+  const { quotes, errors, warnings } = await loadPrices(assets, fallbackQuotes, activePriceSymbols(rules));
+  const snapshot = buildSnapshot(holdings, quotes, errors, rules, warnings);
   snapshot.bitgetSync = bitgetSync;
   snapshot.manualTradeSync = manualTradeSync;
   snapshot.btcFiveMinuteChangePct = await loadBtcFiveMinuteChangePct();
@@ -1239,6 +1295,7 @@ async function main() {
     alerts: alerts.length,
     email,
     priceErrors: errors,
+    priceWarnings: warnings,
     bitgetSync: snapshot.bitgetSync,
     manualTradeSync: snapshot.manualTradeSync,
     noWrite
