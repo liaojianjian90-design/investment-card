@@ -73,6 +73,8 @@
     .summary-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .rule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .editor-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .trade-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .sync-grid { grid-template-columns: 2fr 1fr; }
 
     .metric {
       background: var(--soft);
@@ -180,7 +182,7 @@
       margin-bottom: 4px;
     }
 
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       border: 1px solid var(--line);
       border-radius: 12px;
@@ -267,12 +269,15 @@
     .clean-list { margin: 8px 0 0; padding-left: 20px; }
     .clean-list li { margin: 6px 0; }
     .empty-hint { color: var(--muted); }
+    .trade-history { display: grid; gap: 8px; margin-top: 14px; }
+    .trade-row { border: 1px dashed var(--line); border-radius: 14px; padding: 10px 12px; background: #fffefa; font-size: 13px; }
+    .trade-row strong { margin-right: 8px; }
     .judgement-list { margin: 0; padding-left: 20px; }
 
 
     @media (max-width: 920px) {
       .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .rule-grid, .editor-grid, .layers-grid { grid-template-columns: 1fr 1fr; }
+      .rule-grid, .editor-grid, .trade-grid, .sync-grid, .layers-grid { grid-template-columns: 1fr 1fr; }
       .phase-grid { grid-template-columns: 1fr; }
     }
 
@@ -280,7 +285,7 @@
       .shell { width: min(100% - 20px, 560px); margin-bottom: 48px; }
       .hero { padding-top: 20px; }
       .card { border-radius: 18px; padding: 16px; }
-      .summary-grid, .rule-grid, .editor-grid, .layers-grid, .action-grid, .score-components { grid-template-columns: 1fr; }
+      .summary-grid, .rule-grid, .editor-grid, .trade-grid, .sync-grid, .layers-grid, .action-grid, .score-components { grid-template-columns: 1fr; }
       .health-shell { grid-template-columns: 1fr; }
       .desktop-table { display: none; }
       .position-cards { display: block; }
@@ -480,9 +485,81 @@
       </div>
     </section>
 
+    <section class="card" id="manualTradeCard">
+      <h2>手动买入 / 卖出入口</h2>
+      <p class="section-note">不接入交易所 API 时，可以在这里手动记录买入或卖出。保存到本机会立刻更新页面仓位；提交到云端需要你先部署 Cloudflare Worker，不会在前端保存 GitHub Token。</p>
+      <div class="grid trade-grid">
+        <div class="editor-item">
+          <label>方向</label>
+          <select id="tradeAction">
+            <option value="buy">买入</option>
+            <option value="sell">卖出</option>
+          </select>
+        </div>
+        <div class="editor-item">
+          <label>标的</label>
+          <select id="tradeSymbol"></select>
+        </div>
+        <div class="editor-item">
+          <label>数量</label>
+          <input id="tradeQuantity" inputmode="decimal" placeholder="例如 0.01">
+        </div>
+        <div class="editor-item">
+          <label>成交价</label>
+          <input id="tradePrice" inputmode="decimal" placeholder="USDT 计价">
+        </div>
+        <div class="editor-item">
+          <label>手续费</label>
+          <input id="tradeFee" inputmode="decimal" value="0">
+        </div>
+      </div>
+      <div class="grid sync-grid" style="margin-top:12px;">
+        <div class="editor-item">
+          <label>备注</label>
+          <input id="tradeNote" placeholder="例如：手动买入 BTC，修正仓位">
+        </div>
+        <div class="editor-item">
+          <label>现金账户</label>
+          <select id="tradeCashSymbol">
+            <option value="USDT">USDT</option>
+            <option value="USDGO">USDGO</option>
+          </select>
+        </div>
+      </div>
+      <div class="editor-actions">
+        <button id="applyTradeLocal">保存到本机并更新仓位</button>
+        <button class="secondary" id="copyTradeJson">复制交易 JSON</button>
+        <button class="secondary" id="submitTradeCloud">提交到云端</button>
+        <button class="danger" id="clearLocalTrades">清空本机交易记录</button>
+      </div>
+      <textarea id="tradeExportBox" readonly></textarea>
+      <div class="notice" id="tradeNotice"><strong>安全边界：</strong>前端只记录交易流水和更新仓位，不连接 Bitget，不自动下单，不保存 GitHub Token。</div>
+      <div class="trade-history" id="localTradesList"></div>
+    </section>
+
+    <section class="card">
+      <h2>云端同步设置</h2>
+      <p class="section-note">云端同步建议使用 Cloudflare Worker：GitHub Token 存在 Worker Secrets，网页只保存 Worker 地址和你的同步 PIN。没有部署 Worker 时，继续使用“复制交易 JSON / 导出配置 JSON”手动上传即可。</p>
+      <div class="grid sync-grid">
+        <div class="editor-item">
+          <label>Worker 同步地址</label>
+          <input id="syncEndpoint" placeholder="https://你的-worker.workers.dev">
+        </div>
+        <div class="editor-item">
+          <label>同步 PIN</label>
+          <input id="syncPin" type="password" placeholder="只保存在本机浏览器">
+        </div>
+      </div>
+      <div class="editor-actions">
+        <button id="saveSyncSettings">保存云端设置到本机</button>
+        <button class="secondary" id="testSyncEndpoint">测试云端连接</button>
+      </div>
+      <div class="notice" id="syncNotice"><strong>提示：</strong>不要把 GitHub Token、交易所 API Key 或任何私钥填到网页里。</div>
+    </section>
+
     <section class="card">
       <h2>手动更新仓位</h2>
-      <p class="section-note">这里保存到当前手机浏览器，只影响网页显示；邮件提醒仍以 GitHub 仓库的 `config/holdings.json` 为准。</p>
+      <p class="section-note">这里保存到当前手机浏览器，只影响网页显示；邮件提醒默认以 GitHub 仓库的 `config/holdings.json` + `data/manual-trades.json` 为准。云端同步成功后，GitHub Actions 会重新生成快照和邮件判断。</p>
       <div class="grid editor-grid" id="editor"></div>
       <div class="editor-actions">
         <button id="saveLocal">保存到本机</button>
@@ -496,6 +573,8 @@
   <script type="module">
     import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs";
     const STORAGE_KEY = "investment-monitor-local-holdings-v3";
+    const TRADE_STORAGE_KEY = "investment-monitor-manual-trades-v1";
+    const CLOUD_SYNC_STORAGE_KEY = "investment-monitor-cloud-sync-v1";
 
     const DEFAULT_HOLDINGS = {
       baseCurrency: "USDT",
@@ -511,6 +590,12 @@
         { symbol: "VOO", quantity: 0, cost: 0, type: "watch" },
         { symbol: "XAUT", quantity: 0, cost: 0, type: "watch" },
         { symbol: "AVGO", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "MRVL", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "ANET", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "TSM", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "ASML", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "SMH", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "SOXX", quantity: 0, cost: 0, type: "watch" },
         { symbol: "FN", quantity: 0, cost: 0, type: "watch" },
         { symbol: "MU", quantity: 0, cost: 0, type: "watch" },
         { symbol: "SNDK", quantity: 0, cost: 0, type: "watch" },
@@ -743,6 +828,148 @@
       } catch {
         return null;
       }
+    }
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value || {}));
+    }
+
+    function localTrades() {
+      try {
+        const saved = localStorage.getItem(TRADE_STORAGE_KEY);
+        const trades = saved ? JSON.parse(saved) : [];
+        return Array.isArray(trades) ? trades : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveLocalTrades(trades) {
+      localStorage.setItem(TRADE_STORAGE_KEY, JSON.stringify(trades));
+    }
+
+    function cloudSyncSettings() {
+      try {
+        return JSON.parse(localStorage.getItem(CLOUD_SYNC_STORAGE_KEY) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function saveCloudSyncSettings(settings) {
+      localStorage.setItem(CLOUD_SYNC_STORAGE_KEY, JSON.stringify(settings));
+    }
+
+    function normalizeTrade(raw) {
+      const action = String(raw.action || "").trim().toLowerCase();
+      const symbol = String(raw.symbol || "").trim().toUpperCase();
+      const quantity = Number(raw.quantity || 0);
+      const price = Number(raw.price || 0);
+      const fee = Math.max(0, Number(raw.fee || 0));
+      const cashSymbol = String(raw.cashSymbol || "USDT").trim().toUpperCase();
+      const tradedAt = raw.tradedAt || new Date().toISOString();
+      const note = String(raw.note || "").trim();
+      const id = raw.id || `${tradedAt}-${action}-${symbol}-${quantity}-${price}-${fee}`.replace(/\s+/g, "-");
+      if (!["buy", "sell"].includes(action)) throw new Error("请选择买入或卖出");
+      if (!allowedSymbols.has(symbol)) throw new Error(`标的 ${symbol} 不在当前观察池里`);
+      if (!Number.isFinite(quantity) || quantity <= 0) throw new Error("数量必须大于 0");
+      if (!Number.isFinite(price) || price <= 0) throw new Error("成交价必须大于 0");
+      return { id, action, symbol, quantity, price, fee, cashSymbol, tradedAt, note };
+    }
+
+    function ensurePosition(holdings, symbol) {
+      holdings.positions ||= [];
+      let asset = holdings.positions.find((item) => item.symbol === symbol);
+      if (!asset) {
+        asset = { symbol, quantity: 0, cost: 0, type: "watch" };
+        holdings.positions.push(asset);
+      }
+      asset.quantity = Number(asset.quantity || 0);
+      asset.cost = Number(asset.cost || 0);
+      return asset;
+    }
+
+    function ensureCash(holdings, cashSymbol) {
+      holdings.cash ||= [];
+      let cash = holdings.cash.find((item) => item.symbol === cashSymbol);
+      if (!cash) {
+        cash = { symbol: cashSymbol, quantity: 0, cost: 1, type: "cash" };
+        holdings.cash.push(cash);
+      }
+      cash.quantity = Number(cash.quantity || 0);
+      cash.cost = Number(cash.cost || 1) || 1;
+      return cash;
+    }
+
+    function applyTradeToHoldings(holdings, rawTrade) {
+      const trade = normalizeTrade(rawTrade);
+      const next = clone(holdings);
+      const asset = ensurePosition(next, trade.symbol);
+      const cash = ensureCash(next, trade.cashSymbol);
+      const gross = trade.quantity * trade.price;
+      const cashUnit = Number(cash.cost || 1) || 1;
+      if (trade.action === "buy") {
+        const newQuantity = asset.quantity + trade.quantity;
+        const oldCostValue = asset.quantity * asset.cost;
+        asset.cost = newQuantity > 0 ? (oldCostValue + gross + trade.fee) / newQuantity : 0;
+        asset.quantity = newQuantity;
+        cash.quantity -= (gross + trade.fee) / cashUnit;
+      } else {
+        if (asset.quantity + 1e-12 < trade.quantity) throw new Error(`${trade.symbol} 卖出数量超过当前持仓`);
+        asset.quantity = Math.max(0, asset.quantity - trade.quantity);
+        if (asset.quantity === 0) asset.cost = 0;
+        cash.quantity += Math.max(0, gross - trade.fee) / cashUnit;
+      }
+      return { holdings: sanitizeHoldings(next), trade };
+    }
+
+    function applyTradesToHoldings(baseHoldings, trades) {
+      return trades.reduce((holdings, trade) => applyTradeToHoldings(holdings, trade).holdings, clone(baseHoldings));
+    }
+
+    function currentTradeFromForm() {
+      return normalizeTrade({
+        action: document.getElementById("tradeAction").value,
+        symbol: document.getElementById("tradeSymbol").value,
+        quantity: document.getElementById("tradeQuantity").value,
+        price: document.getElementById("tradePrice").value,
+        fee: document.getElementById("tradeFee").value,
+        cashSymbol: document.getElementById("tradeCashSymbol").value,
+        tradedAt: new Date().toISOString(),
+        note: document.getElementById("tradeNote").value
+      });
+    }
+
+    function setTradeNotice(message, risk = false) {
+      const node = document.getElementById("tradeNotice");
+      node.innerHTML = message;
+      node.style.borderLeftColor = risk ? "var(--red)" : "var(--amber)";
+    }
+
+    function renderManualTradeControls() {
+      const symbolSelect = document.getElementById("tradeSymbol");
+      const order = ["BTC", "ETH", "VOO", "XAUT", "MRVL", "AVGO", "ANET", "MU", "WDC", "DOGE", "BGB", "TSM", "ASML", "SMH", "SOXX", "DRAM", "SNDK", "FN", "AAOI", "GLW", "ASX"];
+      const symbols = order.filter((symbol) => allowedSymbols.has(symbol));
+      symbolSelect.innerHTML = symbols.map((symbol) => `<option value="${symbol}">${symbol} · ${names[symbol] || ""}</option>`).join("");
+      const settings = cloudSyncSettings();
+      document.getElementById("syncEndpoint").value = settings.endpoint || "";
+      document.getElementById("syncPin").value = settings.pin || "";
+    }
+
+    function renderLocalTrades() {
+      const trades = localTrades().slice().reverse().slice(0, 8);
+      const box = document.getElementById("localTradesList");
+      if (!trades.length) {
+        box.innerHTML = `<div class="empty-hint">本机暂无手动交易记录。</div>`;
+        return;
+      }
+      box.innerHTML = trades.map((trade) => `
+        <div class="trade-row">
+          <strong>${trade.action === "buy" ? "买入" : "卖出"} ${trade.symbol}</strong>
+          ${formatQty(trade.symbol, trade.quantity)} × ${formatPrice(trade.price)}，手续费 ${formatPrice(trade.fee || 0)} ${trade.cashSymbol || "USDT"}
+          <div class="muted">${new Date(trade.tradedAt).toLocaleString()} ${trade.note ? `· ${trade.note}` : ""}</div>
+        </div>
+      `).join("");
     }
 
     function formatMoney(value) {
@@ -1087,13 +1314,15 @@
     async function loadDisplayData() {
       const rules = await safeFetchJson("config/rules.json", FALLBACK_RULES);
       const saved = localHoldings();
-      const holdings = saved || DEFAULT_HOLDINGS;
+      const trades = localTrades();
+      const holdings = saved || (trades.length ? applyTradesToHoldings(DEFAULT_HOLDINGS, trades) : DEFAULT_HOLDINGS);
       renderEditor(holdings);
+      renderLocalTrades();
 
       let snapshot;
-      if (saved) {
-        const { quotes, priceErrors } = await loadPrices([...new Set(allAssets(saved).map((asset) => asset.symbol))]);
-        snapshot = buildSnapshot(saved, quotes, priceErrors, "local-browser", rules);
+      if (saved || trades.length) {
+        const { quotes, priceErrors } = await loadPrices([...new Set(allAssets(holdings).map((asset) => asset.symbol))]);
+        snapshot = buildSnapshot(holdings, quotes, priceErrors, saved ? "local-browser" : "local-trades", rules);
       } else {
         snapshot = normalizeSnapshot(await safeFetchJson("data/snapshot.json", null), rules);
         if (!snapshot) {
@@ -1127,6 +1356,89 @@
       localStorage.removeItem(STORAGE_KEY);
       await loadDisplayData();
     });
+
+    document.getElementById("applyTradeLocal").addEventListener("click", async () => {
+      try {
+        const trade = currentTradeFromForm();
+        const base = localHoldings() || applyTradesToHoldings(DEFAULT_HOLDINGS, localTrades());
+        const { holdings } = applyTradeToHoldings(base, trade);
+        const trades = [...localTrades(), trade];
+        saveLocalTrades(trades);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(holdings));
+        setTradeNotice(`<strong>已保存到本机：</strong>${trade.action === "buy" ? "买入" : "卖出"} ${trade.symbol}。页面仓位已经重新计算；云端和邮件提醒不会变化，除非你再提交到云端。`);
+        await loadDisplayData();
+      } catch (error) {
+        setTradeNotice(`<strong>保存失败：</strong>${error.message}`, true);
+      }
+    });
+
+    document.getElementById("copyTradeJson").addEventListener("click", async () => {
+      try {
+        const trade = currentTradeFromForm();
+        const payload = { trade };
+        const box = document.getElementById("tradeExportBox");
+        box.style.display = "block";
+        box.value = JSON.stringify(payload, null, 2);
+        box.select();
+        await navigator.clipboard?.writeText(box.value).catch(() => {});
+        setTradeNotice("<strong>交易 JSON 已生成：</strong>可以复制后手动追加到 data/manual-trades.json，或发给云端 Worker 接口。不要在 JSON 中放任何 API Key。");
+      } catch (error) {
+        setTradeNotice(`<strong>生成失败：</strong>${error.message}`, true);
+      }
+    });
+
+    document.getElementById("clearLocalTrades").addEventListener("click", async () => {
+      localStorage.removeItem(TRADE_STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY);
+      setTradeNotice("<strong>已清空本机手动交易记录。</strong>页面恢复为 GitHub 快照或默认配置。");
+      await loadDisplayData();
+    });
+
+    document.getElementById("saveSyncSettings").addEventListener("click", () => {
+      saveCloudSyncSettings({
+        endpoint: document.getElementById("syncEndpoint").value.trim(),
+        pin: document.getElementById("syncPin").value
+      });
+      document.getElementById("syncNotice").innerHTML = "<strong>已保存到本机：</strong>这里只保存 Worker 地址和同步 PIN，不保存 GitHub Token。";
+    });
+
+    document.getElementById("testSyncEndpoint").addEventListener("click", async () => {
+      const endpoint = document.getElementById("syncEndpoint").value.trim();
+      if (!endpoint) {
+        document.getElementById("syncNotice").innerHTML = "<strong>测试失败：</strong>请先填写 Worker 同步地址。";
+        return;
+      }
+      try {
+        const res = await fetch(endpoint, { method: "GET", cache: "no-store" });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `${res.status} ${res.statusText}`);
+        document.getElementById("syncNotice").innerHTML = "<strong>云端连接正常。</strong>下一步可以尝试提交一条交易记录。";
+      } catch (error) {
+        document.getElementById("syncNotice").innerHTML = `<strong>测试失败：</strong>${error.message}`;
+      }
+    });
+
+    document.getElementById("submitTradeCloud").addEventListener("click", async () => {
+      try {
+        const trade = currentTradeFromForm();
+        const endpoint = document.getElementById("syncEndpoint").value.trim() || cloudSyncSettings().endpoint;
+        const pin = document.getElementById("syncPin").value || cloudSyncSettings().pin;
+        if (!endpoint) throw new Error("请先填写并保存 Worker 同步地址");
+        if (!pin) throw new Error("请先填写同步 PIN");
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ pin, trade })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || `${res.status} ${res.statusText}`);
+        setTradeNotice(`<strong>已提交到云端：</strong>${trade.symbol} 交易记录已写入 data/manual-trades.json。GitHub Actions 运行后，snapshot 和邮件判断会更新。`);
+      } catch (error) {
+        setTradeNotice(`<strong>云端提交失败：</strong>${error.message}`, true);
+      }
+    });
+
+    renderManualTradeControls();
 
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./service-worker.js").catch(() => {});

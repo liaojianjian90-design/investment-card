@@ -1,3 +1,7 @@
+# 投资健康卡 5.0：手动交易云端同步版
+
+本版本默认不接入 Bitget 私人账户 API，也不会自动交易。仓位更新方式是：前端手动录入买入/卖出记录 → 本机立即更新；如部署 Cloudflare Worker，可把交易流水写入 GitHub 的 `data/manual-trades.json`，再由 GitHub Actions 重新生成快照和邮件提醒。
+
 # 投资健康卡 5.0：核心配置 + AI观察 + 邮件风控版
 
 这是一个 GitHub Pages 静态投资纪律仪表盘。它不会自动下单，也不会把交易所 API Key 放到前端。系统只根据公开行情、默认持仓和规则生成：仓位结构、投资健康评分、今日允许动作、今日禁止动作、邮件提醒和再平衡提醒。
@@ -216,3 +220,188 @@ npm run monitor:dry
 ## 风险声明
 
 本项目仅用于个人投资记录、仓位管理和纪律提醒，不构成投资建议。所有买入、卖出、持有决策由使用者自行承担风险。系统规则用于降低冲动交易和仓位失控风险，但不能保证收益，也不能避免市场亏损。
+
+## Bitget 只读 API 同步
+
+5.0.1 已加入 Bitget 只读 API 同步能力。它只读取现货账户资产数量，不下单、不撤单、不划转、不提现。
+
+数据流：
+
+```text
+Bitget 只读 API
+  ↓
+GitHub Actions / 后台脚本
+  ↓
+更新 data/snapshot.json
+  ↓
+GitHub Pages 页面重新计算健康评分、今日动作和邮件提醒
+```
+
+安全原则：
+
+- API Key、Passphrase、RSA 私钥不能写进 `index.html`、`config/*.json`、`data/*.json` 或任何公开仓库文件。
+- 前端网页永远不接触 API Key。
+- Bitget 权限只开“只读权限”。
+- 不开读写、交易、划转、提现、跟单、C2C、子账户等权限。
+- 有固定服务器 IP 时建议绑定 IP；如果使用普通 GitHub Actions，出口 IP 不固定，IP 白名单需要另外设计。
+
+### 1. 生成 RSA 密钥
+
+在本地电脑运行：
+
+```bash
+openssl genrsa -out bitget_rsa_private.pem 2048
+openssl rsa -in bitget_rsa_private.pem -pubout -out bitget_rsa_public.pem
+```
+
+把 `bitget_rsa_public.pem` 里的内容粘贴到 Bitget API 创建页面的“您的公钥”。
+
+不要上传、发送或公开 `bitget_rsa_private.pem`。
+
+### 2. 创建 Bitget API
+
+建议填写：
+
+- 备注名：`investment-card-readonly`
+- Passphrase：自己生成并保存到密码管理器
+- 权限：只读权限
+- 具体权限：现货交易/现货账户读取相关权限
+- 绑定 IP：有固定服务器 IP 就填；没有固定 IP 时不要开启交易权限
+
+### 3. 把私钥转成 Base64
+
+macOS：
+
+```bash
+base64 -i bitget_rsa_private.pem | pbcopy
+```
+
+Linux：
+
+```bash
+base64 -w0 bitget_rsa_private.pem
+```
+
+### 4. 添加 GitHub Secrets
+
+仓库页面进入：
+
+```text
+Settings -> Secrets and variables -> Actions -> New repository secret
+```
+
+新增：
+
+- `BITGET_READONLY_ENABLED`：`true`
+- `BITGET_API_KEY`：Bitget 创建后给你的 API Key
+- `BITGET_PASSPHRASE`：你创建 API 时设置的 Passphrase
+- `BITGET_RSA_PRIVATE_KEY_BASE64`：上一步生成的私钥 Base64 字符串
+- `BITGET_SYNC_SYMBOLS`：可选，默认 `USDT,USDGO,BTC,ETH,DOGE,BGB,XAUT`
+
+如果你暂时不想同步 Bitget，把 `BITGET_READONLY_ENABLED` 改成 `false` 或删除即可。
+
+### 5. 测试 Bitget 只读连接
+
+本地测试：
+
+```bash
+npm run bitget:check
+```
+
+GitHub Actions 测试：
+
+```text
+Actions -> Investment Health Card 5.0 Monitor -> Run workflow
+```
+
+运行成功后检查 `data/snapshot.json` 是否出现：
+
+```json
+"bitgetSync": {
+  "enabled": true,
+  "used": true,
+  "source": "bitget-readonly-spot-assets"
+}
+```
+
+### 6. 成本价说明
+
+Bitget 只读同步只会更新数量，例如 BTC、ETH、DOGE、BGB、USDT 的数量。
+
+它不会自动计算成本价。`config/holdings.json` 里的 `cost` 仍需要你手动维护，避免错误的浮盈/浮亏判断。
+
+### 7. 文件说明
+
+新增文件：
+
+- `scripts/bitget-readonly.mjs`：Bitget RSA 签名、只读请求、现货资产同步
+- `scripts/bitget-readonly-check.mjs`：只读 API 连接测试
+
+修改文件：
+
+- `scripts/monitor.mjs`：监控运行前可先同步 Bitget 现货资产数量
+- `.github/workflows/monitor.yml`：从 GitHub Secrets 注入 Bitget 只读配置
+- `config/rules.json`：增加只读同步规则说明
+- `package.json`：增加 Bitget 检查命令
+
+
+
+## 手动买入 / 卖出入口与云端同步
+
+5.0 手动同步版支持在前端录入买入或卖出记录，用于不接入 Bitget API 的情况下更新仓位。
+
+### 两种使用方式
+
+1. **本机模式**：在网页里填写方向、标的、数量、成交价和手续费，点击“保存到本机并更新仓位”。页面会立刻重新计算仓位、健康评分、今日允许动作和今日禁止动作。这个模式只影响当前浏览器，不会触发邮件。
+
+2. **云端模式**：部署 `cloudflare-worker/manual-sync-worker.js`，在网页里填写 Worker 地址和同步 PIN，然后点击“提交到云端”。Worker 会把交易追加到 `data/manual-trades.json`，GitHub Actions 会重新运行监控并生成新的 `data/snapshot.json`、`data/alerts.json` 和邮件判断。
+
+### 云端模式安全边界
+
+- 前端不保存 GitHub Token。
+- 前端不保存交易所 API Key。
+- GitHub Token 只放在 Cloudflare Worker 的 Secrets 里。
+- Worker 只追加交易流水，不会自动下单。
+- 邮件提醒仍然只做纪律提醒，不构成投资建议。
+
+### Cloudflare Worker 需要的变量
+
+```text
+GITHUB_TOKEN=Fine-grained GitHub token，只给当前仓库 Contents Read and Write 权限
+GITHUB_OWNER=你的 GitHub 用户名
+GITHUB_REPO=仓库名
+GITHUB_BRANCH=main
+SYNC_PIN=你自己设置的同步 PIN
+ALLOWED_ORIGIN=https://你的用户名.github.io
+```
+
+### 手动交易文件格式
+
+交易记录会保存到：
+
+```text
+data/manual-trades.json
+```
+
+格式示例：
+
+```json
+{
+  "updatedAt": "2026-06-28T00:00:00.000Z",
+  "trades": [
+    {
+      "id": "2026-06-28-buy-btc-001",
+      "action": "buy",
+      "symbol": "BTC",
+      "quantity": 0.001,
+      "price": 60000,
+      "fee": 0.2,
+      "cashSymbol": "USDT",
+      "tradedAt": "2026-06-28T00:00:00.000Z",
+      "note": "手动买入 BTC"
+    }
+  ]
+}
+```
+
+`npm run monitor` 会从 `config/holdings.json` 作为基础仓位，叠加 `data/manual-trades.json` 的交易流水，再生成最新快照。这样不会把前端写成自动交易工具，也不会把敏感密钥暴露在 GitHub Pages 前端。

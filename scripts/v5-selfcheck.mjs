@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import { applyManualTrades } from "./manual-trades.mjs";
 import {
   calculateHealthScore,
   calculateAssetLayers,
@@ -6,6 +7,7 @@ import {
   generateForbiddenActions,
   checkDataFreshness
 } from "../src/lib/investmentHealth.mjs";
+import { bitgetReadonlyEnabled, hasBitgetReadonlyCredentials, getBitgetSyncSymbols } from "./bitget-readonly.mjs";
 
 const [snapshotRaw, rulesRaw] = await Promise.all([
   fs.readFile(new URL("../data/snapshot.json", import.meta.url), "utf8"),
@@ -85,5 +87,8 @@ assert(generateForbiddenActions(themeHigh, rules).some((item) => item.includes("
 const missingAsset = clone(snapshot);
 missingAsset.positions = missingAsset.positions.filter((item) => item.symbol !== "XAUT");
 assert(calculateAssetLayers(missingAsset, rules).length === 5, "缺失某个资产时五层计算不能崩溃");
+
+assert(bitgetReadonlyEnabled() === false || hasBitgetReadonlyCredentials(), "Bitget 同步开启时必须配置完整凭据");
+assert(getBitgetSyncSymbols().includes("BTC"), "Bitget 默认同步列表必须包含 BTC");
 
 console.log(JSON.stringify({ ok: true, score: score.total, grade: score.grade }, null, 2));

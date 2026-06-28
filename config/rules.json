@@ -1036,6 +1036,23 @@
       "dataBlockSubject": "【投资风控提醒】数据过期，禁止交易判断",
       "structureSubject": "【投资结构提醒】现金过高 + 核心仓不足",
       "rebalanceSubject": "【投资再平衡提醒】达到止盈或减仓条件"
+    },
+    "bitgetReadonlySync": {
+      "enabledBySecret": "BITGET_READONLY_ENABLED",
+      "mode": "spot-assets-readonly",
+      "defaultSyncSymbols": [
+        "USDT",
+        "USDGO",
+        "BTC",
+        "ETH",
+        "DOGE",
+        "BGB",
+        "XAUT"
+      ],
+      "doesNotSyncCostBasis": true,
+      "doesNotPlaceOrders": true,
+      "frontendNeverReceivesApiKey": true,
+      "note": "Bitget API 只用于读取现货资产数量；API Key/Passphrase/RSA 私钥只能放在 GitHub Secrets 或服务器环境变量，不能写进前端或仓库。"
     }
   },
   "v5Rules": {
@@ -1169,6 +1186,23 @@
       "dataBlockSubject": "【投资风控提醒】数据过期，禁止交易判断",
       "structureSubject": "【投资结构提醒】现金过高 + 核心仓不足",
       "rebalanceSubject": "【投资再平衡提醒】达到止盈或减仓条件"
+    },
+    "bitgetReadonlySync": {
+      "enabledBySecret": "BITGET_READONLY_ENABLED",
+      "mode": "spot-assets-readonly",
+      "defaultSyncSymbols": [
+        "USDT",
+        "USDGO",
+        "BTC",
+        "ETH",
+        "DOGE",
+        "BGB",
+        "XAUT"
+      ],
+      "doesNotSyncCostBasis": true,
+      "doesNotPlaceOrders": true,
+      "frontendNeverReceivesApiKey": true,
+      "note": "Bitget API 只用于读取现货资产数量；API Key/Passphrase/RSA 私钥只能放在 GitHub Secrets 或服务器环境变量，不能写进前端或仓库。"
     }
   }
 }

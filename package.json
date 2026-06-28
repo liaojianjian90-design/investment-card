@@ -1,13 +1,14 @@
 {
   "name": "investment-monitor-card",
-  "version": "1.2.0",
+  "version": "1.4.0",
   "private": true,
   "type": "module",
   "scripts": {
     "monitor": "node scripts/monitor.mjs",
     "monitor:dry": "node scripts/monitor.mjs --dry-run",
     "selfcheck": "node scripts/v5-selfcheck.mjs",
-    "test": "node scripts/v5-selfcheck.mjs"
+    "test": "node scripts/v5-selfcheck.mjs",
+    "manual:check": "node scripts/v5-selfcheck.mjs"
   },
   "dependencies": {
     "nodemailer": "^6.9.16"

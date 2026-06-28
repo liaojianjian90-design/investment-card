@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { calculateHealthSummary, getV4Rules } from "../src/lib/investmentHealth.mjs";
+import { applyManualTrades } from "./manual-trades.mjs";
 
 const root = process.cwd();
 const isDryRun = process.argv.includes("--dry-run");
@@ -18,7 +19,8 @@ const files = {
   rules: path.join(root, "config", "rules.json"),
   snapshot: path.join(root, "data", "snapshot.json"),
   alerts: path.join(root, "data", "alerts.json"),
-  alertState: path.join(root, "data", "alert-state.json")
+  alertState: path.join(root, "data", "alert-state.json"),
+  manualTrades: path.join(root, "data", "manual-trades.json")
 };
 
 const names = {
@@ -1097,14 +1099,19 @@ async function sendEmail(alerts, snapshot) {
 }
 
 async function main() {
-  const holdings = await readJson(files.holdings);
+  const baseHoldings = await readJson(files.holdings);
   const rules = await readJson(files.rules);
   const alertState = await readJson(files.alertState, {});
-  if (!holdings || !rules) throw new Error("Missing config files");
+  const manualTradesData = await readJson(files.manualTrades, { trades: [] });
+  if (!baseHoldings || !rules) throw new Error("Missing config files");
 
+  const { holdings, meta: manualTradeSync } = applyManualTrades(baseHoldings, manualTradesData);
+  const bitgetSync = { enabled: false, used: false, source: "disabled-manual-mode" };
   const symbols = [...new Set(allAssets(holdings).map((asset) => asset.symbol))];
   const { quotes, errors } = await loadPrices(symbols);
   const snapshot = buildSnapshot(holdings, quotes, errors, rules);
+  snapshot.bitgetSync = bitgetSync;
+  snapshot.manualTradeSync = manualTradeSync;
   snapshot.btcFiveMinuteChangePct = await loadBtcFiveMinuteChangePct();
   const alerts = evaluateRules(snapshot, rules, alertState);
   snapshot.healthSummary = calculateHealthSummary(snapshot, rules);
@@ -1137,6 +1144,8 @@ async function main() {
     alerts: alerts.length,
     email,
     priceErrors: errors,
+    bitgetSync: snapshot.bitgetSync,
+    manualTradeSync: snapshot.manualTradeSync,
     noWrite
   }, null, 2));
 }
