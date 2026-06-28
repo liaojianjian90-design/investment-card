@@ -67,6 +67,27 @@ const bitgetSymbols = {
   GLW: "RGLWUSDT"
 };
 
+const yahooSymbols = {
+  VOO: "VOO",
+  AVGO: "AVGO",
+  MRVL: "MRVL",
+  ANET: "ANET",
+  TSM: "TSM",
+  ASML: "ASML",
+  SMH: "SMH",
+  SOXX: "SOXX",
+  FN: "FN",
+  MU: "MU",
+  SNDK: "SNDK",
+  DRAM: "DRAM",
+  WDC: "WDC",
+  ASX: "ASX",
+  AAOI: "AAOI",
+  GLW: "GLW"
+};
+
+const stooqSymbols = Object.fromEntries(Object.entries(yahooSymbols).map(([symbol, ticker]) => [symbol, `${ticker.toLowerCase()}.us`]));
+
 const coingeckoIds = {
   BTC: "bitcoin",
   ETH: "ethereum",
@@ -120,6 +141,65 @@ async function bitgetQuote(symbol) {
   return { price, source: `Bitget ${pair}` };
 }
 
+async function yahooQuote(symbol) {
+  const ticker = yahooSymbols[symbol];
+  if (!ticker) throw new Error(`no Yahoo symbol for ${symbol}`);
+  const data = await fetchJson(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?range=1d&interval=1d`);
+  const result = data.chart?.result?.[0];
+  const meta = result?.meta || {};
+  const quote = result?.indicators?.quote?.[0] || {};
+  const close = Array.isArray(quote.close) ? quote.close.filter((item) => Number.isFinite(Number(item))).at(-1) : null;
+  const price = Number(meta.regularMarketPrice ?? meta.postMarketPrice ?? meta.preMarketPrice ?? close ?? meta.previousClose ?? meta.chartPreviousClose);
+  if (!Number.isFinite(price) || price <= 0) throw new Error(`invalid Yahoo price for ${ticker}`);
+  return { price, source: `Yahoo Finance ${ticker}` };
+}
+
+function parseCsvLine(line) {
+  const out = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') { cur += '"'; i += 1; }
+      else inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      out.push(cur);
+      cur = "";
+    } else cur += char;
+  }
+  out.push(cur);
+  return out;
+}
+
+async function stooqQuote(symbol) {
+  const ticker = stooqSymbols[symbol];
+  if (!ticker) throw new Error(`no Stooq symbol for ${symbol}`);
+  const timeoutMs = Number(process.env.PRICE_FETCH_TIMEOUT_MS || 10000);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(`https://stooq.com/q/l/?s=${encodeURIComponent(ticker)}&f=sd2t2ohlcv&h&e=csv`, {
+      headers: { "user-agent": "investment-monitor-card/5.0" },
+      signal: controller.signal
+    });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const text = await res.text();
+    const lines = text.trim().split(/\r?\n/);
+    const headers = parseCsvLine(lines[0] || "");
+    const values = parseCsvLine(lines[1] || "");
+    const row = Object.fromEntries(headers.map((header, index) => [header, values[index]]));
+    const price = Number(row.Close);
+    if (!Number.isFinite(price) || price <= 0) throw new Error(`invalid Stooq price for ${ticker}`);
+    return { price, source: `Stooq ${ticker.toUpperCase()}` };
+  } catch (error) {
+    if (error.name === "AbortError") throw new Error(`timeout after ${timeoutMs}ms: Stooq ${ticker}`);
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function coingeckoQuote(symbol) {
   const id = coingeckoIds[symbol];
   if (!id) throw new Error(`no CoinGecko id for ${symbol}`);
@@ -145,10 +225,10 @@ async function quote(symbol) {
   if (symbol === "USDT" || symbol === "USDGO") return { price: 1, source: "Fixed 1 USDT", updatedAt: now };
 
   const errors = [];
-  const sources = [() => bitgetQuote(symbol)];
-  if (coingeckoIds[symbol]) {
-    sources.push(() => coingeckoQuote(symbol), () => binanceQuote(symbol));
-  }
+  const sources = [];
+  if (bitgetSymbols[symbol]) sources.push(() => bitgetQuote(symbol));
+  if (yahooSymbols[symbol]) sources.push(() => yahooQuote(symbol), () => stooqQuote(symbol));
+  if (coingeckoIds[symbol]) sources.push(() => coingeckoQuote(symbol), () => binanceQuote(symbol));
 
   for (const source of sources) {
     try {

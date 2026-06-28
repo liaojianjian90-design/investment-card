@@ -1,16 +1,4 @@
 {
-  "updatedAt": "2026-06-28T14:00:25.785Z",
-  "trades": [
-    {
-      "id": "2026-06-28T14:00:21.790Z-buy-DRAM-1.20081803-71.91-0",
-      "action": "buy",
-      "symbol": "DRAM",
-      "quantity": 1.20081803,
-      "price": 71.91,
-      "fee": 0,
-      "cashSymbol": "USDT",
-      "tradedAt": "2026-06-28T14:00:21.790Z",
-      "note": ""
-    }
-  ]
+  "updatedAt": "2026-06-28T12:36:23Z",
+  "trades": []
 }

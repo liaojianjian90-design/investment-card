@@ -416,3 +416,12 @@ data/manual-trades.json
 ### GitHub Actions npm ci 卡住修复
 
 如果工作流卡在 `Install dependencies / npm ci`，请确认 `package-lock.json` 中的 `nodemailer` 下载地址是 `https://registry.npmjs.org/`，不要使用本地或私有镜像地址。本版本已把安装步骤改为使用 npm 官方 registry，并设置 2 分钟安装超时，避免任务长期卡住。
+
+## 5.0 修复说明：手动同步仓位与美股价格源
+
+本版修复两个问题：
+
+1. **MU / WDC 仓位在前端消失**：前端原来使用内置默认持仓作为本地交易基准，默认值里 MU / WDC 为 0。现在前端会优先读取 `config/holdings.json` 作为基准持仓，并且已更新本地缓存 key，避免旧浏览器缓存覆盖真实仓位。
+2. **MRVL / ANET / TSM / ASML / SMH / SOXX 价格源失败**：新增 Yahoo Finance 与 Stooq 作为美股和 ETF 的备用价格源。Bitget tokenized stock 行情不可用时，系统会自动尝试备用源。
+
+上传本版后，请在网页端刷新并可追加 `?v=503` 清缓存；如果仍看到旧仓位，可点击“恢复默认配置”清除旧本地缓存。

@@ -572,7 +572,7 @@
 
   <script type="module">
     import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs";
-    const STORAGE_KEY = "investment-monitor-local-holdings-v3";
+    const STORAGE_KEY = "investment-monitor-local-holdings-v5-1";
     const TRADE_STORAGE_KEY = "investment-monitor-manual-trades-v1";
     const CLOUD_SYNC_STORAGE_KEY = "investment-monitor-cloud-sync-v1";
 
@@ -597,10 +597,10 @@
         { symbol: "SMH", quantity: 0, cost: 0, type: "watch" },
         { symbol: "SOXX", quantity: 0, cost: 0, type: "watch" },
         { symbol: "FN", quantity: 0, cost: 0, type: "watch" },
-        { symbol: "MU", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "MU", quantity: 0.17540371, cost: 1139.16, type: "watch" },
         { symbol: "SNDK", quantity: 0, cost: 0, type: "watch" },
         { symbol: "DRAM", quantity: 0, cost: 0, type: "watch" },
-        { symbol: "WDC", quantity: 0, cost: 0, type: "watch" },
+        { symbol: "WDC", quantity: 0.3305247, cost: 604.3, type: "watch" },
         { symbol: "ASX", quantity: 0, cost: 0, type: "watch" },
         { symbol: "AAOI", quantity: 0, cost: 0, type: "watch" },
         { symbol: "GLW", quantity: 0, cost: 0, type: "watch" }
@@ -683,6 +683,25 @@
       GLW: "RGLWUSDT"
     };
 
+    const yahooSymbols = {
+      VOO: "VOO",
+      AVGO: "AVGO",
+      MRVL: "MRVL",
+      ANET: "ANET",
+      TSM: "TSM",
+      ASML: "ASML",
+      SMH: "SMH",
+      SOXX: "SOXX",
+      FN: "FN",
+      MU: "MU",
+      SNDK: "SNDK",
+      DRAM: "DRAM",
+      WDC: "WDC",
+      ASX: "ASX",
+      AAOI: "AAOI",
+      GLW: "GLW"
+    };
+    const stooqSymbols = Object.fromEntries(Object.entries(yahooSymbols).map(([symbol, ticker]) => [symbol, `${ticker.toLowerCase()}.us`]));
     const coingeckoIds = { BTC: "bitcoin", ETH: "ethereum", DOGE: "dogecoin" };
     const allowedSymbols = new Set(allAssets(DEFAULT_HOLDINGS).map((asset) => asset.symbol));
 
@@ -711,22 +730,83 @@
       }
     }
 
+    async function yahooQuote(symbol) {
+      const ticker = yahooSymbols[symbol];
+      if (!ticker) throw new Error(`no Yahoo symbol for ${symbol}`);
+      const data = await fetchJson(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?range=1d&interval=1d`);
+      const result = data.chart?.result?.[0];
+      const meta = result?.meta || {};
+      const quoteData = result?.indicators?.quote?.[0] || {};
+      const close = Array.isArray(quoteData.close) ? quoteData.close.filter((item) => Number.isFinite(Number(item))).at(-1) : null;
+      const price = Number(meta.regularMarketPrice ?? meta.postMarketPrice ?? meta.preMarketPrice ?? close ?? meta.previousClose ?? meta.chartPreviousClose);
+      if (!Number.isFinite(price) || price <= 0) throw new Error(`invalid Yahoo price for ${ticker}`);
+      return { price, source: `Yahoo Finance ${ticker}` };
+    }
+
+    function parseCsvLine(line) {
+      const out = [];
+      let cur = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i += 1) {
+        const char = line[i];
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') { cur += '"'; i += 1; }
+          else inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          out.push(cur);
+          cur = "";
+        } else cur += char;
+      }
+      out.push(cur);
+      return out;
+    }
+
+    async function stooqQuote(symbol) {
+      const ticker = stooqSymbols[symbol];
+      if (!ticker) throw new Error(`no Stooq symbol for ${symbol}`);
+      const res = await fetch(`https://stooq.com/q/l/?s=${encodeURIComponent(ticker)}&f=sd2t2ohlcv&h&e=csv`, { cache: "no-store" });
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      const text = await res.text();
+      const lines = text.trim().split(/\r?\n/);
+      const headers = parseCsvLine(lines[0] || "");
+      const values = parseCsvLine(lines[1] || "");
+      const row = Object.fromEntries(headers.map((header, index) => [header, values[index]]));
+      const price = Number(row.Close);
+      if (!Number.isFinite(price) || price <= 0) throw new Error(`invalid Stooq price for ${ticker}`);
+      return { price, source: `Stooq ${ticker.toUpperCase()}` };
+    }
+
     async function quote(symbol) {
       const now = new Date().toISOString();
       if (symbol === "USDT" || symbol === "USDGO") return { price: 1, source: "Fixed 1 USDT", updatedAt: now };
+      const errors = [];
+      const sources = [];
       if (bitgetSymbols[symbol]) {
-        try {
+        sources.push(async () => {
           const data = await fetchJson(`https://api.bitget.com/api/v2/spot/market/tickers?symbol=${bitgetSymbols[symbol]}`);
           const price = Number(data.data?.[0]?.lastPr);
-          if (Number.isFinite(price)) return { price, source: `Bitget ${bitgetSymbols[symbol]}`, updatedAt: now };
-        } catch {}
+          if (!Number.isFinite(price) || price <= 0) throw new Error(`invalid Bitget price for ${bitgetSymbols[symbol]}`);
+          return { price, source: `Bitget ${bitgetSymbols[symbol]}` };
+        });
       }
+      if (yahooSymbols[symbol]) sources.push(() => yahooQuote(symbol), () => stooqQuote(symbol));
       if (coingeckoIds[symbol]) {
-        const data = await fetchJson(`https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoIds[symbol]}&vs_currencies=usd`);
-        const price = Number(data[coingeckoIds[symbol]]?.usd);
-        if (Number.isFinite(price)) return { price, source: "CoinGecko", updatedAt: now };
+        sources.push(async () => {
+          const data = await fetchJson(`https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoIds[symbol]}&vs_currencies=usd`);
+          const price = Number(data[coingeckoIds[symbol]]?.usd);
+          if (!Number.isFinite(price) || price <= 0) throw new Error(`invalid CoinGecko price for ${symbol}`);
+          return { price, source: "CoinGecko" };
+        });
       }
-      throw new Error(`no price source for ${symbol}`);
+      for (const source of sources) {
+        try {
+          const result = await source();
+          return { ...result, updatedAt: now };
+        } catch (error) {
+          errors.push(error.message);
+        }
+      }
+      throw new Error(errors.join(" | ") || `no price source for ${symbol}`);
     }
 
     async function loadPrices(symbols) {
@@ -1313,9 +1393,10 @@
 
     async function loadDisplayData() {
       const rules = await safeFetchJson("config/rules.json", FALLBACK_RULES);
+      const remoteHoldings = sanitizeHoldings(await safeFetchJson("config/holdings.json", DEFAULT_HOLDINGS)) || DEFAULT_HOLDINGS;
       const saved = localHoldings();
       const trades = localTrades();
-      const holdings = saved || (trades.length ? applyTradesToHoldings(DEFAULT_HOLDINGS, trades) : DEFAULT_HOLDINGS);
+      const holdings = saved || (trades.length ? applyTradesToHoldings(remoteHoldings, trades) : remoteHoldings);
       renderEditor(holdings);
       renderLocalTrades();
 
@@ -1326,8 +1407,8 @@
       } else {
         snapshot = normalizeSnapshot(await safeFetchJson("data/snapshot.json", null), rules);
         if (!snapshot) {
-          const { quotes, priceErrors } = await loadPrices([...new Set(allAssets(DEFAULT_HOLDINGS).map((asset) => asset.symbol))]);
-          snapshot = buildSnapshot(DEFAULT_HOLDINGS, quotes, priceErrors, "default-browser", rules);
+          const { quotes, priceErrors } = await loadPrices([...new Set(allAssets(remoteHoldings).map((asset) => asset.symbol))]);
+          snapshot = buildSnapshot(remoteHoldings, quotes, priceErrors, "default-browser", rules);
         }
       }
       const alerts = await safeFetchJson("data/alerts.json", { alerts: [] });
