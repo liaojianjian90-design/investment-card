@@ -3,13 +3,13 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 12218.88430083,
+      "quantity": 11682.73678906,
       "cost": 1,
       "type": "cash"
     },
     {
       "symbol": "USDGO",
-      "quantity": 1502.54376978,
+      "quantity": 1503.71682318,
       "cost": 1.0019,
       "type": "cash"
     }
@@ -17,14 +17,14 @@
   "positions": [
     {
       "symbol": "BTC",
-      "quantity": 0.01841215,
-      "cost": 59741.49,
+      "quantity": 0.02010515,
+      "cost": 59682.51,
       "type": "crypto"
     },
     {
       "symbol": "ETH",
-      "quantity": 0.1592747,
-      "cost": 1569.49,
+      "quantity": 0.2546747,
+      "cost": 1570.39,
       "type": "crypto"
     },
     {
@@ -41,8 +41,8 @@
     },
     {
       "symbol": "VOO",
-      "quantity": 0,
-      "cost": 0,
+      "quantity": 0.1481,
+      "cost": 675.14,
       "type": "watch"
     },
     {
@@ -77,8 +77,8 @@
     },
     {
       "symbol": "DRAM",
-      "quantity": 0,
-      "cost": 0,
+      "quantity": 2.611218.3,
+      "cost": 184.06,
       "type": "watch"
     },
     {
