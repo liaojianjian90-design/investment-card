@@ -9,6 +9,25 @@
 
 const MANUAL_TRADES_PATH = "data/manual-trades.json";
 
+function normalizeOrigin(value) {
+  const raw = String(value || "").trim();
+  if (!raw || raw === "*") return "*";
+  try { return new URL(raw).origin; } catch { return raw.replace(/\/+$/, ""); }
+}
+
+function allowedOrigin(request, env) {
+  const requestOrigin = request.headers.get("origin") || "";
+  const configured = String(env.ALLOWED_ORIGIN || "*")
+    .split(",")
+    .map(normalizeOrigin)
+    .filter(Boolean);
+  if (!configured.length || configured.includes("*")) return "*";
+  const normalizedRequestOrigin = normalizeOrigin(requestOrigin);
+  if (configured.includes(normalizedRequestOrigin)) return normalizedRequestOrigin;
+  // If ALLOWED_ORIGIN was configured with a path such as /investment-card/, normalizeOrigin still lets it match.
+  return configured[0] || "*";
+}
+
 function jsonResponse(data, status = 200, origin = "*") {
   return new Response(JSON.stringify(data, null, 2), {
     status,
@@ -16,7 +35,8 @@ function jsonResponse(data, status = 200, origin = "*") {
       "content-type": "application/json; charset=utf-8",
       "access-control-allow-origin": origin,
       "access-control-allow-methods": "GET,POST,OPTIONS",
-      "access-control-allow-headers": "content-type"
+      "access-control-allow-headers": "content-type,authorization,x-requested-with",
+      "access-control-max-age": "86400"
     }
   });
 }
@@ -112,9 +132,26 @@ async function writeManualTrades(env, content, sha) {
 
 export default {
   async fetch(request, env) {
-    const origin = env.ALLOWED_ORIGIN || "*";
+    const origin = allowedOrigin(request, env);
     if (request.method === "OPTIONS") return jsonResponse({ ok: true }, 200, origin);
-    if (request.method === "GET") return jsonResponse({ ok: true, service: "investment-card-manual-sync" }, 200, origin);
+    if (request.method === "GET") {
+      const url = new URL(request.url);
+      if (url.searchParams.get("diag") === "1") {
+        return jsonResponse({
+          ok: true,
+          service: "investment-card-manual-sync",
+          configured: {
+            githubToken: Boolean(env.GITHUB_TOKEN),
+            githubOwner: Boolean(env.GITHUB_OWNER),
+            githubRepo: Boolean(env.GITHUB_REPO),
+            syncPin: Boolean(env.SYNC_PIN),
+            branch: env.GITHUB_BRANCH || "main",
+            allowedOrigin: env.ALLOWED_ORIGIN || "*"
+          }
+        }, 200, origin);
+      }
+      return jsonResponse({ ok: true, service: "investment-card-manual-sync" }, 200, origin);
+    }
     if (request.method !== "POST") return jsonResponse({ ok: false, error: "method not allowed" }, 405, origin);
 
     try {
@@ -125,12 +162,25 @@ export default {
       if (String(payload.pin || "") !== String(env.SYNC_PIN)) {
         return jsonResponse({ ok: false, error: "invalid PIN" }, 401, origin);
       }
+      if (payload.test === true) {
+        const { content } = await readManualTrades(env);
+        return jsonResponse({ ok: true, service: "investment-card-manual-sync", github: "readable", count: content.trades.length }, 200, origin);
+      }
 
       const trade = validateTrade(payload.trade || payload);
       const { content, sha } = await readManualTrades(env);
       if (!content.trades.some((item) => item.id === trade.id)) content.trades.push(trade);
       content.updatedAt = new Date().toISOString();
-      await writeManualTrades(env, content, sha);
+      try {
+        await writeManualTrades(env, content, sha);
+      } catch (error) {
+        if (String(error.message).includes("GitHub 409")) {
+          const latest = await readManualTrades(env);
+          if (!latest.content.trades.some((item) => item.id === trade.id)) latest.content.trades.push(trade);
+          latest.content.updatedAt = new Date().toISOString();
+          await writeManualTrades(env, latest.content, latest.sha);
+        } else throw error;
+      }
       return jsonResponse({ ok: true, trade, count: content.trades.length }, 200, origin);
     } catch (error) {
       return jsonResponse({ ok: false, error: error.message }, 400, origin);

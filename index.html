@@ -917,7 +917,7 @@
           if (fallbackQuotes[symbol]) {
             quotes[symbol] = {
               ...fallbackQuotes[symbol],
-              source: `${fallbackQuotes[symbol].source || "GitHub快照"} / 零仓位观察备用`,
+              source: normalizePriceSourceLabel(fallbackQuotes[symbol].source || "GitHub快照"),
               cachedFallback: true
             };
           }
@@ -930,7 +930,7 @@
           if (fallbackQuotes[symbol]) {
             quotes[symbol] = {
               ...fallbackQuotes[symbol],
-              source: `${fallbackQuotes[symbol].source || "GitHub快照"} / 前端快照备用`,
+              source: normalizePriceSourceLabel(fallbackQuotes[symbol].source || "GitHub快照"),
               cachedFallback: true,
               livePriceError: message
             };
@@ -1228,6 +1228,29 @@
       return Number(value || 0) >= 0 ? "positive" : "negative";
     }
 
+    function normalizePriceSourceLabel(source) {
+      const raw = String(source || "").trim();
+      if (!raw) return "-";
+      const parts = raw
+        .split("/")
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .filter((part, index, arr) => arr.indexOf(part) === index);
+      const cleaned = parts
+        .filter((part) => !["零仓位观察备用", "前端快照备用", "GitHub快照备用"].includes(part))
+        .join(" / ");
+      return cleaned || parts[0] || "-";
+    }
+
+    function priceSourceDisplay(row, compact = false) {
+      const quantity = Number(row?.quantity || 0);
+      const isWatch = row?.type === "watch";
+      if (isWatch && quantity <= 0) return compact ? "观察备用" : "零仓位观察，不拉实时价";
+      const label = normalizePriceSourceLabel(row?.priceSource);
+      return compact && label.length > 22 ? `${label.slice(0, 22)}…` : label;
+    }
+
+
     function combinedWeight(snapshot, symbols) {
       return symbols.reduce((sum, symbol) => sum + (snapshot.positions.find((row) => row.symbol === symbol)?.weightPct || 0), 0);
     }
@@ -1451,7 +1474,7 @@
             </td>
             <td><strong>${formatMoney(row.value)}</strong><br><span class="muted">${formatPct(row.weightPct)}</span></td>
             <td class="${pnlClass(row.pnl)}">${formatMoney(row.pnl)}<br>${formatPct(row.pnlPct)}</td>
-            <td>${formatPrice(row.price)}<br><span class="muted">${row.priceSource || "-"}</span></td>
+            <td>${formatPrice(row.price)}<br><span class="muted">${priceSourceDisplay(row, true)}</span></td>
             <td>${formatQty(row.symbol, row.quantity)}<br><span class="muted">${formatPrice(row.cost)}</span></td>
             <td><span class="pill ${status.level}">${status.label}</span></td>
           </tr>
@@ -1474,7 +1497,7 @@
             </div>
             <div class="asset-row"><span>盈亏</span><strong class="${pnlClass(row.pnl)}">${formatMoney(row.pnl)} / ${formatPct(row.pnlPct)}</strong></div>
             <div class="asset-row"><span>现价</span><strong>${formatPrice(row.price)}</strong></div>
-            <div class="asset-row"><span>价格源</span><strong>${row.priceSource || "-"}</strong></div>
+            <div class="asset-row"><span>价格源</span><strong>${priceSourceDisplay(row)}</strong></div>
             <div class="asset-row"><span>数量 / 成本</span><strong>${formatQty(row.symbol, row.quantity)} / ${formatPrice(row.cost)}</strong></div>
             <div class="asset-row"><span>状态</span><strong><span class="pill ${status.level}">${status.label}</span></strong></div>
           </article>
@@ -1630,32 +1653,41 @@
 
     document.getElementById("saveSyncSettings").addEventListener("click", () => {
       saveCloudSyncSettings({
-        endpoint: document.getElementById("syncEndpoint").value.trim(),
+        endpoint: normalizeSyncEndpoint(document.getElementById("syncEndpoint").value),
         pin: document.getElementById("syncPin").value
       });
       document.getElementById("syncNotice").innerHTML = "<strong>已保存到本机：</strong>这里只保存 Worker 地址和同步 PIN，不保存 GitHub Token。";
     });
 
     document.getElementById("testSyncEndpoint").addEventListener("click", async () => {
-      const endpoint = document.getElementById("syncEndpoint").value.trim();
+      const endpoint = normalizeSyncEndpoint(document.getElementById("syncEndpoint").value || cloudSyncSettings().endpoint);
+      const pin = document.getElementById("syncPin").value || cloudSyncSettings().pin;
       if (!endpoint) {
         document.getElementById("syncNotice").innerHTML = "<strong>测试失败：</strong>请先填写 Worker 同步地址。";
         return;
       }
+      if (!pin) {
+        document.getElementById("syncNotice").innerHTML = "<strong>测试失败：</strong>请先填写同步 PIN。";
+        return;
+      }
       try {
-        const res = await fetch(endpoint, { method: "GET", cache: "no-store" });
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ pin, test: true })
+        });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || data.ok === false) throw new Error(data.error || `${res.status} ${res.statusText}`);
-        document.getElementById("syncNotice").innerHTML = "<strong>云端连接正常。</strong>下一步可以尝试提交一条交易记录。";
+        document.getElementById("syncNotice").innerHTML = `<strong>云端配置正常。</strong>Worker 已验证 PIN 和 GitHub 写入目标，可读取 manual-trades.json，当前记录数：${data.count ?? 0}。`;
       } catch (error) {
-        document.getElementById("syncNotice").innerHTML = `<strong>测试失败：</strong>${error.message}`;
+        document.getElementById("syncNotice").innerHTML = `<strong>测试失败：</strong>${error.message}。请检查 Cloudflare 变量 GITHUB_OWNER/GITHUB_REPO/GITHUB_BRANCH、GITHUB_TOKEN 权限，以及 SYNC_PIN 是否一致。`;
       }
     });
 
     document.getElementById("submitTradeCloud").addEventListener("click", async () => {
       try {
         const trade = currentTradeFromForm();
-        const endpoint = document.getElementById("syncEndpoint").value.trim() || cloudSyncSettings().endpoint;
+        const endpoint = normalizeSyncEndpoint(document.getElementById("syncEndpoint").value || cloudSyncSettings().endpoint);
         const pin = document.getElementById("syncPin").value || cloudSyncSettings().pin;
         if (!endpoint) throw new Error("请先填写并保存 Worker 同步地址");
         if (!pin) throw new Error("请先填写同步 PIN");
@@ -1668,7 +1700,7 @@
         if (!res.ok || data.ok === false) throw new Error(data.error || `${res.status} ${res.statusText}`);
         setTradeNotice(`<strong>已提交到云端：</strong>${trade.symbol} 交易记录已写入 data/manual-trades.json。GitHub Actions 运行后，snapshot 和邮件判断会更新。`);
       } catch (error) {
-        setTradeNotice(`<strong>云端提交失败：</strong>${error.message}`, true);
+        setTradeNotice(`<strong>云端提交失败：</strong>${error.message}。请先点击“测试云端连接”；若测试失败，请检查 Worker 变量、GitHub Token 的 Contents 读写权限和仓库名。`, true);
       }
     });
 

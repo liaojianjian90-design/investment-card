@@ -113,6 +113,20 @@ async function writeJson(file, data) {
   await fs.writeFile(file, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 }
 
+function normalizePriceSourceLabel(source) {
+  const raw = String(source || "").trim();
+  if (!raw) return "GitHub快照";
+  const parts = raw
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .filter((part, index, arr) => arr.indexOf(part) === index);
+  const cleaned = parts
+    .filter((part) => !["零仓位观察备用", "前端快照备用", "GitHub快照备用"].includes(part))
+    .join(" / ");
+  return cleaned || parts[0] || "GitHub快照";
+}
+
 function quotesFromSnapshot(snapshot) {
   const quotes = {};
   if (!snapshot || !Array.isArray(snapshot.positions)) return quotes;
@@ -121,7 +135,7 @@ function quotesFromSnapshot(snapshot) {
     if (row.symbol && Number.isFinite(price) && price > 0) {
       quotes[row.symbol] = {
         price,
-        source: row.priceSource || "GitHub快照",
+        source: normalizePriceSourceLabel(row.priceSource || "GitHub快照"),
         updatedAt: row.priceUpdatedAt || snapshot.updatedAt || new Date().toISOString(),
         fromSnapshot: true
       };
@@ -284,7 +298,7 @@ async function loadPrices(assets, fallbackQuotes = {}, activeSymbols = new Set()
       if (fallbackQuotes[symbol]) {
         return [symbol, {
           ...fallbackQuotes[symbol],
-          source: `${fallbackQuotes[symbol].source || "GitHub快照"} / 零仓位观察备用`,
+          source: normalizePriceSourceLabel(fallbackQuotes[symbol].source || "GitHub快照"),
           cachedFallback: true
         }, null, null];
       }
@@ -298,7 +312,7 @@ async function loadPrices(assets, fallbackQuotes = {}, activeSymbols = new Set()
       if (fallbackQuotes[symbol]) {
         return [symbol, {
           ...fallbackQuotes[symbol],
-          source: `${fallbackQuotes[symbol].source || "GitHub快照"} / GitHub快照备用`,
+          source: normalizePriceSourceLabel(fallbackQuotes[symbol].source || "GitHub快照"),
           cachedFallback: true,
           livePriceError: message
         }, null, message];

@@ -458,3 +458,26 @@ data/manual-trades.json
 - 零仓位 AI 观察标的只显示观察状态，不再因为手机端无法直连行情源而显示“价格源失败”。
 - 手机端取消横向滑动卡片，阶段计划与规则模块保持纵向卡片展示，保留全部结构和内容。
 - 缓存版本更新到 v508，上传后建议使用 `?v=508` 打开。
+
+## v9 修复：云端提交诊断 + 价格源显示压缩
+
+本版在不改变投资规则的前提下修复两类体验问题：
+
+1. 云端提交失败排查增强
+   - Worker 的 CORS 允许源会自动归一化，`ALLOWED_ORIGIN` 即使误填为带路径的 GitHub Pages 地址，也会转成正确 Origin。
+   - 投资卡里的“测试云端连接”现在会用 PIN 调用 Worker，并验证 GitHub Token 是否能读取 `data/manual-trades.json`，不再只是测试 Worker 首页是否能打开。
+   - Worker 支持 `?diag=1` 诊断，只返回配置是否存在，不泄露 Token 或 PIN。
+   - GitHub 文件写入遇到并发冲突时会自动重试一次。
+
+2. 价格源视觉压缩
+   - `零仓位观察备用 / 前端快照备用 / GitHub快照备用` 不再重复叠加。
+   - 零仓位观察标的在手机端只显示“零仓位观察，不拉实时价”或“观察备用”，避免价格源文本拉长页面。
+   - 已持仓资产仍会显示真实价格源，例如 `Bitget BTCUSDT`、`Yahoo Finance MU`。
+
+上传后建议手机端访问：
+
+```text
+https://liaojianjian90-design.github.io/investment-card/?v=510
+```
+
+如果云端提交仍失败，请先点“测试云端连接”，根据提示检查 Cloudflare Worker 的 `GITHUB_OWNER`、`GITHUB_REPO`、`GITHUB_BRANCH`、`GITHUB_TOKEN` 权限和 `SYNC_PIN` 是否一致。
