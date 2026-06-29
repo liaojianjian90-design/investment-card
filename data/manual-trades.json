@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-29T02:13:41.275Z",
+  "updatedAt": "2026-06-29T02:15:07.048Z",
   "trades": [
     {
       "id": "2026-06-29T02:13:39.363Z-buy-BTC-0.001693-59043-0",
@@ -10,6 +10,17 @@
       "fee": 0,
       "cashSymbol": "USDT",
       "tradedAt": "2026-06-29T02:13:39.363Z",
+      "note": ""
+    },
+    {
+      "id": "2026-06-29T02:15:05.097Z-buy-ETH-0.0954-1571.64-0",
+      "action": "buy",
+      "symbol": "ETH",
+      "quantity": 0.0954,
+      "price": 1571.64,
+      "fee": 0,
+      "cashSymbol": "USDT",
+      "tradedAt": "2026-06-29T02:15:05.097Z",
       "note": ""
     }
   ]
