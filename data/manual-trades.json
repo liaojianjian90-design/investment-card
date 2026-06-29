@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-29T02:15:40.509Z",
+  "updatedAt": "2026-06-29T02:16:40.390Z",
   "trades": [
     {
       "id": "2026-06-29T02:13:39.363Z-buy-BTC-0.001693-59043-0",
@@ -32,6 +32,17 @@
       "fee": 0,
       "cashSymbol": "USDT",
       "tradedAt": "2026-06-29T02:15:38.620Z",
+      "note": ""
+    },
+    {
+      "id": "2026-06-29T02:16:38.461Z-buy-DRAM-1.4104-70.89-0",
+      "action": "buy",
+      "symbol": "DRAM",
+      "quantity": 1.4104,
+      "price": 70.89,
+      "fee": 0,
+      "cashSymbol": "USDT",
+      "tradedAt": "2026-06-29T02:16:38.461Z",
       "note": ""
     }
   ]
