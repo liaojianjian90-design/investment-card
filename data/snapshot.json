@@ -1,27 +1,27 @@
 {
-  "updatedAt": "2026-06-29T12:35:12.935Z",
+  "updatedAt": "2026-06-29T12:40:16.960Z",
   "source": "github-actions",
-  "totalValue": 15901.925369230452,
+  "totalValue": 15882.182085775597,
   "cashValue": 13186.45361224,
-  "cashPct": 82.92362909560138,
+  "cashPct": 83.02671220505685,
   "dataAgeMinutes": 0,
   "isStale": false,
   "isDataBlocked": false,
   "weights": {
-    "USDT": 73.46743565823543,
-    "USDGO": 9.456193437365942,
-    "BTC": 7.633820437026399,
-    "ETH": 2.5459581854998503,
-    "DOGE": 2.352716909947448,
-    "BGB": 0.2658081788569576,
-    "VOO": 0.6312859648696619,
+    "USDT": 73.55876368854437,
+    "USDGO": 9.46794851651247,
+    "BTC": 7.581562358036632,
+    "ETH": 2.5236110123178133,
+    "DOGE": 2.3348771910693578,
+    "BGB": 0.2652902008493905,
+    "VOO": 0.6315485268855721,
     "XAUT": 0,
     "AVGO": 0,
     "FN": 0,
-    "MU": 1.246340649961126,
+    "MU": 1.2430195584957568,
     "SNDK": 0,
-    "DRAM": 1.1652177095896337,
-    "WDC": 1.2352228686475442,
+    "DRAM": 1.1612406124859853,
+    "WDC": 1.2321383348026484,
     "ASX": 0,
     "AAOI": 0,
     "GLW": 0,
@@ -44,7 +44,7 @@
       "price": 1,
       "priceOk": true,
       "priceSource": "Fixed 1 USDT",
-      "priceUpdatedAt": "2026-06-29T12:35:12.499Z",
+      "priceUpdatedAt": "2026-06-29T12:40:16.538Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
@@ -54,7 +54,7 @@
       "value": 11682.73678906,
       "pnl": 0,
       "pnlPct": 0,
-      "weightPct": 73.46743565823543
+      "weightPct": 73.55876368854437
     },
     {
       "symbol": "USDGO",
@@ -65,7 +65,7 @@
       "price": 1,
       "priceOk": true,
       "priceSource": "Fixed 1 USDT",
-      "priceUpdatedAt": "2026-06-29T12:35:12.499Z",
+      "priceUpdatedAt": "2026-06-29T12:40:16.538Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
@@ -75,7 +75,7 @@
       "value": 1503.71682318,
       "pnl": -2.857061964042032,
       "pnlPct": -0.1896396845992635,
-      "weightPct": 9.456193437365942
+      "weightPct": 9.46794851651247
     },
     {
       "symbol": "BTC",
@@ -83,20 +83,20 @@
       "type": "crypto",
       "quantity": 0.02010515,
       "cost": 59682.51,
-      "price": 60378.78,
+      "price": 59891,
       "priceOk": true,
       "priceSource": "Bitget BTCUSDT",
-      "priceUpdatedAt": "2026-06-29T12:35:12.499Z",
+      "priceUpdatedAt": "2026-06-29T12:40:16.538Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
       "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 1213.924428717,
-      "pnl": 13.99861279049992,
-      "pnlPct": 1.166623186591844,
-      "weightPct": 7.633820437026399
+      "value": 1204.11753865,
+      "pnl": 4.191722723499879,
+      "pnlPct": 0.34933182267299745,
+      "weightPct": 7.581562358036632
     },
     {
       "symbol": "ETH",
@@ -104,20 +104,20 @@
       "type": "crypto",
       "quantity": 0.2546747,
       "cost": 1570.39,
-      "price": 1589.7,
+      "price": 1573.79,
       "priceOk": true,
       "priceSource": "Bitget ETHUSDT",
-      "priceUpdatedAt": "2026-06-29T12:35:12.559Z",
+      "priceUpdatedAt": "2026-06-29T12:40:16.598Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
       "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 404.85637059,
-      "pnl": 4.917768457000022,
-      "pnlPct": 1.2296308560293998,
-      "weightPct": 2.5459581854998503
+      "value": 400.80449611299997,
+      "pnl": 0.8658939800000098,
+      "pnlPct": 0.2165067276281713,
+      "weightPct": 2.5236110123178133
     },
     {
       "symbol": "DOGE",
@@ -125,20 +125,20 @@
       "type": "crypto",
       "quantity": 5073.6003142,
       "cost": 0.07489,
-      "price": 0.07374,
+      "price": 0.07309,
       "priceOk": true,
       "priceSource": "Bitget DOGEUSDT",
-      "priceUpdatedAt": "2026-06-29T12:35:12.561Z",
+      "priceUpdatedAt": "2026-06-29T12:40:16.599Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
       "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 374.127287169108,
-      "pnl": -5.834640361330003,
-      "pnlPct": -1.5355855254373088,
-      "weightPct": 2.352716909947448
+      "value": 370.829446964878,
+      "pnl": -9.132480565560002,
+      "pnlPct": -2.4035251702497,
+      "weightPct": 2.3348771910693578
     },
     {
       "symbol": "BGB",
@@ -146,20 +146,20 @@
       "type": "crypto",
       "quantity": 25.91259087,
       "cost": 1.978,
-      "price": 1.6312,
+      "price": 1.626,
       "priceOk": true,
       "priceSource": "Bitget BGBUSDT",
-      "priceUpdatedAt": "2026-06-29T12:35:12.561Z",
+      "priceUpdatedAt": "2026-06-29T12:40:16.600Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
       "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 42.268618227143996,
-      "pnl": -8.986486513716002,
-      "pnlPct": -17.53286147623863,
-      "weightPct": 0.2658081788569576
+      "value": 42.13387275461999,
+      "pnl": -9.121231986240005,
+      "pnlPct": -17.795753286147633,
+      "weightPct": 0.2652902008493905
     },
     {
       "symbol": "VOO",
@@ -167,20 +167,20 @@
       "type": "watch",
       "quantity": 0.1481,
       "cost": 675.14,
-      "price": 677.83,
+      "price": 677.27,
       "priceOk": true,
       "priceSource": "Bitget RVOOUSDT",
-      "priceUpdatedAt": "2026-06-29T12:35:12.562Z",
+      "priceUpdatedAt": "2026-06-29T12:40:16.601Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
       "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 100.38662300000001,
-      "pnl": 0.39838900000000876,
-      "pnlPct": 0.3984358799656455,
-      "weightPct": 0.6312859648696619
+      "value": 100.30368700000001,
+      "pnl": 0.3154530000000051,
+      "pnlPct": 0.31549012056759107,
+      "weightPct": 0.6315485268855721
     },
     {
       "symbol": "XAUT",
@@ -251,20 +251,20 @@
       "type": "watch",
       "quantity": 0.17540371,
       "cost": 1139.16,
-      "price": 1129.92,
+      "price": 1125.51,
       "priceOk": true,
       "priceSource": "Bitget RMUUSDT",
-      "priceUpdatedAt": "2026-06-29T12:35:12.563Z",
+      "priceUpdatedAt": "2026-06-29T12:40:16.603Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
       "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 198.1921600032,
-      "pnl": -1.6207302804000108,
-      "pnlPct": -0.8111239860950227,
-      "weightPct": 1.246340649961126
+      "value": 197.4186296421,
+      "pnl": -2.3942606415000114,
+      "pnlPct": -1.1982513430949175,
+      "weightPct": 1.2430195584957568
     },
     {
       "symbol": "SNDK",
@@ -293,20 +293,20 @@
       "type": "watch",
       "quantity": 2.6112183,
       "cost": 71.34,
-      "price": 70.96,
+      "price": 70.63,
       "priceOk": true,
       "priceSource": "Bitget RDRAMUSDT",
-      "priceUpdatedAt": "2026-06-29T12:35:12.564Z",
+      "priceUpdatedAt": "2026-06-29T12:40:16.603Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
       "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 185.29205056799998,
-      "pnl": -0.99226295400004,
-      "pnlPct": -0.5326604990188047,
-      "weightPct": 1.1652177095896337
+      "value": 184.43034852899999,
+      "pnl": -1.8539649930000337,
+      "pnlPct": -0.9952340902719552,
+      "weightPct": 1.1612406124859853
     },
     {
       "symbol": "WDC",
@@ -314,20 +314,20 @@
       "type": "watch",
       "quantity": 0.3305247,
       "cost": 604.3,
-      "price": 594.28,
+      "price": 592.06,
       "priceOk": true,
       "priceSource": "Bitget RWDCUSDT",
-      "priceUpdatedAt": "2026-06-29T12:35:12.565Z",
+      "priceUpdatedAt": "2026-06-29T12:40:16.604Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
       "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 196.42421871599998,
-      "pnl": -3.3118574940000087,
-      "pnlPct": -1.6581168293893804,
-      "weightPct": 1.2352228686475442
+      "value": 195.69045388199999,
+      "pnl": -4.045622328000007,
+      "pnlPct": -2.0254840311103797,
+      "weightPct": 1.2321383348026484
     },
     {
       "symbol": "ASX",
@@ -529,10 +529,10 @@
     "file": "config/holdings.json",
     "note": "页面和邮件均以 holdings.json 为唯一仓位来源。"
   },
-  "btcFiveMinuteChangePct": 0.013019513368357782,
+  "btcFiveMinuteChangePct": -0.011536101151733983,
   "highWatermark": 15923.477929634584,
-  "drawdownPct": 0.1353508354102817,
-  "btcWeeklyGainPct": 1.6580120355550982,
+  "drawdownPct": 0.259339348108949,
+  "btcWeeklyGainPct": 0.8367509052258177,
   "buyPauseUntil": null,
   "buyPaused": false,
   "healthSummary": {
@@ -608,7 +608,7 @@
             "USDGO"
           ],
           "value": 13186.45361224,
-          "weightPct": 82.92362909560138,
+          "weightPct": 83.02671220505685,
           "targetText": "成熟目标 55%-60%，阶段目标 75% / 65%",
           "status": {
             "label": "偏保守",
@@ -623,8 +623,8 @@
             "BTC",
             "ETH"
           ],
-          "value": 1618.780799307,
-          "weightPct": 10.17977862252625,
+          "value": 1604.9220347629998,
+          "weightPct": 10.105173370354446,
           "targetText": "BTC 10%-12%，ETH 4%-6%，合计 25%-18%",
           "status": {
             "label": "核心不足",
@@ -639,8 +639,8 @@
             "VOO",
             "XAUT"
           ],
-          "value": 100.38662300000001,
-          "weightPct": 0.6312859648696619,
+          "value": 100.30368700000001,
+          "weightPct": 0.6315485268855721,
           "targetText": "VOO 10%-12%，XAUT 5%-7%；第一阶段先建底仓",
           "status": {
             "label": "不足",
@@ -668,8 +668,8 @@
             "AAOI",
             "ASX"
           ],
-          "value": 579.9084292872,
-          "weightPct": 3.6467812281983036,
+          "value": 577.5394320531,
+          "weightPct": 3.636398505784391,
           "targetText": "目标 5%-10%，硬上限 25%；核心未稳前不超过 5%",
           "status": {
             "label": "健康",
@@ -684,8 +684,8 @@
             "DOGE",
             "BGB"
           ],
-          "value": 416.395905396252,
-          "weightPct": 2.6185250888044056,
+          "value": 412.963319719498,
+          "weightPct": 2.600167391918748,
           "targetText": "目标 0%-2%，2.5% 禁止新增，3% 只减不补",
           "status": {
             "label": "禁止新增",
@@ -704,7 +704,7 @@
           "USDGO"
         ],
         "value": 13186.45361224,
-        "weightPct": 82.92362909560138,
+        "weightPct": 83.02671220505685,
         "targetText": "成熟目标 55%-60%，阶段目标 75% / 65%",
         "status": {
           "label": "偏保守",
@@ -719,8 +719,8 @@
           "BTC",
           "ETH"
         ],
-        "value": 1618.780799307,
-        "weightPct": 10.17977862252625,
+        "value": 1604.9220347629998,
+        "weightPct": 10.105173370354446,
         "targetText": "BTC 10%-12%，ETH 4%-6%，合计 25%-18%",
         "status": {
           "label": "核心不足",
@@ -735,8 +735,8 @@
           "VOO",
           "XAUT"
         ],
-        "value": 100.38662300000001,
-        "weightPct": 0.6312859648696619,
+        "value": 100.30368700000001,
+        "weightPct": 0.6315485268855721,
         "targetText": "VOO 10%-12%，XAUT 5%-7%；第一阶段先建底仓",
         "status": {
           "label": "不足",
@@ -764,8 +764,8 @@
           "AAOI",
           "ASX"
         ],
-        "value": 579.9084292872,
-        "weightPct": 3.6467812281983036,
+        "value": 577.5394320531,
+        "weightPct": 3.636398505784391,
         "targetText": "目标 5%-10%，硬上限 25%；核心未稳前不超过 5%",
         "status": {
           "label": "健康",
@@ -780,8 +780,8 @@
           "DOGE",
           "BGB"
         ],
-        "value": 416.395905396252,
-        "weightPct": 2.6185250888044056,
+        "value": 412.963319719498,
+        "weightPct": 2.600167391918748,
         "targetText": "目标 0%-2%，2.5% 禁止新增，3% 只减不补",
         "status": {
           "label": "禁止新增",
@@ -810,7 +810,7 @@
     "phasePlan": [
       {
         "name": "第一阶段：现金降到 75%",
-        "deployAmount": 1260.0095853171615,
+        "deployAmount": 1274.8170479083028,
         "target": "先修复结构，不追求一次买满。",
         "steps": [
           "BTC 补到 8% 以上",
@@ -822,7 +822,7 @@
       },
       {
         "name": "第二阶段：现金降到 65%",
-        "deployAmount": 2850.2021222402063,
+        "deployAmount": 2863.035256485862,
         "target": "提高长期资产比例，同时保留防守现金。",
         "steps": [
           "VOO 增加到 8% 左右",
@@ -833,7 +833,7 @@
       },
       {
         "name": "第三阶段：现金稳定 55%-60%",
-        "deployAmount": 3645.2983907017297,
+        "deployAmount": 3657.144360774643,
         "target": "形成成熟配置并进入再平衡模式。",
         "steps": [
           "形成长期目标配置",
