@@ -5,27 +5,44 @@
 // GITHUB_REPO: repository name, for example investment-card
 // GITHUB_BRANCH: main (optional, default main)
 // SYNC_PIN: a private PIN you type in the website before submitting a trade
-// ALLOWED_ORIGIN: optional, for example https://yourname.github.io
+// ALLOWED_ORIGIN: optional, for example https://yourname.github.io/investment-card/
 
 const MANUAL_TRADES_PATH = "data/manual-trades.json";
+const SERVICE_NAME = "investment-card-manual-sync";
+
+class SyncError extends Error {
+  constructor(code, message, status = 400, meta = {}) {
+    super(message || code);
+    this.code = code;
+    this.status = status;
+    this.meta = meta;
+  }
+}
 
 function normalizeOrigin(value) {
   const raw = String(value || "").trim();
   if (!raw || raw === "*") return "*";
-  try { return new URL(raw).origin; } catch { return raw.replace(/\/+$/, ""); }
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return raw.replace(/\/+$/, "");
+  }
 }
 
-function allowedOrigin(request, env) {
+function corsInfo(request, env) {
   const requestOrigin = request.headers.get("origin") || "";
   const configured = String(env.ALLOWED_ORIGIN || "*")
     .split(",")
     .map(normalizeOrigin)
     .filter(Boolean);
-  if (!configured.length || configured.includes("*")) return "*";
+  if (!configured.length || configured.includes("*")) {
+    return { allowed: true, origin: "*", requestOrigin };
+  }
   const normalizedRequestOrigin = normalizeOrigin(requestOrigin);
-  if (configured.includes(normalizedRequestOrigin)) return normalizedRequestOrigin;
-  // If ALLOWED_ORIGIN was configured with a path such as /investment-card/, normalizeOrigin still lets it match.
-  return configured[0] || "*";
+  if (configured.includes(normalizedRequestOrigin)) {
+    return { allowed: true, origin: normalizedRequestOrigin, requestOrigin };
+  }
+  return { allowed: false, origin: requestOrigin || configured[0] || "*", requestOrigin };
 }
 
 function jsonResponse(data, status = 200, origin = "*") {
@@ -41,6 +58,32 @@ function jsonResponse(data, status = 200, origin = "*") {
   });
 }
 
+function errorResponse(error, origin) {
+  const code = error?.code || "unknown_error";
+  const status = error?.status || 500;
+  return jsonResponse({
+    ok: false,
+    code,
+    error: code,
+    message: error?.message || "unknown error",
+    meta: error?.meta || {}
+  }, status, origin);
+}
+
+function requireEnv(env) {
+  const missing = ["GITHUB_TOKEN", "GITHUB_OWNER", "GITHUB_REPO", "SYNC_PIN"]
+    .filter((key) => !String(env[key] || "").trim());
+  if (missing.length) {
+    throw new SyncError("missing_env", `Missing Worker env: ${missing.join(", ")}`, 500, { missing });
+  }
+}
+
+function requirePin(payload, env) {
+  if (String(payload?.pin || "") !== String(env.SYNC_PIN || "")) {
+    throw new SyncError("invalid_pin", "Invalid sync PIN.", 401);
+  }
+}
+
 function normalizeAction(value) {
   const action = String(value || "").trim().toLowerCase();
   if (["buy", "b", "买", "买入"].includes(action)) return "buy";
@@ -49,21 +92,31 @@ function normalizeAction(value) {
 }
 
 function validateTrade(raw) {
-  const action = normalizeAction(raw?.action);
+  const action = normalizeAction(raw?.action || raw?.side || raw?.type);
   const symbol = String(raw?.symbol || "").trim().toUpperCase();
-  const quantity = Number(raw?.quantity || 0);
-  const price = Number(raw?.price || 0);
-  const fee = Math.max(0, Number(raw?.fee || 0));
-  const cashSymbol = String(raw?.cashSymbol || "USDT").trim().toUpperCase();
-  const tradedAt = raw?.tradedAt || new Date().toISOString();
+  const quantity = Number(raw?.quantity ?? raw?.amount ?? 0);
+  const price = Number(raw?.price ?? 0);
+  const fee = Math.max(0, Number(raw?.fee ?? 0));
+  const cashSymbol = String(raw?.cashSymbol || raw?.cashAccount || "USDT").trim().toUpperCase();
+  const tradedAt = raw?.tradedAt || raw?.time || new Date().toISOString();
   const note = String(raw?.note || "").slice(0, 200);
   const id = String(raw?.id || `${tradedAt}-${action}-${symbol}-${quantity}-${price}-${fee}`).replace(/\s+/g, "-");
 
-  if (!["buy", "sell"].includes(action)) throw new Error("action must be buy or sell");
-  if (!/^[A-Z0-9.]{2,12}$/.test(symbol)) throw new Error("invalid symbol");
-  if (!Number.isFinite(quantity) || quantity <= 0) throw new Error("quantity must be greater than 0");
-  if (!Number.isFinite(price) || price <= 0) throw new Error("price must be greater than 0");
-  if (!/^[A-Z0-9.]{2,12}$/.test(cashSymbol)) throw new Error("invalid cashSymbol");
+  if (!["buy", "sell"].includes(action)) {
+    throw new SyncError("invalid_payload", "Trade action must be buy or sell.", 400, { field: "action" });
+  }
+  if (!/^[A-Z0-9.]{2,12}$/.test(symbol)) {
+    throw new SyncError("invalid_payload", "Invalid trade symbol.", 400, { field: "symbol" });
+  }
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    throw new SyncError("invalid_payload", "Trade quantity must be greater than 0.", 400, { field: "quantity" });
+  }
+  if (!Number.isFinite(price) || price <= 0) {
+    throw new SyncError("invalid_payload", "Trade price must be greater than 0.", 400, { field: "price" });
+  }
+  if (!/^[A-Z0-9.]{2,12}$/.test(cashSymbol)) {
+    throw new SyncError("invalid_payload", "Invalid cash symbol.", 400, { field: "cashSymbol" });
+  }
 
   return { id, action, symbol, quantity, price, fee, cashSymbol, tradedAt, note };
 }
@@ -81,12 +134,8 @@ function base64ToUtf8(value) {
   return new TextDecoder().decode(bytes);
 }
 
-async function githubFetch(env, path, options = {}) {
-  const owner = env.GITHUB_OWNER;
-  const repo = env.GITHUB_REPO;
-  const branch = env.GITHUB_BRANCH || "main";
-  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}${options.query || `?ref=${branch}`}`;
-  const res = await fetch(url, {
+async function githubApi(env, endpoint, options = {}, codeMap = {}) {
+  const res = await fetch(`https://api.github.com${endpoint}`, {
     ...options,
     headers: {
       "accept": "application/vnd.github+json",
@@ -97,20 +146,45 @@ async function githubFetch(env, path, options = {}) {
     }
   });
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`GitHub ${res.status}: ${text}`);
+    const text = await res.text().catch(() => "");
+    let code = codeMap[res.status] || "unknown_error";
+    if (res.status === 401 || res.status === 403) code = "github_token_invalid";
+    throw new SyncError(code, `GitHub ${res.status}: ${text.slice(0, 300)}`, code === "github_token_invalid" ? 502 : 500, {
+      githubStatus: res.status
+    });
   }
-  return res.json();
+  return res.status === 204 ? null : res.json();
+}
+
+function repoPath(env, suffix = "") {
+  return `/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}${suffix}`;
+}
+
+async function checkGithubAccess(env) {
+  const branch = env.GITHUB_BRANCH || "main";
+  await githubApi(env, repoPath(env), {}, { 404: "github_repo_not_found" });
+  await githubApi(env, repoPath(env, `/branches/${encodeURIComponent(branch)}`), {}, { 404: "github_branch_not_found" });
 }
 
 async function readManualTrades(env) {
+  const branch = env.GITHUB_BRANCH || "main";
+  const endpoint = `${repoPath(env, `/contents/${MANUAL_TRADES_PATH}`)}?ref=${encodeURIComponent(branch)}`;
+  const file = await githubApi(env, endpoint, {}, { 404: "github_file_read_failed" });
   try {
-    const file = await githubFetch(env, MANUAL_TRADES_PATH);
     const content = JSON.parse(base64ToUtf8(file.content));
-    return { content: { updatedAt: content.updatedAt, trades: Array.isArray(content.trades) ? content.trades : [] }, sha: file.sha };
+    if (!Array.isArray(content.trades)) {
+      throw new Error("trades must be an array");
+    }
+    return {
+      content: {
+        version: Number(content.version || 1),
+        updatedAt: content.updatedAt || new Date().toISOString(),
+        trades: content.trades
+      },
+      sha: file.sha
+    };
   } catch (error) {
-    if (String(error.message).includes("GitHub 404")) return { content: { updatedAt: new Date().toISOString(), trades: [] }, sha: null };
-    throw error;
+    throw new SyncError("github_file_read_failed", `Invalid ${MANUAL_TRADES_PATH}: ${error.message}`, 500);
   }
 }
 
@@ -119,71 +193,105 @@ async function writeManualTrades(env, content, sha) {
   const body = {
     message: `Add manual trade ${content.trades.at(-1)?.symbol || ""}`.trim(),
     content: utf8ToBase64(`${JSON.stringify(content, null, 2)}\n`),
-    branch
+    branch,
+    sha
   };
-  if (sha) body.sha = sha;
-  return githubFetch(env, MANUAL_TRADES_PATH, {
+  const endpoint = repoPath(env, `/contents/${MANUAL_TRADES_PATH}`);
+  return githubApi(env, endpoint, {
     method: "PUT",
-    query: "",
     body: JSON.stringify(body),
     headers: { "content-type": "application/json" }
-  });
+  }, { 404: "github_file_write_failed", 409: "github_file_write_failed" });
+}
+
+async function parseJsonBody(request) {
+  try {
+    return await request.json();
+  } catch {
+    throw new SyncError("invalid_payload", "Request body must be JSON.", 400);
+  }
+}
+
+async function handleTest(request, env, origin) {
+  requireEnv(env);
+  const payload = await parseJsonBody(request);
+  requirePin(payload, env);
+  await checkGithubAccess(env);
+  const { content } = await readManualTrades(env);
+  return jsonResponse({
+    ok: true,
+    service: SERVICE_NAME,
+    branch: env.GITHUB_BRANCH || "main",
+    path: MANUAL_TRADES_PATH,
+    count: content.trades.length,
+    updatedAt: content.updatedAt
+  }, 200, origin);
+}
+
+async function handleTrades(request, env, origin) {
+  requireEnv(env);
+  const payload = await parseJsonBody(request);
+  requirePin(payload, env);
+  const trade = validateTrade(payload.trade || payload);
+  const { content, sha } = await readManualTrades(env);
+  const exists = content.trades.some((item) => item.id === trade.id);
+  if (!exists) content.trades.push(trade);
+  content.version = Number(content.version || 1);
+  content.updatedAt = new Date().toISOString();
+
+  try {
+    await writeManualTrades(env, content, sha);
+  } catch (error) {
+    if (error?.meta?.githubStatus !== 409) throw error;
+    const latest = await readManualTrades(env);
+    if (!latest.content.trades.some((item) => item.id === trade.id)) {
+      latest.content.trades.push(trade);
+    }
+    latest.content.version = Number(latest.content.version || 1);
+    latest.content.updatedAt = new Date().toISOString();
+    await writeManualTrades(env, latest.content, latest.sha);
+    return jsonResponse({ ok: true, trade, count: latest.content.trades.length, retried: true }, 200, origin);
+  }
+
+  return jsonResponse({ ok: true, trade, count: content.trades.length, duplicated: exists }, 200, origin);
+}
+
+function routePath(pathname) {
+  const path = String(pathname || "/").replace(/\/+$/, "") || "/";
+  if (path === "/") return "/";
+  if (path.endsWith("/test")) return "/test";
+  if (path.endsWith("/trades")) return "/trades";
+  return path;
 }
 
 export default {
   async fetch(request, env) {
-    const origin = allowedOrigin(request, env);
-    if (request.method === "OPTIONS") return jsonResponse({ ok: true }, 200, origin);
-    if (request.method === "GET") {
-      const url = new URL(request.url);
-      if (url.searchParams.get("diag") === "1") {
-        return jsonResponse({
-          ok: true,
-          service: "investment-card-manual-sync",
-          configured: {
-            githubToken: Boolean(env.GITHUB_TOKEN),
-            githubOwner: Boolean(env.GITHUB_OWNER),
-            githubRepo: Boolean(env.GITHUB_REPO),
-            syncPin: Boolean(env.SYNC_PIN),
-            branch: env.GITHUB_BRANCH || "main",
-            allowedOrigin: env.ALLOWED_ORIGIN || "*"
-          }
-        }, 200, origin);
-      }
-      return jsonResponse({ ok: true, service: "investment-card-manual-sync" }, 200, origin);
+    const cors = corsInfo(request, env);
+    const url = new URL(request.url);
+    const route = routePath(url.pathname);
+
+    if (request.method === "OPTIONS") {
+      return jsonResponse({ ok: true, service: SERVICE_NAME }, 200, cors.origin);
     }
-    if (request.method !== "POST") return jsonResponse({ ok: false, error: "method not allowed" }, 405, origin);
+    if (!cors.allowed) {
+      return errorResponse(new SyncError("cors_not_allowed", "Request origin is not allowed.", 403, {
+        requestOrigin: cors.requestOrigin,
+        allowedOrigin: env.ALLOWED_ORIGIN || "*"
+      }), cors.origin);
+    }
 
     try {
-      if (!env.GITHUB_TOKEN || !env.GITHUB_OWNER || !env.GITHUB_REPO || !env.SYNC_PIN) {
-        return jsonResponse({ ok: false, error: "worker is not configured" }, 500, origin);
+      if (request.method === "GET" && route === "/") {
+        return jsonResponse({ ok: true, service: SERVICE_NAME }, 200, cors.origin);
       }
-      const payload = await request.json();
-      if (String(payload.pin || "") !== String(env.SYNC_PIN)) {
-        return jsonResponse({ ok: false, error: "invalid PIN" }, 401, origin);
+      if (request.method !== "POST") {
+        throw new SyncError("method_not_allowed", "Only GET /, POST /test and POST /trades are supported.", 405);
       }
-      if (payload.test === true) {
-        const { content } = await readManualTrades(env);
-        return jsonResponse({ ok: true, service: "investment-card-manual-sync", github: "readable", count: content.trades.length }, 200, origin);
-      }
-
-      const trade = validateTrade(payload.trade || payload);
-      const { content, sha } = await readManualTrades(env);
-      if (!content.trades.some((item) => item.id === trade.id)) content.trades.push(trade);
-      content.updatedAt = new Date().toISOString();
-      try {
-        await writeManualTrades(env, content, sha);
-      } catch (error) {
-        if (String(error.message).includes("GitHub 409")) {
-          const latest = await readManualTrades(env);
-          if (!latest.content.trades.some((item) => item.id === trade.id)) latest.content.trades.push(trade);
-          latest.content.updatedAt = new Date().toISOString();
-          await writeManualTrades(env, latest.content, latest.sha);
-        } else throw error;
-      }
-      return jsonResponse({ ok: true, trade, count: content.trades.length }, 200, origin);
+      if (route === "/test") return handleTest(request, env, cors.origin);
+      if (route === "/trades") return handleTrades(request, env, cors.origin);
+      throw new SyncError("method_not_allowed", `Unsupported path: ${url.pathname}`, 404);
     } catch (error) {
-      return jsonResponse({ ok: false, error: error.message }, 400, origin);
+      return errorResponse(error instanceof SyncError ? error : new SyncError("unknown_error", error.message, 500), cors.origin);
     }
   }
 };

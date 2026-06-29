@@ -9,13 +9,18 @@ import {
 } from "../src/lib/investmentHealth.mjs";
 import { bitgetReadonlyEnabled, hasBitgetReadonlyCredentials, getBitgetSyncSymbols } from "./bitget-readonly.mjs";
 
-const [snapshotRaw, rulesRaw] = await Promise.all([
+const [snapshotRaw, rulesRaw, indexHtml, workerSource, serviceWorkerSource, manualTradesRaw] = await Promise.all([
   fs.readFile(new URL("../data/snapshot.json", import.meta.url), "utf8"),
-  fs.readFile(new URL("../config/rules.json", import.meta.url), "utf8")
+  fs.readFile(new URL("../config/rules.json", import.meta.url), "utf8"),
+  fs.readFile(new URL("../index.html", import.meta.url), "utf8"),
+  fs.readFile(new URL("../cloudflare-worker/manual-sync-worker.js", import.meta.url), "utf8"),
+  fs.readFile(new URL("../service-worker.js", import.meta.url), "utf8"),
+  fs.readFile(new URL("../data/manual-trades.json", import.meta.url), "utf8")
 ]);
 
 const snapshot = JSON.parse(snapshotRaw);
 const rules = JSON.parse(rulesRaw);
+const manualTrades = JSON.parse(manualTradesRaw);
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -90,5 +95,44 @@ assert(calculateAssetLayers(missingAsset, rules).length === 5, "缺失某个资�
 
 assert(bitgetReadonlyEnabled() === false || hasBitgetReadonlyCredentials(), "Bitget 同步开启时必须配置完整凭据");
 assert(getBitgetSyncSymbols().includes("BTC"), "Bitget 默认同步列表必须包含 BTC");
+
+assert(indexHtml.includes("function normalizeSyncEndpoint("), "前端必须定义 normalizeSyncEndpoint，避免云端按钮静默报错");
+assert(indexHtml.includes("function setCloudStatus("), "前端必须定义 setCloudStatus，保证云端同步有中文状态反馈");
+assert(indexHtml.includes("id=\"cloudDebug\""), "前端必须包含云端调试信息区域");
+assert(indexHtml.includes("postCloudJson(\"/test\""), "测试云端连接必须请求 Worker /test");
+assert(indexHtml.includes("postCloudJson(\"/trades\""), "提交云端交易必须请求 Worker /trades");
+
+[
+  "invalid_pin",
+  "missing_env",
+  "github_token_invalid",
+  "github_repo_not_found",
+  "github_branch_not_found",
+  "github_file_read_failed",
+  "github_file_write_failed",
+  "invalid_payload",
+  "cors_not_allowed",
+  "method_not_allowed",
+  "unknown_error"
+].forEach((code) => {
+  assert(workerSource.includes(code), `Worker 必须包含错误码 ${code}`);
+});
+assert(workerSource.includes('route === "/test"'), "Worker 必须显式支持 POST /test");
+assert(workerSource.includes('route === "/trades"'), "Worker 必须显式支持 POST /trades");
+assert(workerSource.includes("access-control-allow-origin"), "Worker 必须返回 CORS 响应头");
+assert(serviceWorkerSource.includes("investment-card-github-pages-v511"), "Service Worker 缓存版本必须升级到 v511+");
+assert(Array.isArray(manualTrades.trades), "data/manual-trades.json 必须包含 trades 数组");
+
+const tradeApplied = applyManualTrades({
+  baseCurrency: "USDT",
+  cash: [{ symbol: "USDT", quantity: 1000, cost: 1, type: "cash" }],
+  positions: [{ symbol: "BTC", quantity: 0, cost: 0, type: "crypto" }]
+}, {
+  trades: [{ id: "selfcheck-buy-btc", action: "buy", symbol: "BTC", quantity: 0.01, price: 60000, fee: 1, cashSymbol: "USDT", tradedAt: "2026-06-29T00:00:00Z" }]
+});
+const tradeBtc = tradeApplied.holdings.positions.find((item) => item.symbol === "BTC");
+const tradeCash = tradeApplied.holdings.cash.find((item) => item.symbol === "USDT");
+assert(Math.abs(tradeBtc.quantity - 0.01) < 1e-12, "手动买入交易必须增加 BTC 数量");
+assert(Math.abs(tradeCash.quantity - 399) < 1e-12, "手动买入交易必须扣减现金和手续费");
 
 console.log(JSON.stringify({ ok: true, score: score.total, grade: score.grade }, null, 2));

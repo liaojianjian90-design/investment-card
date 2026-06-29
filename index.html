@@ -95,6 +95,39 @@
       font-size: 14px;
     }
 
+    .notice.info { border-left-color: var(--blue); background: var(--blue-soft); }
+    .notice.success { border-left-color: var(--green); background: var(--green-soft); }
+    .notice.warning { border-left-color: var(--amber); background: var(--amber-soft); }
+    .notice.error { border-left-color: var(--red); background: var(--red-soft); }
+
+    .cloud-debug {
+      margin-top: 10px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.45);
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .cloud-debug summary {
+      cursor: pointer;
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .cloud-debug-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px 12px;
+      margin-top: 8px;
+    }
+
+    .cloud-debug-grid div {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      color: var(--muted);
+    }
+
     .pill {
       display: inline-flex;
       align-items: center;
@@ -348,6 +381,7 @@
 
       .trade-grid, .sync-grid, .editor-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .editor-item.full, .sync-grid .editor-item:first-child { grid-column: 1 / -1; }
+      .cloud-debug-grid { grid-template-columns: 1fr; }
       label { font-size: 11px; }
       input, textarea, select { border-radius: 10px; padding: 8px 9px; font-size: 14px; }
       .editor-actions { gap: 7px; margin-top: 10px; }
@@ -628,6 +662,10 @@
         <button class="secondary" id="testSyncEndpoint">测试云端连接</button>
       </div>
       <div class="notice" id="syncNotice"><strong>提示：</strong>不要把 GitHub Token、交易所 API Key 或任何私钥填到网页里。</div>
+      <details class="cloud-debug">
+        <summary>云端调试信息</summary>
+        <div class="cloud-debug-grid" id="cloudDebug"></div>
+      </details>
     </section>
 
     <section class="card">
@@ -648,6 +686,7 @@
     const STORAGE_KEY = "investment-monitor-local-holdings-v5-1";
     const TRADE_STORAGE_KEY = "investment-monitor-manual-trades-v1";
     const CLOUD_SYNC_STORAGE_KEY = "investment-monitor-cloud-sync-v1";
+    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v511";
 
     const DEFAULT_HOLDINGS = {
       baseCurrency: "USDT",
@@ -1089,6 +1128,140 @@
       localStorage.setItem(CLOUD_SYNC_STORAGE_KEY, JSON.stringify(settings));
     }
 
+    const cloudDebugState = {
+      lastTestAt: "-",
+      lastPath: "-",
+      lastStatus: "-",
+      lastError: "-"
+    };
+
+    const CLOUD_ERROR_TEXT = {
+      invalid_pin: "同步 PIN 不正确，请检查网页输入和 Worker 的 SYNC_PIN 是否一致。",
+      missing_env: "Worker 环境变量不完整，请检查 GITHUB_TOKEN、GITHUB_OWNER、GITHUB_REPO、SYNC_PIN。",
+      github_token_invalid: "GitHub Token 无效或权限不足，请确认 fine-grained token 有该仓库 Contents 读写权限。",
+      github_repo_not_found: "GitHub 仓库不存在或 Token 无权访问，请检查 GITHUB_OWNER / GITHUB_REPO。",
+      github_branch_not_found: "GitHub 分支不存在，请检查 GITHUB_BRANCH，通常应为 main。",
+      github_file_read_failed: "manual-trades.json 读取失败，请检查文件路径和仓库权限。",
+      github_file_write_failed: "manual-trades.json 写入失败，可能是 Token 权限不足或远端提交冲突。",
+      invalid_payload: "提交内容格式不正确，请检查标的、方向、数量、价格和现金账户。",
+      cors_not_allowed: "CORS 来源不允许，请把 GitHub Pages 的 origin 加到 Worker 的 ALLOWED_ORIGIN。",
+      method_not_allowed: "请求方法不支持，请确认网页和 Worker 都是最新版本。",
+      unknown_error: "未知错误，请查看云端调试信息和 Cloudflare Worker 日志。"
+    };
+
+    function normalizeSyncEndpoint(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return "";
+      let url;
+      try {
+        url = new URL(raw);
+      } catch {
+        throw new Error("Worker 地址格式不正确，请填写完整的 https://xxx.workers.dev");
+      }
+      if (!["https:", "http:"].includes(url.protocol)) {
+        throw new Error("Worker 地址必须以 https:// 或 http:// 开头");
+      }
+      if (location.protocol === "https:" && url.protocol !== "https:") {
+        throw new Error("当前网页是 https，Worker 地址也必须使用 https");
+      }
+      const basePath = url.pathname.replace(/\/+(test|trades)\/?$/i, "").replace(/\/+$/, "");
+      return `${url.origin}${basePath}`;
+    }
+
+    function buildCloudUrl(path, endpointValue) {
+      const endpoint = normalizeSyncEndpoint(endpointValue);
+      if (!endpoint) throw new Error("请先填写 Worker 同步地址");
+      return `${endpoint}${path.startsWith("/") ? path : `/${path}`}`;
+    }
+
+    function cloudErrorMessage(code, fallback = "") {
+      return CLOUD_ERROR_TEXT[code] || fallback || CLOUD_ERROR_TEXT.unknown_error;
+    }
+
+    function setCloudStatus(type, message, detail = "") {
+      const node = document.getElementById("syncNotice");
+      if (!node) return;
+      node.className = `notice ${type || "info"}`;
+      node.innerHTML = `<strong>${escapeHtml(message)}</strong>${detail ? `<div class="muted">${escapeHtml(detail)}</div>` : ""}`;
+    }
+
+    function updateCloudDebug(patch = {}) {
+      Object.assign(cloudDebugState, patch);
+      const node = document.getElementById("cloudDebug");
+      if (!node) return;
+      const settings = cloudSyncSettings();
+      const endpointText = (() => {
+        try {
+          return normalizeSyncEndpoint(document.getElementById("syncEndpoint")?.value || settings.endpoint || "");
+        } catch (error) {
+          return `地址异常：${error.message}`;
+        }
+      })();
+      const pinFilled = Boolean(document.getElementById("syncPin")?.value || settings.pin);
+      const rows = [
+        ["Worker URL", endpointText || "未填写"],
+        ["PIN 状态", pinFilled ? "已填写，不显示明文" : "未填写"],
+        ["最后测试时间", cloudDebugState.lastTestAt || "-"],
+        ["最后请求路径", cloudDebugState.lastPath || "-"],
+        ["最后 HTTP 状态", cloudDebugState.lastStatus || "-"],
+        ["最后错误", cloudDebugState.lastError || "-"],
+        ["当前网页 Origin", location.origin],
+        ["Service Worker 缓存", SERVICE_WORKER_CACHE_VERSION]
+      ];
+      node.innerHTML = rows.map(([label, value]) => `<div><strong>${escapeHtml(label)}：</strong>${escapeHtml(value)}</div>`).join("");
+    }
+
+    async function postCloudJson(path, payload) {
+      const settings = cloudSyncSettings();
+      const endpointInput = document.getElementById("syncEndpoint")?.value || settings.endpoint || "";
+      let url;
+      try {
+        url = buildCloudUrl(path, endpointInput);
+      } catch (error) {
+        updateCloudDebug({
+          lastTestAt: new Date().toLocaleString(),
+          lastPath: path,
+          lastStatus: "未发送",
+          lastError: error.message
+        });
+        throw error;
+      }
+      updateCloudDebug({
+        lastTestAt: new Date().toLocaleString(),
+        lastPath: path,
+        lastStatus: "请求中",
+        lastError: "-"
+      });
+      let response;
+      let data = {};
+      try {
+        response = await fetch(url, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      } catch (error) {
+        updateCloudDebug({ lastStatus: "网络/CORS失败", lastError: error.message });
+        throw new Error(`网络或 CORS 失败：${error.message}`);
+      }
+      const text = await response.text();
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        updateCloudDebug({ lastStatus: String(response.status), lastError: "响应不是 JSON" });
+        throw new Error(`Worker 返回的不是 JSON，HTTP ${response.status}`);
+      }
+      const code = data.code || data.errorCode || "";
+      updateCloudDebug({
+        lastStatus: `${response.status} ${response.statusText}`.trim(),
+        lastError: response.ok && data.ok !== false ? "-" : (code || data.error || "unknown_error")
+      });
+      if (!response.ok || data.ok === false) {
+        throw new Error(cloudErrorMessage(code, data.message || data.error || `${response.status} ${response.statusText}`));
+      }
+      return data;
+    }
+
     function normalizeTrade(raw) {
       const action = String(raw.action || "").trim().toLowerCase();
       const symbol = String(raw.symbol || "").trim().toUpperCase();
@@ -1183,6 +1356,7 @@
       const settings = cloudSyncSettings();
       document.getElementById("syncEndpoint").value = settings.endpoint || "";
       document.getElementById("syncPin").value = settings.pin || "";
+      updateCloudDebug();
     }
 
     function renderLocalTrades() {
@@ -1652,55 +1826,64 @@
     });
 
     document.getElementById("saveSyncSettings").addEventListener("click", () => {
-      saveCloudSyncSettings({
-        endpoint: normalizeSyncEndpoint(document.getElementById("syncEndpoint").value),
-        pin: document.getElementById("syncPin").value
-      });
-      document.getElementById("syncNotice").innerHTML = "<strong>已保存到本机：</strong>这里只保存 Worker 地址和同步 PIN，不保存 GitHub Token。";
+      try {
+        const endpoint = normalizeSyncEndpoint(document.getElementById("syncEndpoint").value);
+        const pin = document.getElementById("syncPin").value;
+        saveCloudSyncSettings({ endpoint, pin });
+        setCloudStatus("success", "已保存到本机", "这里只保存 Worker 地址和同步 PIN，不保存 GitHub Token、邮箱密码或交易所 API Key。");
+        updateCloudDebug({ lastError: "-" });
+      } catch (error) {
+        setCloudStatus("error", "保存失败", error.message);
+        updateCloudDebug({ lastError: error.message });
+      }
     });
 
     document.getElementById("testSyncEndpoint").addEventListener("click", async () => {
-      const endpoint = normalizeSyncEndpoint(document.getElementById("syncEndpoint").value || cloudSyncSettings().endpoint);
+      const button = document.getElementById("testSyncEndpoint");
       const pin = document.getElementById("syncPin").value || cloudSyncSettings().pin;
-      if (!endpoint) {
-        document.getElementById("syncNotice").innerHTML = "<strong>测试失败：</strong>请先填写 Worker 同步地址。";
-        return;
-      }
       if (!pin) {
-        document.getElementById("syncNotice").innerHTML = "<strong>测试失败：</strong>请先填写同步 PIN。";
+        setCloudStatus("error", "测试失败", "请先填写同步 PIN。");
+        updateCloudDebug({ lastPath: "/test", lastStatus: "-", lastError: "missing pin" });
         return;
       }
       try {
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ pin, test: true })
+        button.disabled = true;
+        setCloudStatus("info", "正在测试云端连接", "正在请求 Worker /test，请稍等。");
+        const data = await postCloudJson("/test", { pin });
+        saveCloudSyncSettings({
+          endpoint: normalizeSyncEndpoint(document.getElementById("syncEndpoint").value || cloudSyncSettings().endpoint),
+          pin
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || data.ok === false) throw new Error(data.error || `${res.status} ${res.statusText}`);
-        document.getElementById("syncNotice").innerHTML = `<strong>云端配置正常。</strong>Worker 已验证 PIN 和 GitHub 写入目标，可读取 manual-trades.json，当前记录数：${data.count ?? 0}。`;
+        setCloudStatus("success", "云端配置正常", `Worker 已验证 PIN 和 GitHub 读写目标；manual-trades.json 当前记录数：${data.count ?? 0}。`);
       } catch (error) {
-        document.getElementById("syncNotice").innerHTML = `<strong>测试失败：</strong>${error.message}。请检查 Cloudflare 变量 GITHUB_OWNER/GITHUB_REPO/GITHUB_BRANCH、GITHUB_TOKEN 权限，以及 SYNC_PIN 是否一致。`;
+        setCloudStatus("error", "测试失败", error.message);
+      } finally {
+        button.disabled = false;
+        updateCloudDebug();
       }
     });
 
     document.getElementById("submitTradeCloud").addEventListener("click", async () => {
+      const button = document.getElementById("submitTradeCloud");
       try {
         const trade = currentTradeFromForm();
-        const endpoint = normalizeSyncEndpoint(document.getElementById("syncEndpoint").value || cloudSyncSettings().endpoint);
         const pin = document.getElementById("syncPin").value || cloudSyncSettings().pin;
-        if (!endpoint) throw new Error("请先填写并保存 Worker 同步地址");
         if (!pin) throw new Error("请先填写同步 PIN");
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ pin, trade })
+        button.disabled = true;
+        setCloudStatus("info", "正在提交交易记录", "正在请求 Worker /trades，成功后等待 GitHub Actions 生成新快照。");
+        const data = await postCloudJson("/trades", { pin, trade });
+        saveCloudSyncSettings({
+          endpoint: normalizeSyncEndpoint(document.getElementById("syncEndpoint").value || cloudSyncSettings().endpoint),
+          pin
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || data.ok === false) throw new Error(data.error || `${res.status} ${res.statusText}`);
+        setCloudStatus("success", "交易记录已写入云端", `已写入 ${trade.symbol}，云端记录数：${data.count ?? "已更新"}。真正仓位会在 GitHub Actions 下一次生成 snapshot 后刷新。`);
         setTradeNotice(`<strong>已提交到云端：</strong>${trade.symbol} 交易记录已写入 data/manual-trades.json。GitHub Actions 运行后，snapshot 和邮件判断会更新。`);
       } catch (error) {
+        setCloudStatus("error", "云端提交失败", error.message);
         setTradeNotice(`<strong>云端提交失败：</strong>${error.message}。请先点击“测试云端连接”；若测试失败，请检查 Worker 变量、GitHub Token 的 Contents 读写权限和仓库名。`, true);
+      } finally {
+        button.disabled = false;
+        updateCloudDebug();
       }
     });
 
