@@ -1,5 +1,16 @@
 {
-  "version": 1,
-  "updatedAt": "2026-06-28T12:36:23Z",
-  "trades": []
+  "updatedAt": "2026-06-29T02:13:41.275Z",
+  "trades": [
+    {
+      "id": "2026-06-29T02:13:39.363Z-buy-BTC-0.001693-59043-0",
+      "action": "buy",
+      "symbol": "BTC",
+      "quantity": 0.001693,
+      "price": 59043,
+      "fee": 0,
+      "cashSymbol": "USDT",
+      "tradedAt": "2026-06-29T02:13:39.363Z",
+      "note": ""
+    }
+  ]
 }
