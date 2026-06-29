@@ -15,11 +15,6 @@
       "triggerPrice": 1967.17,
       "resetAbove": 2100
     },
-    "watch-mu-1080": {
-      "triggeredAt": "2026-06-29T14:00:16.763Z",
-      "triggerPrice": 1060.98,
-      "resetAbove": 1135
-    },
     "trend-wdc-620": {
       "triggeredAt": "2026-06-29T15:00:17.888Z",
       "triggerPrice": 621.4,
