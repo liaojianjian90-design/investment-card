@@ -9,6 +9,11 @@
       "triggeredAt": "2026-06-27T13:05:14.615Z",
       "triggerPrice": 71.99,
       "resetAbove": 76
+    },
+    "watch-sndk-2000": {
+      "triggeredAt": "2026-06-29T13:50:16.305Z",
+      "triggerPrice": 1967.17,
+      "resetAbove": 2100
     }
   },
   "lastAlerts": {
