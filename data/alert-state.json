@@ -1,8 +1,8 @@
 {
   "highWatermark": 15923.477929634584,
   "weeklyReference": {
-    "week": "2026-26",
-    "btcPrice": 60359.49
+    "week": "2026-27",
+    "btcPrice": 59394.02
   },
   "triggeredLevels": {
     "watch-dram-72": {
@@ -13,7 +13,13 @@
   },
   "lastAlerts": {
     "doge-stop-add": "2026-06-28T07:00:12.543Z",
-    "watch-dram-72": "2026-06-27T13:05:14.629Z"
+    "watch-dram-72": "2026-06-27T13:05:14.629Z",
+    "v5-cash-high-structure-2026-27": "2026-06-29T02:05:18.174Z",
+    "v5-core-missing-2026-27": "2026-06-29T02:05:18.174Z",
+    "v5-stable-missing-2026-27": "2026-06-29T02:05:18.174Z",
+    "v5-spec-no-new-buy": "2026-06-29T02:05:18.174Z",
+    "v5-mrvl-observe-2026-27": "2026-06-29T02:05:18.174Z",
+    "fixed-dca-2026-27": "2026-06-29T02:05:18.188Z"
   },
-  "lastActiveTradeDate": "2026-06-27"
+  "lastActiveTradeDate": "2026-06-29"
 }
