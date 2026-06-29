@@ -56,9 +56,9 @@
     },
     "MU": {
       "minPct": 0,
-      "targetMaxPct": 3,
-      "stopAddPct": 3,
-      "trimPct": 4
+      "targetMaxPct": 5,
+      "stopAddPct": 8,
+      "trimPct": 10
     },
     "SNDK": {
       "minPct": 0,
@@ -69,8 +69,8 @@
     "DRAM": {
       "minPct": 0,
       "targetMaxPct": 5,
-      "stopAddPct": 5,
-      "trimPct": 7
+      "stopAddPct": 8,
+      "trimPct": 10
     },
     "WDC": {
       "minPct": 0,
@@ -92,9 +92,9 @@
     },
     "GLW": {
       "minPct": 0,
-      "targetMaxPct": 2,
-      "stopAddPct": 2,
-      "trimPct": 3
+      "targetMaxPct": 5,
+      "stopAddPct": 8,
+      "trimPct": 10
     },
     "MRVL": {
       "minPct": 0,
@@ -173,8 +173,8 @@
         "GLW",
         "ASX"
       ],
-      "maxPct": 15,
-      "message": "AI/半导体/存储/光通信观察池超过 15%，不再新增主题仓。"
+      "maxPct": 25,
+      "message": "AI抽水机主攻仓最高不超过 25%，超过后停止新增。"
     },
     {
       "id": "cap-storage-12",
@@ -224,8 +224,8 @@
         "GLW",
         "ASX"
       ],
-      "maxPct": 15,
-      "message": "AI观察池硬上限 15%；核心仓未达标时，系统另行限制到 5%。"
+      "maxPct": 25,
+      "message": "AI抽水机主攻仓最高不超过 25%，超过后停止新增。"
     }
   ],
   "drawdownRules": [
@@ -449,7 +449,7 @@
       "amount": 120,
       "requireCashPct": 40,
       "maxSymbolWeightPctAfter": 3,
-      "group": "storage",
+      "group": "ai-pump-core",
       "message": "MU 第一档存储周期买点。"
     },
     {
@@ -460,7 +460,7 @@
       "amount": 180,
       "requireCashPct": 40,
       "maxSymbolWeightPctAfter": 3,
-      "group": "storage",
+      "group": "ai-pump-core",
       "message": "MU 第二档深回调买点。"
     },
     {
@@ -493,7 +493,7 @@
       "amount": 120,
       "requireCashPct": 40,
       "maxSymbolWeightPctAfter": 5,
-      "group": "storage",
+      "group": "ai-pump-core",
       "message": "DRAM 第一档存储 ETF 买点。"
     },
     {
@@ -504,7 +504,7 @@
       "amount": 180,
       "requireCashPct": 40,
       "maxSymbolWeightPctAfter": 5,
-      "group": "storage",
+      "group": "ai-pump-core",
       "message": "DRAM 第二档深回调买点。"
     },
     {
@@ -578,11 +578,11 @@
       "symbol": "GLW",
       "priceBelow": 205,
       "resetAbove": 215,
-      "amount": 80,
+      "amount": 120,
       "requireCashPct": 40,
       "maxSymbolWeightPctAfter": 2,
-      "group": "optical",
-      "message": "GLW 第一档光通信材料买点。"
+      "group": "ai-pump-core",
+      "message": "GLW 与 MU/DRAM 同列 AI 抽水机主攻观察；光纤/玻璃基板逻辑成立时可按规则分批。"
     },
     {
       "id": "watch-glw-190",
@@ -592,8 +592,8 @@
       "amount": 120,
       "requireCashPct": 40,
       "maxSymbolWeightPctAfter": 2,
-      "group": "optical",
-      "message": "GLW 第二档深回调买点。"
+      "group": "ai-pump-core",
+      "message": "GLW 与 MU/DRAM 同列 AI 抽水机主攻观察；光纤/玻璃基板逻辑成立时可按规则分批。"
     }
   ],
   "trendWatchRules": [
@@ -907,55 +907,55 @@
   },
   "v4Rules": {
     "cashLayer": {
-      "targetMatureMin": 0.55,
-      "targetMatureMax": 0.6,
-      "phase1Target": 0.75,
-      "phase2Target": 0.65,
+      "targetMatureMin": 0.4,
+      "targetMatureMax": 0.5,
+      "phase1Target": 0.7,
+      "phase2Target": 0.6,
       "pauseNormalBuyBelow": 0.4,
       "stopNewBuyBelow": 0.35,
       "defenseModeBelow": 0.3
     },
     "coreGrowthLayer": {
       "btcFirstTargetMin": 0.08,
-      "btcMatureTargetMin": 0.1,
-      "btcMatureTargetMax": 0.12,
+      "btcMatureTargetMin": 0.08,
+      "btcMatureTargetMax": 0.1,
       "ethFirstTargetMin": 0.03,
       "ethMatureTargetMin": 0.04,
-      "ethMatureTargetMax": 0.06,
-      "btcEthTotalTargetMin": 0.15,
+      "ethMatureTargetMax": 0.05,
+      "btcEthTotalTargetMin": 0.12,
       "btcEthTotalTargetMax": 0.18,
       "weeklyCoreBuyLimitPct": 0.02
     },
     "stableLayer": {
-      "vooFirstTargetMin": 0.04,
+      "vooFirstTargetMin": 0.03,
       "vooFirstTargetMax": 0.06,
-      "vooMatureTargetMin": 0.1,
-      "vooMatureTargetMax": 0.12,
+      "vooMatureTargetMin": 0.06,
+      "vooMatureTargetMax": 0.1,
       "xautFirstTargetMin": 0.02,
       "xautFirstTargetMax": 0.03,
-      "xautMatureTargetMin": 0.05,
-      "xautMatureTargetMax": 0.07
+      "xautMatureTargetMin": 0.03,
+      "xautMatureTargetMax": 0.05
     },
     "themeLayer": {
-      "targetMin": 0.05,
-      "targetMax": 0.1,
-      "hardMax": 0.15,
-      "maxBeforeCoreComplete": 0.05,
+      "targetMin": 0.08,
+      "targetMax": 0.2,
+      "hardMax": 0.25,
+      "maxBeforeCoreComplete": 0.12,
       "symbols": [
-        "AVGO",
+        "MU",
+        "DRAM",
+        "GLW",
+        "SMH",
         "MRVL",
         "ANET",
-        "MU",
-        "WDC",
-        "DRAM",
-        "SNDK",
+        "AVGO",
         "TSM",
         "ASML",
-        "SMH",
         "SOXX",
+        "WDC",
+        "SNDK",
         "FN",
         "AAOI",
-        "GLW",
         "ASX"
       ],
       "subGroups": {
@@ -972,17 +972,41 @@
         ],
         "semiInfra": [
           "TSM",
-          "ASML",
-          "SMH",
-          "SOXX"
+          "ASML"
         ],
         "highBetaOptical": [
           "FN",
           "AAOI",
-          "GLW",
           "ASX"
+        ],
+        "aiPumpCore": [
+          "MU",
+          "DRAM",
+          "GLW"
+        ],
+        "semiBasket": [
+          "SMH",
+          "SOXX"
+        ],
+        "aiNetwork": [
+          "MRVL",
+          "ANET",
+          "AVGO"
+        ],
+        "storageSupplement": [
+          "WDC",
+          "SNDK"
         ]
-      }
+      },
+      "name": "AI抽水机主攻仓",
+      "prioritySymbols": [
+        "MU",
+        "DRAM",
+        "GLW"
+      ],
+      "priorityNote": "MU、DRAM、GLW 同列 AI 抽水机主攻观察：存储/HBM + 光纤/玻璃基板基础设施。",
+      "singleCoreTargetPct": 0.05,
+      "singleCoreHardMaxPct": 0.08
     },
     "speculativeLayer": {
       "targetMax": 0.02,
@@ -1053,59 +1077,77 @@
       "doesNotPlaceOrders": true,
       "frontendNeverReceivesApiKey": true,
       "note": "Bitget API 只用于读取现货资产数量；API Key/Passphrase/RSA 私钥只能放在 GitHub Secrets 或服务器环境变量，不能写进前端或仓库。"
+    },
+    "aiPumpRules": {
+      "enabled": true,
+      "currentTargetMin": 0.08,
+      "currentTargetMax": 0.12,
+      "matureTargetMin": 0.15,
+      "matureTargetMax": 0.2,
+      "hardMax": 0.25,
+      "prioritySymbols": [
+        "MU",
+        "DRAM",
+        "GLW"
+      ],
+      "priorityEqualWeight": true,
+      "singlePriorityTargetPct": 0.05,
+      "singlePriorityHardMaxPct": 0.08,
+      "noLeverage": true,
+      "note": "从小仓观察升级为稳健进攻的 AI 抽水机仓；GLW 与 MU、DRAM 同等重视，但仍受单标的和主题总仓上限约束。"
     }
   },
   "v5Rules": {
     "cashLayer": {
-      "targetMatureMin": 0.55,
-      "targetMatureMax": 0.6,
-      "phase1Target": 0.75,
-      "phase2Target": 0.65,
+      "targetMatureMin": 0.4,
+      "targetMatureMax": 0.5,
+      "phase1Target": 0.7,
+      "phase2Target": 0.6,
       "pauseNormalBuyBelow": 0.4,
       "stopNewBuyBelow": 0.35,
       "defenseModeBelow": 0.3
     },
     "coreGrowthLayer": {
       "btcFirstTargetMin": 0.08,
-      "btcMatureTargetMin": 0.1,
-      "btcMatureTargetMax": 0.12,
+      "btcMatureTargetMin": 0.08,
+      "btcMatureTargetMax": 0.1,
       "ethFirstTargetMin": 0.03,
       "ethMatureTargetMin": 0.04,
-      "ethMatureTargetMax": 0.06,
-      "btcEthTotalTargetMin": 0.15,
+      "ethMatureTargetMax": 0.05,
+      "btcEthTotalTargetMin": 0.12,
       "btcEthTotalTargetMax": 0.18,
       "weeklyCoreBuyLimitPct": 0.02
     },
     "stableLayer": {
-      "vooFirstTargetMin": 0.04,
+      "vooFirstTargetMin": 0.03,
       "vooFirstTargetMax": 0.06,
-      "vooMatureTargetMin": 0.1,
-      "vooMatureTargetMax": 0.12,
+      "vooMatureTargetMin": 0.06,
+      "vooMatureTargetMax": 0.1,
       "xautFirstTargetMin": 0.02,
       "xautFirstTargetMax": 0.03,
-      "xautMatureTargetMin": 0.05,
-      "xautMatureTargetMax": 0.07
+      "xautMatureTargetMin": 0.03,
+      "xautMatureTargetMax": 0.05
     },
     "themeLayer": {
-      "targetMin": 0.05,
-      "targetMax": 0.1,
-      "hardMax": 0.15,
-      "maxBeforeCoreComplete": 0.05,
+      "targetMin": 0.08,
+      "targetMax": 0.2,
+      "hardMax": 0.25,
+      "maxBeforeCoreComplete": 0.12,
       "symbols": [
-        "AVGO",
+        "MU",
+        "DRAM",
+        "GLW",
+        "SMH",
         "MRVL",
         "ANET",
-        "MU",
-        "WDC",
-        "DRAM",
-        "SNDK",
+        "AVGO",
         "TSM",
         "ASML",
-        "SMH",
         "SOXX",
+        "WDC",
+        "SNDK",
         "FN",
         "AAOI",
-        "GLW",
         "ASX"
       ],
       "subGroups": {
@@ -1122,17 +1164,41 @@
         ],
         "semiInfra": [
           "TSM",
-          "ASML",
-          "SMH",
-          "SOXX"
+          "ASML"
         ],
         "highBetaOptical": [
           "FN",
           "AAOI",
-          "GLW",
           "ASX"
+        ],
+        "aiPumpCore": [
+          "MU",
+          "DRAM",
+          "GLW"
+        ],
+        "semiBasket": [
+          "SMH",
+          "SOXX"
+        ],
+        "aiNetwork": [
+          "MRVL",
+          "ANET",
+          "AVGO"
+        ],
+        "storageSupplement": [
+          "WDC",
+          "SNDK"
         ]
-      }
+      },
+      "name": "AI抽水机主攻仓",
+      "prioritySymbols": [
+        "MU",
+        "DRAM",
+        "GLW"
+      ],
+      "priorityNote": "MU、DRAM、GLW 同列 AI 抽水机主攻观察：存储/HBM + 光纤/玻璃基板基础设施。",
+      "singleCoreTargetPct": 0.05,
+      "singleCoreHardMaxPct": 0.08
     },
     "speculativeLayer": {
       "targetMax": 0.02,
@@ -1160,7 +1226,7 @@
       "sameSymbolBuyHours": 48,
       "postBuyNoDipBuyHours": 24
     },
-    "versionName": "投资健康卡 5.0：核心配置 + AI观察 + 邮件风控版",
+    "versionName": "投资健康卡 5.1：稳健进攻 + AI抽水机主攻仓版",
     "mrvlRule": {
       "enabled": true,
       "role": "AI互联 / 定制芯片 / 数据中心网络观察仓",
@@ -1203,6 +1269,24 @@
       "doesNotPlaceOrders": true,
       "frontendNeverReceivesApiKey": true,
       "note": "Bitget API 只用于读取现货资产数量；API Key/Passphrase/RSA 私钥只能放在 GitHub Secrets 或服务器环境变量，不能写进前端或仓库。"
+    },
+    "aiPumpRules": {
+      "enabled": true,
+      "currentTargetMin": 0.08,
+      "currentTargetMax": 0.12,
+      "matureTargetMin": 0.15,
+      "matureTargetMax": 0.2,
+      "hardMax": 0.25,
+      "prioritySymbols": [
+        "MU",
+        "DRAM",
+        "GLW"
+      ],
+      "priorityEqualWeight": true,
+      "singlePriorityTargetPct": 0.05,
+      "singlePriorityHardMaxPct": 0.08,
+      "noLeverage": true,
+      "note": "从小仓观察升级为稳健进攻的 AI 抽水机仓；GLW 与 MU、DRAM 同等重视，但仍受单标的和主题总仓上限约束。"
     }
   }
 }

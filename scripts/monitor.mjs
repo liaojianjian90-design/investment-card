@@ -553,10 +553,10 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       symbol: "AI",
       type: "theme-gate",
       severity: "high",
-      title: "AI观察仓超过硬上限",
+      title: "AI抽水机仓超过硬上限",
       conclusion: "停止新增 AI/半导体/存储/光通信仓位。",
-      reason: `AI观察仓当前合计 ${formatPct(themeWeight)}，超过硬上限 15%。`,
-      action: "只允许复盘或再平衡，不允许继续扩大主题仓。",
+      reason: `AI抽水机仓当前合计 ${formatPct(themeWeight)}，超过硬上限 25%。`,
+      action: "只允许复盘或再平衡，不允许继续扩大AI抽水机仓。",
       discipline: "相关性高的 AI 资产不能当成真正分散。"
     });
   } else if (corePlusStable < 25 && themeWeight >= Number(v5.themeLayer?.maxBeforeCoreComplete ?? 0.05) * 100) {
@@ -565,11 +565,11 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       symbol: "AI",
       type: "theme-gate",
       severity: "medium",
-      title: "核心仓未完成，AI观察仓暂停扩大",
-      conclusion: "BTC/ETH/VOO/XAUT 未达最低结构前，AI观察仓最高建议 5%。",
-      reason: `核心+稳定层 ${formatPct(corePlusStable)}，AI观察仓 ${formatPct(themeWeight)}。`,
+      title: "核心仓未完成，AI抽水机仓暂停扩大",
+      conclusion: "BTC/ETH/VOO/XAUT 未达最低结构前，AI抽水机仓最高建议 12%。",
+      reason: `核心+稳定层 ${formatPct(corePlusStable)}，AI抽水机仓 ${formatPct(themeWeight)}。`,
       action: "优先补核心仓和稳定层；AI 标的只观察，不抢先扩大。",
-      discipline: "AI观察仓用于收益增强，不是账户底盘。"
+      discipline: "AI抽水机仓用于收益增强，不是账户底盘。"
     });
   }
 
@@ -583,7 +583,7 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
         title: "MRVL 加入 AI 观察池",
         conclusion: "MRVL 可作为 AI互联/定制芯片观察仓，但不触发优先买入。",
         reason: "MRVL 与 MU/WDC 不完全重复，可补充 AI 数据中心网络与定制芯片观察维度。",
-        action: corePlusStable < 25 ? "核心仓未达标前只观察，不发买入邮件。" : "若核心仓基本达标且 AI仓低于 5%，才考虑 0.5%-1% 小额试仓。",
+        action: corePlusStable < 25 ? "核心仓未达标前控制仓位，不做重仓买入邮件。" : "若核心仓基本达标且 AI仓低于 5%，才考虑 0.5%-1% 小额试仓。",
         discipline: "MRVL 不是核心仓，单只 AI 股票不能替代 BTC/ETH/VOO/XAUT。"
       });
     } else if (mrvlWeight >= Number(v5.mrvlRule.hardMaxPct || 0.02) * 100) {
@@ -753,7 +753,7 @@ function alertTypeLabel(type) {
     "core-fill": "核心仓不足",
     "stable-build": "稳定层底仓",
     "spec-risk": "投机仓风控",
-    "theme-gate": "AI观察仓限制",
+    "theme-gate": "AI抽水机仓限制",
     risk: "现金风控",
     "drawdown-risk": "回撤风控",
     "cap-risk": "组合上限",
@@ -848,7 +848,7 @@ function buildEmailContent(alerts, snapshot) {
     "2. 顺序必须是：数据有效 → 现金安全 → 回撤可控 → 冷却期通过 → 仓位合规 → 价格触发。",
     "3. 现金低于 35% 时，任何新增买入提醒都不执行；现金低于 40% 时暂停普通加仓。",
     "4. 当天已经执行过主动交易时，不再新增第二笔主动买入。",
-    "5. AI观察仓只做收益增强，MRVL/ANET/AVGO 不替代 BTC/ETH/VOO/XAUT 核心配置。",
+    "5. AI抽水机仓只做收益增强，MRVL/ANET/AVGO 不替代 BTC/ETH/VOO/XAUT 核心配置。",
     "6. 如果只是因为情绪上头，默认不买，等下一次监控刷新。"
   ];
 
@@ -1289,15 +1289,14 @@ async function main() {
   if (!baseHoldings || !rules) throw new Error("Missing config files");
 
   const holdings = baseHoldings;
-  const holdingsSource = { mode: "holdings-json-only", file: "config/holdings.json" };
   const previousSnapshot = await readJson(files.snapshot, null);
   const fallbackQuotes = quotesFromSnapshot(previousSnapshot);
-  const bitgetSync = { enabled: false, used: false, source: "holdings-json-only" };
+  const bitgetSync = { enabled: false, used: false, source: "disabled-holdings-json-mode" };
   const assets = allAssets(holdings);
   const { quotes, errors, warnings } = await loadPrices(assets, fallbackQuotes, activePriceSymbols(rules));
   const snapshot = buildSnapshot(holdings, quotes, errors, rules, warnings);
   snapshot.bitgetSync = bitgetSync;
-  snapshot.holdingsSource = holdingsSource;
+  snapshot.holdingsSource = { mode: "holdings-json-only", file: "config/holdings.json", note: "页面和邮件均以 holdings.json 为唯一仓位来源。" };
   snapshot.btcFiveMinuteChangePct = await loadBtcFiveMinuteChangePct();
   const alerts = evaluateRules(snapshot, rules, alertState);
   snapshot.healthSummary = calculateHealthSummary(snapshot, rules);

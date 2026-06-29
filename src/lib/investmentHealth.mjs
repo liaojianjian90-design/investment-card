@@ -1,9 +1,9 @@
 export const DEFAULT_V4_RULES = {
   cashLayer: {
-    targetMatureMin: 0.55,
-    targetMatureMax: 0.60,
-    phase1Target: 0.75,
-    phase2Target: 0.65,
+    targetMatureMin: 0.40,
+    targetMatureMax: 0.50,
+    phase1Target: 0.70,
+    phase2Target: 0.60,
     pauseNormalBuyBelow: 0.40,
     stopNewBuyBelow: 0.35,
     defenseModeBelow: 0.30
@@ -267,7 +267,7 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: ["BTC", "ETH"],
       value: groupValue(snapshot, ["BTC", "ETH"]),
       weightPct: coreWeight,
-      targetText: "BTC 10%-12%，ETH 4%-6%，合计 15%-18%",
+      targetText: "BTC 10%-12%，ETH 4%-6%，合计 25%-18%",
       status: coreStatus,
       advice: btcWeight < 8 || ethWeight < 3 ? "BTC/ETH 未达到第一阶段核心仓，现金充足时优先小额补。" : "核心仓已具备基础，后续只慢慢补到成熟目标。"
     },
@@ -283,13 +283,13 @@ export function calculateAssetLayers(snapshot, rules = {}) {
     },
     {
       id: "theme",
-      name: "AI观察仓",
+      name: "AI抽水机主攻仓",
       symbols: themeSymbols,
       value: groupValue(snapshot, themeSymbols),
       weightPct: themeWeight,
-      targetText: "目标 5%-10%，硬上限 15%；核心未稳前不超过 5%",
+      targetText: "目标 5%-10%，硬上限 25%；核心未稳前不超过 5%",
       status: themeStatus,
-      advice: corePlusStableWeight < 25 ? "核心仓和稳定层未完成前，AI/半导体/存储/光通信不要抢跑。" : "主题仓可作为收益增强，但不能超过硬上限。"
+      advice: corePlusStableWeight < 25 ? "核心仓和稳定层未完成前，AI抽水机/半导体/存储/光通信不要抢跑。" : "AI抽水机仓可作为收益增强，但不能超过硬上限。"
     },
     {
       id: "speculative",
@@ -321,7 +321,7 @@ export function calculateHealthScore(snapshot, rules = {}) {
     cashSafety: { label: "现金安全", max: 20, score: 20, reasons: [] },
     coreCompleteness: { label: "核心仓完整度", max: 25, score: 25, reasons: [] },
     speculativeControl: { label: "投机仓控制", max: 15, score: 15, reasons: [] },
-    themeControl: { label: "主题仓控制", max: 15, score: 15, reasons: [] },
+    themeControl: { label: "AI抽水机仓控制", max: 15, score: 15, reasons: [] },
     dataDiscipline: { label: "数据与纪律", max: 15, score: 15, reasons: [] },
     drawdownState: { label: "回撤状态", max: 10, score: 10, reasons: [] }
   };
@@ -375,11 +375,11 @@ export function calculateHealthScore(snapshot, rules = {}) {
 
   if (themeWeight > pct(v4.themeLayer.targetMax)) {
     components.themeControl.score -= 5;
-    components.themeControl.reasons.push("AI观察仓超过 10%，谨慎加仓。");
+    components.themeControl.reasons.push("AI抽水机主攻仓超过 10%，谨慎加仓。");
   }
   if (themeWeight > pct(v4.themeLayer.hardMax)) {
     components.themeControl.score -= 8;
-    components.themeControl.reasons.push("AI观察仓超过 15%，停止新增主题仓。");
+    components.themeControl.reasons.push("AI抽水机主攻仓超过 25%，停止新增AI抽水机仓。");
   }
 
   if (freshness.isStale) {
@@ -396,7 +396,7 @@ export function calculateHealthScore(snapshot, rules = {}) {
     components.drawdownState.reasons.push("账户回撤超过 20%，暂停主动买入 7 天。");
   } else if (drawdownPct >= pct(v4.drawdownRules.pauseAggressiveBuy)) {
     components.drawdownState.score -= 7;
-    components.drawdownState.reasons.push("账户回撤超过 15%，暂停进攻仓买入。");
+    components.drawdownState.reasons.push("账户回撤超过 25%，暂停进攻仓买入。");
   } else if (drawdownPct >= pct(v4.drawdownRules.reduceBuySize)) {
     components.drawdownState.score -= 4;
     components.drawdownState.reasons.push("账户回撤超过 10%，降低买入额度。");
@@ -457,10 +457,10 @@ export function generateSystemJudgement(snapshot, rules = {}) {
   const messages = [];
   if (freshness.isBlocked) messages.push("当前数据已过期或关键价格缺失，只能做结构分析，不能做买入判断。");
   if (cashPct > 80) messages.push("当前账户非常安全，但现金占比过高，长期资金效率偏低。建议优先补 BTC/ETH 核心仓，并建立 VOO/XAUT 底仓。");
-  if (btcWeight < 8 || ethWeight < 3) messages.push("核心增长层不足，BTC/ETH 应优先补到第一阶段目标，再考虑扩大主题仓。 ");
+  if (btcWeight < 8 || ethWeight < 3) messages.push("核心增长层不足，BTC/ETH 应优先补到第一阶段目标，再考虑扩大AI抽水机仓。 ");
   if (vooWeight === 0 || xautWeight === 0) messages.push("长期稳定层缺位，建议分批建立 VOO 与 XAUT 底仓。 ");
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) messages.push("投机仓已偏高，不建议继续补 DOGE/BGB，后续应以反弹减仓为主。 ");
-  if (themeWeight > pct(v4.themeLayer.targetMax)) messages.push("主题仓偏高，AI/半导体/存储/光通信不应继续主动加仓。 ");
+  if (themeWeight > pct(v4.themeLayer.targetMax)) messages.push("AI抽水机仓偏高，AI抽水机/半导体/存储/光通信不应继续主动加仓。 ");
   if (!messages.length) messages.push("当前系统结构健康，可以继续按既定买点、现金底线和每月再平衡执行。 ");
   return messages.map((item) => item.trim());
 }
@@ -484,7 +484,7 @@ export function generateAllowedActions(snapshot, rules = {}) {
   if (cashPct >= 75 && (btcWeight < 8 || ethWeight < 3)) actions.push("允许小额补 BTC/ETH 核心仓，每周合计不超过账户 2%。");
   if (cashPct >= 75 && vooWeight === 0) actions.push("允许分批建立 VOO 底仓，不必等待完美低点。 ");
   if (cashPct >= 75 && xautWeight === 0) actions.push("允许分批建立 XAUT 底仓，用作稳定层。 ");
-  if (corePlusStable >= 25 && themeWeight < pct(v4.themeLayer.targetMax)) actions.push("AI观察仓可小额观察，但必须低于 10% 并服从买点；MRVL 只能小仓试错。 ");
+  if (corePlusStable >= 25 && themeWeight < pct(v4.themeLayer.targetMax)) actions.push("AI抽水机主攻仓可小额观察，但必须低于 10% 并服从买点；MU/DRAM/GLW 为优先主攻，MRVL/ANET 小仓验证。 ");
   actions.push("允许做月度复盘、更新持仓成本和检查价格源。 ");
   return [...new Set(actions.map((item) => item.trim()))];
 }
@@ -514,7 +514,7 @@ export function generateForbiddenActions(snapshot, rules = {}) {
   if ((btcWeight < 8 || ethWeight < 3 || vooWeight === 0 || xautWeight === 0) && themeWeight >= pct(v4.themeLayer.maxBeforeCoreComplete)) {
     forbidden.push("不要在核心仓不足时优先加主题股。 ");
   }
-  if (themeWeight >= pct(v4.themeLayer.hardMax)) forbidden.push("不要继续新增 AI/半导体/存储/光通信主题仓。 ");
+  if (themeWeight >= pct(v4.themeLayer.hardMax)) forbidden.push("不要继续新增 AI抽水机/半导体/存储/光通信AI抽水机仓。 ");
   forbidden.push("不要因为刚买就跌而立刻补同一个标的。 ");
   if (cooldown.blockedSymbols.length) forbidden.push(`冷却中标的不要补仓：${cooldown.blockedSymbols.join("、")}。`);
   return [...new Set(forbidden.map((item) => item.trim()))];
@@ -535,7 +535,7 @@ export function generatePhasePlan(snapshot, rules = {}) {
       name: "第二阶段：现金降到 65%",
       deployAmount: toTargetAmount(0.65),
       target: "提高长期资产比例，同时保留防守现金。",
-      steps: ["VOO 增加到 8% 左右", "XAUT 增加到 4% 左右", "BTC/ETH 慢慢补", "主题仓可小幅增加但不超过 8%-10%"]
+      steps: ["VOO 增加到 8% 左右", "XAUT 增加到 4% 左右", "BTC/ETH 慢慢补", "AI抽水机仓可小幅增加但不超过 8%-10%"]
     },
     {
       name: "第三阶段：现金稳定 55%-60%",
@@ -561,7 +561,7 @@ export function generateRebalanceAlerts(snapshot, rules = {}) {
   for (const [symbol, limit, message] of checks) {
     if (weightPct(snapshot, symbol) > limit) alerts.push(message);
   }
-  if (groupWeightPct(snapshot, v4.themeLayer.symbols) > pct(v4.themeLayer.hardMax)) alerts.push("AI/半导体/存储/光通信超过 15%，停止新增。 ");
+  if (groupWeightPct(snapshot, v4.themeLayer.symbols) > pct(v4.themeLayer.hardMax)) alerts.push("AI抽水机/半导体/存储/光通信超过 25%，停止新增。 ");
   if (groupWeightPct(snapshot, v4.speculativeLayer.symbols) > pct(v4.speculativeLayer.reduceOnlyAbove)) alerts.push("DOGE + BGB 超过 3%，反弹减仓。 ");
   if (cashPct > 80) alerts.push("现金超过 80%，资金效率偏低。 ");
   if (cashPct < 40) alerts.push("现金低于 40%，防守不足。 ");
