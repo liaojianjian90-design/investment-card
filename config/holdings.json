@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 11682.73678906,
+      "quantity": 10984.35,
       "cost": 1,
       "type": "cash"
     },
@@ -41,8 +41,8 @@
     },
     {
       "symbol": "VOO",
-      "quantity": 0.1481,
-      "cost": 675.14,
+      "quantity": 0.58957511,
+      "cost": 677.85,
       "type": "watch"
     },
     {
@@ -65,14 +65,14 @@
     },
     {
       "symbol": "MU",
-      "quantity": 0.17540371,
-      "cost": 1139.16,
+      "quantity": 0.32331121,
+      "cost": 1126.97,
       "type": "watch"
     },
     {
       "symbol": "SNDK",
-      "quantity": 0,
-      "cost": 0,
+      "quantity": 0.10928175,
+      "cost": 1999.18,
       "type": "watch"
     },
     {
