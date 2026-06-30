@@ -1,5 +1,5 @@
 {
-  "highWatermark": 15937.036761478528,
+  "highWatermark": 15947.952959104396,
   "weeklyReference": {
     "week": "2026-27",
     "btcPrice": 59394.02
@@ -19,6 +19,11 @@
       "triggeredAt": "2026-06-29T15:00:17.888Z",
       "triggerPrice": 621.4,
       "resetBelow": 590
+    },
+    "trend-glw-230": {
+      "triggeredAt": "2026-06-30T01:03:40.711Z",
+      "triggerPrice": 253.39,
+      "resetBelow": 215
     }
   },
   "lastAlerts": {
@@ -29,7 +34,10 @@
     "v5-stable-missing-2026-27": "2026-06-29T02:05:18.174Z",
     "v5-spec-no-new-buy": "2026-06-29T02:05:18.174Z",
     "v5-mrvl-observe-2026-27": "2026-06-29T02:05:18.174Z",
-    "fixed-dca-2026-27": "2026-06-29T02:05:18.188Z"
+    "fixed-dca-2026-27": "2026-06-29T02:05:18.188Z",
+    "sndk-stop-add": "2026-06-30T01:03:40.711Z",
+    "v5-theme-before-core-complete": "2026-06-30T01:03:40.711Z",
+    "trend-glw-230": "2026-06-30T01:03:40.721Z"
   },
-  "lastActiveTradeDate": "2026-06-29"
+  "lastActiveTradeDate": "2026-06-30"
 }

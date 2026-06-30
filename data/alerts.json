@@ -1,8 +1,48 @@
 {
-  "updatedAt": "2026-06-30T01:00:16.328Z",
+  "updatedAt": "2026-06-30T01:03:40.564Z",
   "email": {
-    "sent": false,
+    "sent": true,
     "missing": []
   },
-  "alerts": []
+  "alerts": [
+    {
+      "id": "sndk-stop-add",
+      "symbol": "SNDK",
+      "type": "weight-risk",
+      "severity": "medium",
+      "title": "SNDK 达到暂停加仓线",
+      "conclusion": "暂停给该标的加仓。",
+      "reason": "SNDK 当前仓位 2.1%，达到或超过 2%。",
+      "action": "只持有或等待再平衡，不做追买。",
+      "discipline": "看好不等于无限加仓。",
+      "createdAt": "2026-06-30T01:03:40.711Z"
+    },
+    {
+      "id": "v5-theme-before-core-complete",
+      "symbol": "AI",
+      "type": "theme-gate",
+      "severity": "medium",
+      "title": "核心仓未完成，AI抽水机仓暂停扩大",
+      "conclusion": "BTC/ETH/VOO/XAUT 未达最低结构前，AI抽水机仓最高建议 12%。",
+      "reason": "核心+稳定层 13.1%，AI抽水机仓 12.3%。",
+      "action": "优先补核心仓和稳定层；AI 标的只观察，不抢先扩大。",
+      "discipline": "AI抽水机仓用于收益增强，不是账户底盘。",
+      "createdAt": "2026-06-30T01:03:40.711Z"
+    },
+    {
+      "id": "trend-glw-230",
+      "symbol": "GLW",
+      "type": "trend-watch",
+      "severity": "low",
+      "title": "GLW 上涨追随观察",
+      "conclusion": "进入上涨追随区，但仍需人工确认。",
+      "amountText": "GLW 60 USDT",
+      "reason": "GLW 现价 253.39，高于 230。",
+      "reset": "GLW 回落到 215 以下后重置。",
+      "invalid": "单日暴拉、现金低于 45%、组合上限超标或当天已有主动交易时不执行。",
+      "action": "GLW 突破确认后小额跟随。",
+      "discipline": "上涨追随是确认买，不是看见突破就追高。",
+      "createdAt": "2026-06-30T01:03:40.721Z"
+    }
+  ]
 }
