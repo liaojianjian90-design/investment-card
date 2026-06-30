@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 10984.35,
+      "quantity": 9985.78,
       "cost": 1,
       "type": "cash"
     },
@@ -17,8 +17,8 @@
   "positions": [
     {
       "symbol": "BTC",
-      "quantity": 0.02010515,
-      "cost": 59682.51,
+      "quantity": 0.02152615,
+      "cost": 59652.38,
       "type": "crypto"
     },
     {
@@ -65,20 +65,20 @@
     },
     {
       "symbol": "MU",
-      "quantity": 0.32331121,
-      "cost": 1126.97,
+      "quantity": 0.51167157,
+      "cost": 1102.51,
       "type": "watch"
     },
     {
       "symbol": "SNDK",
-      "quantity": 0.10928175,
-      "cost": 1999.18,
+      "quantity": 0.16168057,
+      "cost": 1969.15,
       "type": "watch"
     },
     {
       "symbol": "DRAM",
-      "quantity": 2.6112183,
-      "cost": 71.34,
+      "quantity": 5.5535032,
+      "cost": 69.52,
       "type": "watch"
     },
     {
@@ -101,14 +101,14 @@
     },
     {
       "symbol": "GLW",
-      "quantity": 0,
-      "cost": 0,
+      "quantity": 0.88859736,
+      "cost": 243.1,
       "type": "watch"
     },
     {
       "symbol": "MRVL",
-      "quantity": 0,
-      "cost": 0,
+      "quantity": 0.79587648,
+      "cost": 251.95,
       "type": "watch"
     },
     {
