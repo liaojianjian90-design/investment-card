@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 6989.35,
+      "quantity": 6500.57,
       "cost": 1,
       "type": "cash"
     },
@@ -77,7 +77,7 @@
     },
     {
       "symbol": "DRAM",
-      "quantity": 5.5535032,
+      "quantity": 12.35126412,
       "cost": 69.52,
       "type": "watch"
     },
