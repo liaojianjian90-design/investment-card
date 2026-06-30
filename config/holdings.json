@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 9985.78,
+      "quantity": 9500.4989,
       "cost": 1,
       "type": "cash"
     },
@@ -47,8 +47,8 @@
     },
     {
       "symbol": "XAUT",
-      "quantity": 0,
-      "cost": 0,
+      "quantity": 0.1258369,
+      "cost": 3974.69,
       "type": "watch"
     },
     {
