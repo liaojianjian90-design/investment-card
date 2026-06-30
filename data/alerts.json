@@ -1,21 +1,8 @@
 {
-  "updatedAt": "2026-06-30T16:00:15.482Z",
+  "updatedAt": "2026-06-30T16:05:14.508Z",
   "email": {
-    "sent": true,
+    "sent": false,
     "missing": []
   },
-  "alerts": [
-    {
-      "id": "daily-exec-summary-2026-07-01",
-      "symbol": "PORTFOLIO",
-      "type": "daily-summary",
-      "severity": "low",
-      "title": "每日低频执行摘要",
-      "conclusion": "今天只看是否有A/S级AI急跌、风控、再平衡或预设价位；没有就不操作。",
-      "reason": "现金 50.2%；AI主攻仓 28.3%；BTC/ETH 11.9%；VOO/XAUT 5.7%。",
-      "action": "维持低频执行；上涨不追，AI急跌按规则买，BTC/XAUT 不机械补。",
-      "discipline": "少动；上涨不追；AI急跌敢买；BTC/ETH 总量达标后不纠结单项偏科；BTC/XAUT 只保留底仓；新增资金优先主升方向；单笔有效。",
-      "createdAt": "2026-06-30T16:00:15.675Z"
-    }
-  ]
+  "alerts": []
 }
