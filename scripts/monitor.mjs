@@ -18,7 +18,13 @@ const files = {
   rules: path.join(root, "config", "rules.json"),
   snapshot: path.join(root, "data", "snapshot.json"),
   alerts: path.join(root, "data", "alerts.json"),
-  alertState: path.join(root, "data", "alert-state.json")
+  alertState: path.join(root, "data", "alert-state.json"),
+
+  // 执行偏差追踪日志：记录系统触发过哪些可执行提醒，以及你后续有没有执行。
+  executionLog: path.join(root, "data", "execution_log.json"),
+
+  // 信号状态文件：记录某个信号组合当前是否仍处于触发状态，避免同一波急跌每次刷新重复写日志。
+  executionSignalState: path.join(root, "data", "execution_signal_state.json")
 };
 
 const names = {
@@ -109,6 +115,287 @@ async function readJson(file, fallback = null) {
 async function writeJson(file, data) {
   await fs.mkdir(path.dirname(file), { recursive: true });
   await fs.writeFile(file, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+}
+
+function emptyExecutionLog() {
+  return {
+    schemaVersion: "1.0",
+    updatedAt: null,
+    records: []
+  };
+}
+
+function emptyExecutionSignalState() {
+  return {
+    schemaVersion: "1.0",
+    updatedAt: null,
+    signals: {}
+  };
+}
+
+function normalizeExecutionLog(raw) {
+  const log = raw && typeof raw === "object" ? raw : emptyExecutionLog();
+  log.schemaVersion ||= "1.0";
+  if (!Array.isArray(log.records)) log.records = [];
+  if (!Object.prototype.hasOwnProperty.call(log, "updatedAt")) log.updatedAt = null;
+  return log;
+}
+
+function normalizeExecutionSignalState(raw) {
+  const state = raw && typeof raw === "object" ? raw : emptyExecutionSignalState();
+  state.schemaVersion ||= "1.0";
+  if (!state.signals || typeof state.signals !== "object") state.signals = {};
+  if (!Object.prototype.hasOwnProperty.call(state, "updatedAt")) state.updatedAt = null;
+  return state;
+}
+
+// 只用于生成 id / dedupeKey / signalStateKey 的标准化标的顺序。
+// 注意：这个排序不会影响 suggestedAllocation、邮件正文和前端展示顺序。
+function executionSymbolsKey(symbols = []) {
+  return [...new Set(symbols.map((item) => String(item || "").trim().toUpperCase()).filter(Boolean))]
+    .sort()
+    .join("-");
+}
+
+function beijingIsoString(date = new Date()) {
+  const beijing = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  const yyyy = beijing.getUTCFullYear();
+  const mm = String(beijing.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(beijing.getUTCDate()).padStart(2, "0");
+  const hh = String(beijing.getUTCHours()).padStart(2, "0");
+  const mi = String(beijing.getUTCMinutes()).padStart(2, "0");
+  const ss = String(beijing.getUTCSeconds()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}+08:00`;
+}
+
+function beijingCompactTimestamp(date = new Date()) {
+  const beijing = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  const yyyy = beijing.getUTCFullYear();
+  const mm = String(beijing.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(beijing.getUTCDate()).padStart(2, "0");
+  const hh = String(beijing.getUTCHours()).padStart(2, "0");
+  const mi = String(beijing.getUTCMinutes()).padStart(2, "0");
+  const ss = String(beijing.getUTCSeconds()).padStart(2, "0");
+  return `${yyyy}${mm}${dd}T${hh}${mi}${ss}+0800`;
+}
+
+// id 的职责：让每一条执行日志记录唯一，不用于去重判断。
+function buildExecutionRecordId({ createdAtDate, type, level, symbols }) {
+  return `${beijingCompactTimestamp(createdAtDate)}-${type}-${level}-${executionSymbolsKey(symbols)}`;
+}
+
+// signalStateKey 的职责：追踪同一天同类型、同级别、同一标的组合是否仍处于触发状态。
+function buildSignalStateKey({ tradingDate, type, level, symbols }) {
+  return `${tradingDate}|${type}|${level}|${executionSymbolsKey(symbols)}`;
+}
+
+// dedupeKey 的职责：判断“这一波机会”是否已经写过日志。
+// 同一天同组合如果解除后重新触发，会生成新的 episode 时间，因此 dedupeKey 不同。
+function buildDedupeKey({ signalStateKey, episodeStartedAtDate }) {
+  return `${signalStateKey}|episode=${beijingCompactTimestamp(episodeStartedAtDate)}`;
+}
+
+function executionLogHasDedupeKey(executionLog, dedupeKey) {
+  return Array.isArray(executionLog?.records) && executionLog.records.some((record) => record.dedupeKey === dedupeKey);
+}
+
+function priceQualityOf(row) {
+  if (row?.priceQuality) return String(row.priceQuality).toLowerCase();
+  if (row?.quality) return String(row.quality).toLowerCase();
+  if (row?.priceCachedFallback) return "delayed";
+  return "realtime";
+}
+
+// 价格数据无效时，不能把 active 从 true 改成 false；否则会把价格源失败误判成信号解除。
+function isExecutionSignalPriceReliable(rows = []) {
+  if (!rows.length) return false;
+  return rows.every((row) => {
+    const quality = priceQualityOf(row);
+    if (quality === "missing" || quality === "estimated") return false;
+    if (!row.priceOk) return false;
+    if (row.priceCachedFallback) return false;
+    if (row.isDataBlocked) return false;
+    return Number.isFinite(Number(row.price)) && Number(row.price) > 0;
+  });
+}
+
+function buildSymbolMoves(rows = []) {
+  return rows.map((row) => ({
+    symbol: row.symbol,
+    price: Number.isFinite(Number(row.price)) ? Number(row.price) : null,
+    changePct: Number.isFinite(Number(row.dropPctFromPreviousClose))
+      ? -Math.abs(Number(row.dropPctFromPreviousClose))
+      : Number.isFinite(Number(row.intradayDropPctFromHigh))
+        ? -Math.abs(Number(row.intradayDropPctFromHigh))
+        : null,
+    intradayDropPct: Number.isFinite(Number(aiDipDropPct(row))) ? -Math.abs(Number(aiDipDropPct(row))) : null,
+    dayLowDropPct: Number.isFinite(Number(aiDayLowDropPct(row))) ? -Math.abs(Number(aiDayLowDropPct(row))) : null,
+    priceQuality: priceQualityOf(row)
+  }));
+}
+
+function tradeAlertBlockReason(alertState, rules, alert) {
+  const today = beijingDateKey();
+  if (rules.oneTradePerDay && alertState.lastActiveTradeDate === today) return "oneTradePerDay";
+  const repeatHours = Number(rules.repeatAlertHours || 24);
+  const last = alertState.lastAlerts?.[alert.id];
+  if (last && Date.now() - Date.parse(last) <= repeatHours * 60 * 60 * 1000) return "repeatAlertHours";
+  return null;
+}
+
+function tradeAlertBlockReasonText(reason) {
+  if (reason === "oneTradePerDay") return "当天主动交易提醒频率限制生效，邮件未再次发出，但该信号仍已写入执行日志。";
+  if (reason === "repeatAlertHours") return "重复提醒时间间隔限制生效，邮件未再次发出，但该信号仍已写入执行日志。";
+  return "邮件提醒未新增，但该信号仍已写入执行日志。";
+}
+
+function clearExecutionSignalIfNeeded(signalState, signalStateKey, now, metrics = {}, dataReliable = true) {
+  const entry = signalState.signals?.[signalStateKey];
+  if (!entry || entry.active !== true) return false;
+
+  if (!dataReliable) {
+    entry.lastCheckedAt = beijingIsoString(now);
+    entry.dataStatus = "price_unreliable_keep_active";
+    entry.lastMetrics = metrics;
+    signalState.updatedAt = beijingIsoString(now);
+    return false;
+  }
+
+  entry.active = false;
+  entry.lastClearedAt = beijingIsoString(now);
+  entry.lastCheckedAt = beijingIsoString(now);
+  entry.dataStatus = "cleared";
+  entry.lastMetrics = metrics;
+  signalState.updatedAt = beijingIsoString(now);
+  return true;
+}
+
+function clearTodayAiDipSignals(signalState, tradingDate, now, metrics = {}, dataReliable = true) {
+  for (const key of Object.keys(signalState.signals || {})) {
+    if (!key.startsWith(`${tradingDate}|ai_dip_opportunity|`)) continue;
+    clearExecutionSignalIfNeeded(signalState, key, now, metrics, dataReliable);
+  }
+}
+
+function upsertExecutionSignal({
+  executionLog,
+  signalState,
+  tradingDate,
+  type,
+  level,
+  actionSide,
+  symbols,
+  triggerReason,
+  triggerMetrics,
+  suggestedAction,
+  suggestedAmountMin,
+  suggestedAmountMax,
+  suggestedCurrency = "USDT",
+  suggestedAllocation = [],
+  systemNote = "系统自动生成，等待用户手动补充执行结果。"
+}) {
+  const now = new Date();
+  const stateKey = buildSignalStateKey({ tradingDate, type, level, symbols });
+  let entry = signalState.signals[stateKey];
+
+  // 情况 B/C：第一次触发，或上一波已经解除后重新触发。
+  if (!entry || entry.active === false) {
+    const episodeStartedAtDate = now;
+    const episodeSeq = Number(entry?.episodeSeq || 0) + 1;
+    const dedupeKey = buildDedupeKey({ signalStateKey: stateKey, episodeStartedAtDate });
+
+    if (!executionLogHasDedupeKey(executionLog, dedupeKey)) {
+      executionLog.records.unshift({
+        id: buildExecutionRecordId({ createdAtDate: now, type, level, symbols }),
+        dedupeKey,
+        createdAt: beijingIsoString(now),
+        tradingDate,
+        type,
+        level,
+        actionSide,
+        symbols,
+        triggerReason,
+        triggerMetrics,
+        suggestedAction,
+        suggestedAmountMin,
+        suggestedAmountMax,
+        suggestedCurrency,
+        suggestedAllocation,
+        status: "pending",
+        userDecision: {
+          wasNoticed: null,
+          executed: null,
+          executedAt: null,
+          actualAmount: null,
+          actualCurrency: suggestedCurrency,
+          actualSymbols: [],
+          skipReason: "",
+          reviewNote: "",
+          updatedAt: null
+        },
+        systemNote
+      });
+      executionLog.updatedAt = beijingIsoString(now);
+    }
+
+    signalState.signals[stateKey] = {
+      active: true,
+      currentDedupeKey: dedupeKey,
+      episodeStartedAt: beijingIsoString(episodeStartedAtDate),
+      lastSatisfiedAt: beijingIsoString(now),
+      lastClearedAt: null,
+      lastCheckedAt: beijingIsoString(now),
+      episodeSeq,
+      dataStatus: "satisfied",
+      lastMetrics: triggerMetrics
+    };
+    signalState.updatedAt = beijingIsoString(now);
+    return { added: true, dedupeKey, signalStateKey: stateKey };
+  }
+
+  // 情况 D：同一波机会仍在持续，不重复写日志，只更新状态。
+  const dedupeKey = entry.currentDedupeKey;
+  if (!executionLogHasDedupeKey(executionLog, dedupeKey)) {
+    executionLog.records.unshift({
+      id: buildExecutionRecordId({ createdAtDate: now, type, level, symbols }),
+      dedupeKey,
+      createdAt: beijingIsoString(now),
+      tradingDate,
+      type,
+      level,
+      actionSide,
+      symbols,
+      triggerReason,
+      triggerMetrics,
+      suggestedAction,
+      suggestedAmountMin,
+      suggestedAmountMax,
+      suggestedCurrency,
+      suggestedAllocation,
+      status: "pending",
+      userDecision: {
+        wasNoticed: null,
+        executed: null,
+        executedAt: null,
+        actualAmount: null,
+        actualCurrency: suggestedCurrency,
+        actualSymbols: [],
+        skipReason: "",
+        reviewNote: "",
+        updatedAt: null
+      },
+      systemNote: "状态文件显示这一波机会已存在，但日志缺失，系统自动补写。"
+    });
+    executionLog.updatedAt = beijingIsoString(now);
+  }
+
+  entry.lastSatisfiedAt = beijingIsoString(now);
+  entry.lastCheckedAt = beijingIsoString(now);
+  entry.dataStatus = "satisfied";
+  entry.lastMetrics = triggerMetrics;
+  signalState.updatedAt = beijingIsoString(now);
+
+  return { added: false, dedupeKey, signalStateKey: stateKey };
 }
 
 function normalizePriceSourceLabel(source) {
@@ -1032,18 +1319,38 @@ function aiDipDailyMaxPct(rules, snapshot) {
   return Number(cfg.maxDailyBuyPctWhenCash45 || 5);
 }
 
-function addAiIntradayOpportunityAlerts(alerts, alertState, rules, snapshot) {
+function addAiIntradayOpportunityAlerts(alerts, alertState, rules, snapshot, executionLog, signalState) {
   const cfg = rules.aiIntradayDropOpportunityRules || rules.v5Rules?.aiIntradayDropOpportunityRules || {};
+  const dayKey = beijingDateKey(new Date());
+  const now = new Date();
+
   if (cfg.enabled === false) return false;
-  if (!canBuy(snapshot, rules)) return false;
-  if (snapshot.cashPct < Number(cfg.minCashPct || 50)) return false;
+
+  const primarySymbols = cfg.primarySymbols || ["MU", "DRAM", "GLW", "SMH"];
+  const primaryRowsAll = primarySymbols.map((symbol) => position(snapshot, symbol)).filter(Boolean);
+  const dataReliable = isExecutionSignalPriceReliable(primaryRowsAll.filter((row) => Number(row.quantity || 0) > 0 || row.symbol === "SMH" || primarySymbols.includes(row.symbol)));
+  const clearMetrics = {
+    cashPct: Number(snapshot.cashPct || 0),
+    aiPrimaryPct: null,
+    totalAssetValue: Number(snapshot.totalValue || 0),
+    symbolMoves: buildSymbolMoves(primaryRowsAll)
+  };
+
+  if (!canBuy(snapshot, rules) || snapshot.cashPct < Number(cfg.minCashPct || 50)) {
+    clearTodayAiDipSignals(signalState, dayKey, now, clearMetrics, dataReliable);
+    return false;
+  }
 
   const v5 = rules.v5Rules || {};
   const themeSymbols = v5.themeLayer?.symbols || cfg.primarySymbols || [];
   const aiWeight = combinedWeight(snapshot, themeSymbols);
-  if (aiWeight >= Number(cfg.ignoreWhenAiWeightAbovePct || 30)) return false;
+  clearMetrics.aiPrimaryPct = Number(aiWeight || 0);
 
-  const primarySymbols = cfg.primarySymbols || ["MU", "DRAM", "GLW", "SMH"];
+  if (aiWeight >= Number(cfg.ignoreWhenAiWeightAbovePct || 30)) {
+    clearTodayAiDipSignals(signalState, dayKey, now, clearMetrics, dataReliable);
+    return false;
+  }
+
   const primaryRows = primarySymbols
     .map((symbol) => position(snapshot, symbol))
     .filter((row) => row && row.priceOk && !row.priceCachedFallback && !row.isDataBlocked);
@@ -1069,7 +1376,6 @@ function addAiIntradayOpportunityAlerts(alerts, alertState, rules, snapshot) {
     triggeredRows = strongRows.length ? strongRows : multiRows;
   }
 
-  const dayKey = beijingDateKey(new Date());
   if (level && triggeredRows.length) {
     const maxDailyPct = aiDipDailyMaxPct(rules, snapshot);
     const maxDailyAmount = snapshot.totalValue > 0 ? snapshot.totalValue * maxDailyPct / 100 : 0;
@@ -1093,7 +1399,8 @@ function addAiIntradayOpportunityAlerts(alerts, alertState, rules, snapshot) {
     const action = isBasket
       ? "优先用篮子方式买入 MU/GLW/SMH/DRAM；若使用 2x DRAM/RAM，单日不超过 500 USDT。"
       : `优先执行 ${triggeredRows[0].symbol} 有效仓位，不低于 500 USDT；若同时有 SMH 也回调，可改为半导体篮子买入。`;
-    const added = addTradeAlert(alerts, alertState, rules, {
+    const reason = `${triggeredRows.map(formatSymbolDrop).join("；")}；现金 ${formatPct(snapshot.cashPct)}，AI主攻仓 ${formatPct(aiWeight)}。`;
+    const alertPayload = {
       id: `ai-dip-${level.toLowerCase()}-${dayKey}`,
       symbol: symbolText,
       type: "ai-dip-opportunity",
@@ -1101,13 +1408,59 @@ function addAiIntradayOpportunityAlerts(alerts, alertState, rules, snapshot) {
       title,
       conclusion: "现金充足且AI主攻仓未达目标，主攻标的出现盘中急跌，应提示有效仓位买入机会。",
       amountText,
-      reason: `${triggeredRows.map(formatSymbolDrop).join("；")}；现金 ${formatPct(snapshot.cashPct)}，AI主攻仓 ${formatPct(aiWeight)}。`,
+      reason,
       action,
       invalid: "若为财报暴雷、公司基本面恶化、数据过期或当日已执行主动交易，则不执行。",
       discipline: cfg.discipline || "急跌机会要买有效仓位，但不能突破现金、单股和AI总仓上限。"
+    };
+
+    // 执行日志独立于邮件提醒：即使 oneTradePerDay 或重复提醒限制导致邮件不发，S级升级等真实信号仍要被记录。
+    const blockReason = tradeAlertBlockReason(alertState, rules, alertPayload);
+    const added = addTradeAlert(alerts, alertState, rules, alertPayload);
+
+    // suggestedAllocation 保留系统建议优先级顺序，不使用字母排序。
+    const suggestedAllocation = isBasket
+      ? [
+          { symbol: "MU", amount: level === "S" ? 600 : 500 },
+          { symbol: "GLW", amount: level === "S" ? 600 : 500 },
+          { symbol: "SMH", amount: level === "S" ? 600 : 500 },
+          { symbol: "DRAM", amount: level === "S" ? 400 : 300 }
+        ].filter((item) => triggeredRows.some((row) => row.symbol === item.symbol) || item.symbol === "SMH")
+      : [
+          { symbol: triggeredRows[0].symbol, amount: Math.round(Math.min(cappedMax || minAmount, minAmount)) }
+        ];
+
+    upsertExecutionSignal({
+      executionLog,
+      signalState,
+      tradingDate: dayKey,
+      type: "ai_dip_opportunity",
+      level,
+      actionSide: "buy",
+      symbols: triggeredRows.map((row) => row.symbol),
+      triggerReason: reason,
+      triggerMetrics: {
+        cashPct: Number(snapshot.cashPct || 0),
+        aiPrimaryPct: Number(aiWeight || 0),
+        totalAssetValue: Number(snapshot.totalValue || 0),
+        symbolMoves: buildSymbolMoves(triggeredRows)
+      },
+      suggestedAction: `买入 ${amountText}，${action}`,
+      suggestedAmountMin: Math.round(minAmount),
+      suggestedAmountMax: Math.round(cappedMax || maxAmount),
+      suggestedCurrency: "USDT",
+      suggestedAllocation,
+      systemNote: added
+        ? "系统自动生成：AI主攻仓急跌机会，邮件提醒已发出，等待用户手动补充执行结果。"
+        : `系统自动生成：AI主攻仓急跌机会。${tradeAlertBlockReasonText(blockReason)}`
     });
+
     return Boolean(added);
   }
+
+  // 没有 A/S 级触发时，尝试把上一波 active 信号清除。
+  // 只有价格数据可靠时才允许清除，避免价格源失败导致“假解除、假重新触发”。
+  clearTodayAiDipSignals(signalState, dayKey, now, clearMetrics, isExecutionSignalPriceReliable(primaryRowsAll));
 
   // 盘中已经跌深又快速拉回时，不发买入邮件，但保留复盘提醒，用于修正系统。
   const reviewRows = primaryRows.filter((row) => {
@@ -1132,7 +1485,7 @@ function addAiIntradayOpportunityAlerts(alerts, alertState, rules, snapshot) {
   return false;
 }
 
-function evaluateRules(snapshot, rules, alertState) {
+function evaluateRules(snapshot, rules, alertState, executionLog, signalState) {
   const alerts = [];
   updateRiskState(snapshot, rules, alertState);
   resetLevels(alertState, rules, snapshot);
@@ -1253,7 +1606,14 @@ function evaluateRules(snapshot, rules, alertState) {
 
   if (ordinaryBuyAllowed && corePriceOk) {
     if (!rapidDropObserve && !buySignalThisRun) {
-      buySignalThisRun ||= addAiIntradayOpportunityAlerts(alerts, alertState, rules, snapshot);
+      buySignalThisRun ||= addAiIntradayOpportunityAlerts(
+    alerts,
+    alertState,
+    rules,
+    snapshot,
+    executionLog,
+    signalState
+  );
     }
 
     const now = new Date();
@@ -1571,6 +1931,8 @@ async function main() {
   const baseHoldings = await readJson(files.holdings);
   const rules = await readJson(files.rules);
   const alertState = await readJson(files.alertState, {});
+  const executionLog = normalizeExecutionLog(await readJson(files.executionLog, emptyExecutionLog()));
+  const signalState = normalizeExecutionSignalState(await readJson(files.executionSignalState, emptyExecutionSignalState()));
   if (!baseHoldings || !rules) throw new Error("Missing config files");
 
   const holdings = baseHoldings;
@@ -1583,7 +1945,7 @@ async function main() {
   snapshot.bitgetSync = bitgetSync;
   snapshot.holdingsSource = { mode: "holdings-json-only", file: "config/holdings.json", note: "页面和邮件均以 holdings.json 为唯一仓位来源。" };
   snapshot.btcFiveMinuteChangePct = await loadBtcFiveMinuteChangePct();
-  const alerts = evaluateRules(snapshot, rules, alertState);
+  const alerts = evaluateRules(snapshot, rules, alertState, executionLog, signalState);
   snapshot.healthSummary = calculateHealthSummary(snapshot, rules);
   if (process.env.TEST_EMAIL === "true") {
     addAlert(alerts, alertState, rules, {
@@ -1603,6 +1965,8 @@ async function main() {
     await writeJson(files.snapshot, snapshot);
     await writeJson(files.alerts, { updatedAt: snapshot.updatedAt, email, alerts });
     await writeJson(files.alertState, alertState);
+    await writeJson(files.executionLog, executionLog);
+    await writeJson(files.executionSignalState, signalState);
   }
 
   console.log(JSON.stringify({
@@ -1612,6 +1976,8 @@ async function main() {
     dataStatus: dataStatus(snapshot),
     btcFiveMinuteChangePct: snapshot.btcFiveMinuteChangePct,
     alerts: alerts.length,
+    executionLogRecords: executionLog.records.length,
+    executionSignalStateCount: Object.keys(signalState.signals || {}).length,
     email,
     priceErrors: errors,
     priceWarnings: warnings,
