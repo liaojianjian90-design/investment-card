@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 9485.61733194,
+      "quantity": 8506.60,
       "cost": 1,
       "type": "cash"
     },
@@ -17,8 +17,8 @@
   "positions": [
     {
       "symbol": "BTC",
-      "quantity": 0.02152615,
-      "cost": 59652.38,
+      "quantity": 0.02570715,
+      "cost": 59456.98,
       "type": "crypto"
     },
     {
@@ -29,8 +29,8 @@
     },
     {
       "symbol": "DOGE",
-      "quantity": 5073.6003142,
-      "cost": 0.07489,
+      "quantity": 7933.1942142,
+      "cost": 0.07309,
       "type": "crypto"
     },
     {
@@ -65,8 +65,8 @@
     },
     {
       "symbol": "MU",
-      "quantity": 0.51167157,
-      "cost": 1102.51,
+      "quantity": 0.94527129,
+      "cost": 1125.24,
       "type": "watch"
     },
     {
