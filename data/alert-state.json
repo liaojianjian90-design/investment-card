@@ -1,5 +1,5 @@
 {
-  "highWatermark": 15975.479187657043,
+  "highWatermark": 15982.635374143907,
   "weeklyReference": {
     "week": "2026-27",
     "btcPrice": 59394.02
@@ -19,6 +19,11 @@
       "triggeredAt": "2026-06-30T01:15:15.733Z",
       "triggerPrice": 253.22,
       "resetBelow": 215
+    },
+    "watch-xaut-4000": {
+      "triggeredAt": "2026-06-30T01:50:15.214Z",
+      "triggerPrice": 3961.37,
+      "resetAbove": 4100
     }
   },
   "lastAlerts": {
