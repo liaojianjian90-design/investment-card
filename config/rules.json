@@ -226,7 +226,7 @@
         "ASX"
       ],
       "maxPct": 35,
-      "message": "5.3.1 当前阶段允许 AI 主攻仓优先推进到 25%-35%，但只限 MU/DRAM/GLW/SMH 等高优先级。"
+      "message": "5.3.3 当前阶段允许 AI 主攻仓优先推进到 25%-35%，但只限 MU/DRAM/GLW/SMH 等高优先级。"
     }
   ],
   "drawdownRules": [
@@ -259,7 +259,7 @@
     "btcAmount": 350,
     "ethAmount": 250,
     "halfSizeDrawdownPct": 15,
-    "message": "5.3.1 降频后关闭固定定投邮件；只有预设价位、AI急跌A/S机会、风控和再平衡才打断用户。"
+    "message": "5.3.3 降频后关闭固定定投邮件；只有预设价位、AI急跌A/S机会、风控和再平衡才打断用户。"
   },
   "rapidDropRules": {
     "window": "5m",
@@ -274,7 +274,7 @@
     "observeHours": "4-24",
     "observeRuleId": "rapid-btc-drop-observe",
     "buyRuleId": "rapid-btc-drop-buy",
-    "message": "5.3.1 不再用 BTC 5分钟急跌触发交易邮件；BTC 只按 56000/55000/52000 档或趋势确认执行。",
+    "message": "5.3.3 不再用 BTC 5分钟急跌触发交易邮件；BTC 只按 56000/55000/52000 档或趋势确认执行。",
     "enabled": false
   },
   "coreFillRules": [
@@ -299,7 +299,7 @@
       "requireCashPct": 45,
       "btcAmount": 450,
       "ethAmount": 250,
-      "note": "BTC 58000 档有效仓位加仓：BTC 450 + ETH 250，不再做 100 USDT 心理仓。 5.3.1 已禁用：BTC 弱势区间不因 58k/57k 自动占用 AI 主攻资金。",
+      "note": "BTC 58000 档有效仓位加仓：BTC 450 + ETH 250，不再做 100 USDT 心理仓。 5.3.3 已禁用：BTC 弱势区间不因 58k/57k 自动占用 AI 主攻资金。",
       "enabled": false
     },
     {
@@ -309,7 +309,7 @@
       "requireCashPct": 45,
       "btcAmount": 650,
       "ethAmount": 350,
-      "note": "BTC 57000 档有效仓位加仓：BTC 650 + ETH 350，不再做 100 USDT 心理仓。 5.3.1 已禁用：BTC 弱势区间不因 58k/57k 自动占用 AI 主攻资金。",
+      "note": "BTC 57000 档有效仓位加仓：BTC 650 + ETH 350，不再做 100 USDT 心理仓。 5.3.3 已禁用：BTC 弱势区间不因 58k/57k 自动占用 AI 主攻资金。",
       "enabled": false
     },
     {
@@ -319,7 +319,7 @@
       "requireCashPct": 45,
       "btcAmount": 500,
       "ethAmount": 250,
-      "note": "5.3.1：BTC 到 56k 只作为小额底仓补充，必须人工确认止跌，不抢 AI 主攻资金。"
+      "note": "5.3.3：BTC 到 56k 只作为小额底仓补充，必须人工确认止跌，不抢 AI 主攻资金。"
     },
     {
       "id": "dip-btc-55000",
@@ -328,7 +328,7 @@
       "requireCashPct": 45,
       "btcAmount": 700,
       "ethAmount": 350,
-      "note": "5.3.1：BTC 到 55k 且未出现系统性风险时，才允许小额底仓补充。"
+      "note": "5.3.3：BTC 到 55k 且未出现系统性风险时，才允许小额底仓补充。"
     },
     {
       "id": "risk-btc-52000",
@@ -366,7 +366,7 @@
       "requireCashPct": 45,
       "maxSymbolWeightPctAfter": 20,
       "group": "defensive",
-      "message": "VOO 稳定层有效底仓买点；单笔 500 USDT。 5.3.1：VOO 是长期底仓，优先级低于 AI A/S 机会。"
+      "message": "VOO 稳定层有效底仓买点；单笔 500 USDT。 5.3.3：VOO 是长期底仓，优先级低于 AI A/S 机会。"
     },
     {
       "id": "watch-voo-625",
@@ -377,7 +377,7 @@
       "requireCashPct": 45,
       "maxSymbolWeightPctAfter": 20,
       "group": "defensive",
-      "message": "VOO 稳定层有效底仓买点；单笔 700 USDT。 5.3.1：VOO 是长期底仓，优先级低于 AI A/S 机会。"
+      "message": "VOO 稳定层有效底仓买点；单笔 700 USDT。 5.3.3：VOO 是长期底仓，优先级低于 AI A/S 机会。"
     },
     {
       "id": "watch-xaut-3920",
@@ -388,7 +388,7 @@
       "requireCashPct": 55,
       "maxSymbolWeightPctAfter": 4,
       "group": "gold",
-      "message": "5.3.1：XAUT 已有底仓，3920-3900 只允许小补 300 USDT；若 AI 主攻仓低于25%，默认暂缓。"
+      "message": "5.3.3：XAUT 已有底仓，3920-3900 只允许小补 300 USDT；若 AI 主攻仓低于25%，默认暂缓。"
     },
     {
       "id": "watch-xaut-3850",
@@ -399,7 +399,7 @@
       "requireCashPct": 45,
       "maxSymbolWeightPctAfter": 4,
       "group": "gold",
-      "message": "5.3.1：XAUT 只有跌到 3850 以下才允许补 500 USDT；它是保险，不是主攻。"
+      "message": "5.3.3：XAUT 只有跌到 3850 以下才允许补 500 USDT；它是保险，不是主攻。"
     },
     {
       "id": "watch-avgo-350",
@@ -454,7 +454,7 @@
       "requireCashPct": 35,
       "maxSymbolWeightPctAfter": 8,
       "group": "ai-pump-core",
-      "message": "MU AI 抽水机第一主攻层有效仓位买点；单笔 500 USDT，目标 4%-7%，硬上限 8%。 5.3.1 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "MU AI 抽水机第一主攻层有效仓位买点；单笔 500 USDT，目标 4%-7%，硬上限 8%。 5.3.3 当前阶段新增资金优先级高于 BTC/XAUT。"
     },
     {
       "id": "watch-mu-1020",
@@ -465,7 +465,7 @@
       "requireCashPct": 35,
       "maxSymbolWeightPctAfter": 8,
       "group": "ai-pump-core",
-      "message": "MU AI 抽水机第一主攻层有效仓位买点；单笔 700 USDT，目标 4%-7%，硬上限 8%。 5.3.1 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "MU AI 抽水机第一主攻层有效仓位买点；单笔 700 USDT，目标 4%-7%，硬上限 8%。 5.3.3 当前阶段新增资金优先级高于 BTC/XAUT。"
     },
     {
       "id": "watch-sndk-2000",
@@ -498,7 +498,7 @@
       "requireCashPct": 35,
       "maxSymbolWeightPctAfter": 8,
       "group": "ai-pump-core",
-      "message": "DRAM AI 抽水机第一主攻层有效仓位买点；单笔 500 USDT，目标 4%-7%，硬上限 8%。 5.3.1 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "DRAM AI 抽水机第一主攻层有效仓位买点；单笔 500 USDT，目标 4%-7%，硬上限 8%。 5.3.3 当前阶段新增资金优先级高于 BTC/XAUT。"
     },
     {
       "id": "watch-dram-66",
@@ -509,7 +509,7 @@
       "requireCashPct": 35,
       "maxSymbolWeightPctAfter": 8,
       "group": "ai-pump-core",
-      "message": "DRAM AI 抽水机第一主攻层有效仓位买点；单笔 700 USDT，目标 4%-7%，硬上限 8%。 5.3.1 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "DRAM AI 抽水机第一主攻层有效仓位买点；单笔 700 USDT，目标 4%-7%，硬上限 8%。 5.3.3 当前阶段新增资金优先级高于 BTC/XAUT。"
     },
     {
       "id": "watch-wdc-560",
@@ -586,7 +586,7 @@
       "requireCashPct": 35,
       "maxSymbolWeightPctAfter": 8,
       "group": "ai-pump-core",
-      "message": "GLW AI 抽水机第一主攻层有效仓位买点；单笔 500 USDT，目标 4%-7%，硬上限 8%。 5.3.1 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "GLW AI 抽水机第一主攻层有效仓位买点；单笔 500 USDT，目标 4%-7%，硬上限 8%。 5.3.3 当前阶段新增资金优先级高于 BTC/XAUT。"
     },
     {
       "id": "watch-glw-190",
@@ -597,7 +597,7 @@
       "requireCashPct": 35,
       "maxSymbolWeightPctAfter": 8,
       "group": "ai-pump-core",
-      "message": "GLW AI 抽水机第一主攻层有效仓位买点；单笔 700 USDT，目标 4%-7%，硬上限 8%。 5.3.1 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "GLW AI 抽水机第一主攻层有效仓位买点；单笔 700 USDT，目标 4%-7%，硬上限 8%。 5.3.3 当前阶段新增资金优先级高于 BTC/XAUT。"
     },
     {
       "id": "watch-smh-600",
@@ -608,7 +608,7 @@
       "requireCashPct": 35,
       "maxSymbolWeightPctAfter": 8,
       "group": "ai-basket",
-      "message": "SMH 半导体篮子主攻补充买点；单笔 500 USDT 起。 5.3.1 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "SMH 半导体篮子主攻补充买点；单笔 500 USDT 起。 5.3.3 当前阶段新增资金优先级高于 BTC/XAUT。"
     },
     {
       "id": "watch-smh-570",
@@ -619,7 +619,7 @@
       "requireCashPct": 35,
       "maxSymbolWeightPctAfter": 8,
       "group": "ai-basket",
-      "message": "SMH 深回调买点；单笔 700 USDT。 5.3.1 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "SMH 深回调买点；单笔 700 USDT。 5.3.3 当前阶段新增资金优先级高于 BTC/XAUT。"
     },
     {
       "id": "watch-mrvl-250",
@@ -696,7 +696,7 @@
       "requireCashPct": 35,
       "maxSymbolWeightPctAfter": 8,
       "group": "ai-basket",
-      "message": "SOXX 半导体 ETF 篮子买点；单笔 500 USDT 起。 5.3.1 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "SOXX 半导体 ETF 篮子买点；单笔 500 USDT 起。 5.3.3 当前阶段新增资金优先级高于 BTC/XAUT。"
     }
   ],
   "trendWatchRules": [],
@@ -972,7 +972,7 @@
         "GLW",
         "SMH"
       ],
-      "priorityNote": "5.3.1 将新增资金优先给 MU/DRAM/GLW/SMH；BTC/XAUT 弱势时只保留底仓，不机械补仓。",
+      "priorityNote": "5.3.3 将新增资金优先给 MU/DRAM/GLW/SMH；BTC/ETH 合计达标后，单项偏低只显示核心偏科，不再提示核心不足。",
       "singleCoreTargetPct": 0.08,
       "singleCoreHardMaxPct": 0.09,
       "currentCycleTargetMin": 0.25,
@@ -1009,7 +1009,7 @@
       "sameSymbolBuyHours": 48,
       "postBuyNoDipBuyHours": 24
     },
-    "versionName": "投资健康卡 5.3.1：趋势优先 + AI新增资金优先执行版",
+    "versionName": "投资健康卡 5.3.3：趋势优先 + 核心总量优先判断版",
     "effectivePositionRules": {
       "enabled": true,
       "mainAttackMinBuyUSDT": 500,
@@ -1028,7 +1028,7 @@
         "ASML",
         "SOXX"
       ],
-      "note": "5.3.1 不做100 USDT主仓买入；新增资金优先 AI 主攻仓，BTC/XAUT 只在深跌或趋势确认后补。",
+      "note": "5.3.3 不做100 USDT主仓买入；核心增长层按 BTC/ETH 合计先判断，单项偏低只作为结构提示；新增资金优先 AI 主攻仓。",
       "coreMinBuyUSDT": 500,
       "stableMinBuyUSDT": 500,
       "speculativeMinBuyUSDT": 200,
@@ -1066,12 +1066,13 @@
       "sendSpeculativeNoNewBuyAbove": 0.045,
       "sendSpeculativeReduceOnlyAbove": 0.05,
       "dataBlockSubject": "【投资风控提醒】数据过期，禁止交易判断",
-      "structureSubject": "【投资结构提醒】现金过高 + 核心仓不足",
+      "structureSubject": "【投资结构提醒】现金过高 + 核心底仓观察",
       "rebalanceSubject": "【投资再平衡提醒】达到止盈或减仓条件",
       "sendAiDipOpportunityEmail": true,
       "aiDipOpportunitySubject": "【AI主攻仓急跌机会】现金充足 + 主攻标的急跌",
       "dailySummarySubject": "【投资每日摘要】低频执行检查",
-      "weeklyReviewSubject": "【投资周复盘】仓位与机会复盘"
+      "weeklyReviewSubject": "【投资周复盘】仓位与机会复盘",
+      "coreSkewNote": "BTC/ETH 合计达标但单项偏低时，只记录核心偏科，不触发高优先级买入。"
     },
     "bitgetReadonlySync": {
       "enabledBySecret": "BITGET_READONLY_ENABLED",
@@ -1103,7 +1104,7 @@
     },
     "effectiveBuySizingPolicy": {
       "enabled": true,
-      "version": "5.3.1",
+      "version": "5.3.3",
       "principle": "不再发出 100 USDT 级别核心/主攻买入提醒；资金量不大时更要减少无效小操作。",
       "coreBuy": {
         "minSingleBuyUSDT": 500,
@@ -1193,7 +1194,7 @@
     },
     "lowFrequencyExecutionPolicy": {
       "enabled": true,
-      "version": "5.3.1",
+      "version": "5.3.3",
       "dailySummary": true,
       "weeklyReview": true,
       "weeklyReviewWeekdayUtc": 0,
@@ -1216,9 +1217,9 @@
     },
     "aiIntradayDropOpportunityRules": {
       "enabled": true,
-      "version": "5.3.1",
+      "version": "5.3.3",
       "name": "AI主攻仓盘中急跌机会捕捉",
-      "description": "5.3.1 当前阶段新增资金优先给 AI 主攻仓；BTC/XAUT 弱势时不抢资金。现金≥45%、AI主攻仓低于25%时，主攻标的急跌可触发有效买入。",
+      "description": "5.3.3 当前阶段新增资金优先给 AI 主攻仓；BTC/XAUT 弱势时不抢资金。现金≥45%、AI主攻仓低于25%时，主攻标的急跌可触发有效买入。",
       "primarySymbols": [
         "MU",
         "DRAM",
@@ -1383,7 +1384,7 @@
         "GLW",
         "SMH"
       ],
-      "priorityNote": "5.3.1 将新增资金优先给 MU/DRAM/GLW/SMH；BTC/XAUT 弱势时只保留底仓，不机械补仓。",
+      "priorityNote": "5.3.3 将新增资金优先给 MU/DRAM/GLW/SMH；BTC/ETH 合计达标后，单项偏低只显示核心偏科，不再提示核心不足。",
       "singleCoreTargetPct": 0.08,
       "singleCoreHardMaxPct": 0.09,
       "currentCycleTargetMin": 0.25,
@@ -1420,7 +1421,7 @@
       "sameSymbolBuyHours": 48,
       "postBuyNoDipBuyHours": 24
     },
-    "versionName": "投资健康卡 5.3.1：趋势优先 + AI新增资金优先执行版",
+    "versionName": "投资健康卡 5.3.3：趋势优先 + 核心总量优先判断版",
     "effectivePositionRules": {
       "enabled": true,
       "mainAttackMinBuyUSDT": 500,
@@ -1439,7 +1440,7 @@
         "ASML",
         "SOXX"
       ],
-      "note": "5.3.1 不做100 USDT主仓买入；新增资金优先 AI 主攻仓，BTC/XAUT 只在深跌或趋势确认后补。",
+      "note": "5.3.3 不做100 USDT主仓买入；核心增长层按 BTC/ETH 合计先判断，单项偏低只作为结构提示；新增资金优先 AI 主攻仓。",
       "coreMinBuyUSDT": 500,
       "stableMinBuyUSDT": 500,
       "speculativeMinBuyUSDT": 200,
@@ -1477,12 +1478,13 @@
       "sendSpeculativeNoNewBuyAbove": 0.045,
       "sendSpeculativeReduceOnlyAbove": 0.05,
       "dataBlockSubject": "【投资风控提醒】数据过期，禁止交易判断",
-      "structureSubject": "【投资结构提醒】现金过高 + 核心仓不足",
+      "structureSubject": "【投资结构提醒】现金过高 + 核心底仓观察",
       "rebalanceSubject": "【投资再平衡提醒】达到止盈或减仓条件",
       "sendAiDipOpportunityEmail": true,
       "aiDipOpportunitySubject": "【AI主攻仓急跌机会】现金充足 + 主攻标的急跌",
       "dailySummarySubject": "【投资每日摘要】低频执行检查",
-      "weeklyReviewSubject": "【投资周复盘】仓位与机会复盘"
+      "weeklyReviewSubject": "【投资周复盘】仓位与机会复盘",
+      "coreSkewNote": "BTC/ETH 合计达标但单项偏低时，只记录核心偏科，不触发高优先级买入。"
     },
     "bitgetReadonlySync": {
       "enabledBySecret": "BITGET_READONLY_ENABLED",
@@ -1514,7 +1516,7 @@
     },
     "effectiveBuySizingPolicy": {
       "enabled": true,
-      "version": "5.3.1",
+      "version": "5.3.3",
       "principle": "不再发出 100 USDT 级别核心/主攻买入提醒；资金量不大时更要减少无效小操作。",
       "coreBuy": {
         "minSingleBuyUSDT": 500,
@@ -1604,9 +1606,9 @@
     },
     "aiIntradayDropOpportunityRules": {
       "enabled": true,
-      "version": "5.3.1",
+      "version": "5.3.3",
       "name": "AI主攻仓盘中急跌机会捕捉",
-      "description": "5.3.1 当前阶段新增资金优先给 AI 主攻仓；BTC/XAUT 弱势时不抢资金。现金≥45%、AI主攻仓低于25%时，主攻标的急跌可触发有效买入。",
+      "description": "5.3.3 当前阶段新增资金优先给 AI 主攻仓；BTC/XAUT 弱势时不抢资金。现金≥45%、AI主攻仓低于25%时，主攻标的急跌可触发有效买入。",
       "primarySymbols": [
         "MU",
         "DRAM",
@@ -1655,7 +1657,7 @@
     },
     "lowFrequencyExecutionPolicy": {
       "enabled": true,
-      "version": "5.3.1",
+      "version": "5.3.3",
       "dailySummary": true,
       "weeklyReview": true,
       "weeklyReviewWeekdayUtc": 0,
@@ -1705,13 +1707,13 @@
       "principle": "BTC/XAUT 保留底仓，不再因目标不足机械占用新增资金；AI 主攻仓未到 25% 前，新增资金默认优先 AI。"
     }
   },
-  "systemVersion": "5.3.1",
-  "systemName": "投资健康卡 5.3.1：趋势优先 + AI新增资金优先执行版",
+  "systemVersion": "5.3.3",
+  "systemName": "投资健康卡 5.3.3：趋势优先 + AI新增资金优先执行版",
   "aiIntradayDropOpportunityRules": {
     "enabled": true,
-    "version": "5.3.1",
+    "version": "5.3.3",
     "name": "AI主攻仓盘中急跌机会捕捉",
-    "description": "5.3.1 当前阶段新增资金优先给 AI 主攻仓；BTC/XAUT 弱势时不抢资金。现金≥45%、AI主攻仓低于25%时，主攻标的急跌可触发有效买入。",
+    "description": "5.3.3 当前阶段新增资金优先给 AI 主攻仓；BTC/XAUT 弱势时不抢资金。现金≥45%、AI主攻仓低于25%时，主攻标的急跌可触发有效买入。",
     "primarySymbols": [
       "MU",
       "DRAM",
@@ -1760,11 +1762,11 @@
   },
   "lowFrequencyExecutionPolicy": {
     "enabled": true,
-    "version": "5.3.1",
+    "version": "5.3.3",
     "dailySummary": true,
     "weeklyReview": true,
     "weeklyReviewWeekdayUtc": 0,
-    "principle": "少动；上涨不追；AI急跌敢买；BTC/XAUT 只保留底仓；新增资金优先主升方向；单笔有效。",
+    "principle": "少动；上涨不追；AI急跌敢买；BTC/ETH 总量达标后不纠结单项偏科；BTC/XAUT 只保留底仓；新增资金优先主升方向；单笔有效。",
     "checkWindows": [
       "美股开盘前只看计划",
       "开盘后15-60分钟只看AI A/S急跌",
@@ -1783,7 +1785,7 @@
   },
   "trendPriorityPolicy": {
     "enabled": true,
-    "mode": "AI主升优先，BTC/XAUT 弱势降级为底仓观察",
+    "mode": "AI主升优先，核心增长层总量优先判断，BTC/XAUT弱势降级为底仓观察",
     "cashTargetMinPct": 35,
     "cashTargetMaxPct": 45,
     "aiPriorityTargetMinPct": 25,
@@ -1807,6 +1809,6 @@
       "BTC/XAUT 仅深跌或趋势确认",
       "DOGE 仅 BTC 企稳后小仓"
     ],
-    "principle": "BTC/XAUT 保留底仓，不再因目标不足机械占用新增资金；AI 主攻仓未到 25% 前，新增资金默认优先 AI。"
+    "principle": "BTC/ETH 合计达标后，单项偏低只显示核心偏科；BTC/XAUT 保留底仓，不因目标不足机械占用新增资金；AI 主攻仓未到 25% 前，新增资金默认优先 AI。"
   }
 }

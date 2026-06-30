@@ -442,7 +442,7 @@ async function fetchJson(url) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(url, {
-      headers: { "user-agent": "investment-monitor-card/5.3.1" },
+      headers: { "user-agent": "investment-monitor-card/5.3.3" },
       signal: controller.signal
     });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${url}`);
@@ -539,7 +539,7 @@ async function stooqQuote(symbol) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(`https://stooq.com/q/l/?s=${encodeURIComponent(ticker)}&f=sd2t2ohlcv&h&e=csv`, {
-      headers: { "user-agent": "investment-monitor-card/5.3.1" },
+      headers: { "user-agent": "investment-monitor-card/5.3.3" },
       signal: controller.signal
     });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
@@ -884,17 +884,30 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
     });
   }
 
-  if (cashPct >= coreCashPct && (btcWeight < 8 || ethWeight < 3)) {
+  const coreDetails = coreStructureDetails(snapshot, rules);
+  if (cashPct >= coreCashPct && !coreDetails.totalEnough) {
     addWeeklyAlert(alerts, alertState, rules, "v5-core-missing", {
       symbol: "BTC/ETH",
       type: "core-fill",
       severity: "low",
-      title: "BTC/ETH 底仓观察",
-      conclusion: "BTC/ETH 不再因目标不足机械占用新增资金。",
-      reason: `当前 BTC ${formatPct(btcWeight)}，ETH ${formatPct(ethWeight)}，现金 ${formatPct(cashPct)}。`,
-      amountText: "BTC 仅在 56k/55k 或重新站稳 62k 后小额补；ETH 只在深跌价位补" ,
+      title: "BTC/ETH 底仓总量偏低",
+      conclusion: "BTC/ETH 总量还没到最低底仓线，但当前不机械占用 AI 新增资金。",
+      reason: `当前 BTC/ETH 合计 ${formatPct(coreDetails.total)}，低于 ${formatPct(coreDetails.totalMin)}；BTC ${formatPct(btcWeight)}，ETH ${formatPct(ethWeight)}，现金 ${formatPct(cashPct)}。`,
+      amountText: "BTC 仅在 56k/55k 或重新站稳 62k 后小额补；ETH 只在深跌价位补",
       action: "AI 主攻仓低于 25% 时，BTC/ETH 只做底仓观察。",
       discipline: "BTC/ETH 是加密底仓，但当前不抢 AI 主攻资金。"
+    });
+  } else if (cashPct >= coreCashPct && coreDetails.skewed) {
+    addWeeklyAlert(alerts, alertState, rules, "v5-core-skew", {
+      symbol: "BTC/ETH",
+      type: "core-skew",
+      severity: "low",
+      title: "BTC/ETH 总量达标但结构偏科",
+      conclusion: "核心增长层不是不足，而是单项结构不均衡。",
+      reason: `当前 BTC/ETH 合计 ${formatPct(coreDetails.total)}，已达到 ${formatPct(coreDetails.totalMin)}-${formatPct(coreDetails.totalMax)} 目标区间；偏低项：${coreDetails.missing.join("、")}。`,
+      amountText: "这只是结构提示，不触发机械买入",
+      action: "新增资金仍优先 AI 主攻仓；BTC/ETH 只有深跌或趋势确认后再补。",
+      discipline: "总量达标优先于单项完美；不要为了修正偏科而错过 AI 主升方向。"
     });
   }
 
@@ -938,18 +951,6 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       action: "只允许复盘或再平衡，不允许继续扩大AI抽水机仓。",
       discipline: "相关性高的 AI 资产不能当成真正分散。"
     });
-  } else if (corePlusStable < 25 && themeWeight >= Number(v5.themeLayer?.maxBeforeCoreComplete ?? 0.05) * 100) {
-    addAlert(alerts, alertState, rules, {
-      id: "v5-theme-before-core-complete",
-      symbol: "AI",
-      type: "theme-gate",
-      severity: "medium",
-      title: "AI主攻仓优先推进",
-      conclusion: "当前阶段允许 AI 主攻仓先推进到 25%-35%。",
-      reason: `核心+稳定层 ${formatPct(corePlusStable)}，AI抽水机仓 ${formatPct(themeWeight)}。`,
-      action: "新增资金优先 MU/DRAM/GLW/SMH 与 SMH；BTC/XAUT 只在深跌或趋势确认后补。",
-      discipline: "AI抽水机仓是收益主攻层，但必须受 35% 停止新增线、40% 硬上限和单标的上限约束。"
-    });
   }
 
   if (v5.mrvlRule?.enabled) {
@@ -962,7 +963,7 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
         title: "MRVL 加入 AI 观察池",
         conclusion: "MRVL 可作为 AI互联/定制芯片观察仓，但不触发优先买入。",
         reason: "MRVL 与 MU/WDC 不完全重复，可补充 AI 数据中心网络与定制芯片观察维度。",
-        action: corePlusStable < 25 ? "核心仓未达标前控制仓位，不做重仓买入邮件。" : "若核心仓基本达标且 AI仓低于 5%，才考虑 0.5%-1% 小额试仓。",
+        action: themeWeight < 25 ? "AI 主攻仓未到 25% 前，MRVL 只做第二梯队观察，不替代 MU/DRAM/GLW/SMH。" : "若 AI 主攻仓仍有空间，可考虑 0.5%-1% 小额试仓。",
         discipline: "MRVL 不是核心仓，单只 AI 股票不能替代 BTC/ETH/VOO/XAUT。"
       });
     } else if (mrvlWeight >= Number(v5.mrvlRule.hardMaxPct || 0.02) * 100) {
@@ -1137,6 +1138,30 @@ function formatPct(value) {
   return `${Number(value || 0).toFixed(1)}%`;
 }
 
+function coreStructureDetails(snapshot, rules) {
+  const v5 = getV4Rules(rules);
+  const btcWeight = position(snapshot, "BTC")?.weightPct || 0;
+  const ethWeight = position(snapshot, "ETH")?.weightPct || 0;
+  const total = btcWeight + ethWeight;
+  const totalMin = Number(v5.coreGrowthLayer?.btcEthTotalTargetMin ?? 0.08) * 100;
+  const totalMax = Number(v5.coreGrowthLayer?.btcEthTotalTargetMax ?? 0.13) * 100;
+  const btcMin = Number(v5.coreGrowthLayer?.btcFirstTargetMin ?? 0.05) * 100;
+  const ethMin = Number(v5.coreGrowthLayer?.ethFirstTargetMin ?? 0.03) * 100;
+  const missing = [];
+  if (btcWeight < btcMin) missing.push("BTC");
+  if (ethWeight < ethMin) missing.push("ETH");
+  return {
+    btcWeight,
+    ethWeight,
+    total,
+    totalMin,
+    totalMax,
+    missing,
+    totalEnough: total >= totalMin,
+    skewed: total >= totalMin && total <= totalMax && missing.length > 0
+  };
+}
+
 function safeMax(...values) {
   const nums = values.map(Number).filter(Number.isFinite);
   return nums.length ? Math.max(...nums) : 0;
@@ -1199,7 +1224,8 @@ function alertTypeLabel(type) {
   return {
     "data-risk": "数据异常",
     structure: "结构提醒",
-    "core-fill": "核心仓不足",
+    "core-fill": "核心底仓观察",
+    "core-skew": "核心偏科",
     "stable-build": "稳定层底仓",
     "spec-risk": "投机仓风控",
     "theme-gate": "AI抽水机仓限制",
@@ -1302,7 +1328,7 @@ function buildEmailContent(alerts, snapshot) {
     "3. 现金低于 35% 时，任何新增买入提醒都不执行；现金低于 40% 时暂停普通加仓。",
     "4. 当天已经执行过主动交易时，不再新增第二笔主动买入。",
     "5. AI抽水机仓只买 MU/DRAM/GLW/SMH 等主攻层，MRVL/ANET/AVGO 不替代核心配置。",
-    "6. 5.3.1 低频执行原则：平时少动；上涨不追；急跌敢买；单笔有效；仓位达标就停。",
+    "6. 5.3.3 低频执行原则：平时少动；上涨不追；急跌敢买；单笔有效；仓位达标就停。",
     "7. 如果只是因为情绪上头，默认不买，等下一次监控刷新。"
   ];
 
