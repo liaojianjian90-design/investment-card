@@ -1,26 +1,26 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-06-30T21:20:18+08:00",
+  "updatedAt": "2026-06-30T21:25:15+08:00",
   "signals": {
     "2026-06-30|ai_dip_opportunity|A|GLW": {
       "active": true,
       "currentDedupeKey": "2026-06-30|ai_dip_opportunity|A|GLW|episode=20260630T205515+0800",
       "episodeStartedAt": "2026-06-30T20:55:15+08:00",
-      "lastSatisfiedAt": "2026-06-30T21:20:18+08:00",
+      "lastSatisfiedAt": "2026-06-30T21:25:15+08:00",
       "lastClearedAt": null,
-      "lastCheckedAt": "2026-06-30T21:20:18+08:00",
+      "lastCheckedAt": "2026-06-30T21:25:15+08:00",
       "episodeSeq": 3,
       "dataStatus": "satisfied",
       "lastMetrics": {
-        "cashPct": 69.01867809070961,
-        "aiPrimaryPct": 12.348574533230057,
-        "totalAssetValue": 15922.261131511359,
+        "cashPct": 69.02646333900104,
+        "aiPrimaryPct": 12.367067657843906,
+        "totalAssetValue": 15920.465316540205,
         "symbolMoves": [
           {
             "symbol": "GLW",
-            "price": 249.97,
+            "price": 248.88,
             "changePct": 0,
-            "intradayDropPct": -5.923751458356849,
+            "intradayDropPct": -6.333973128598842,
             "dayLowDropPct": -7.25226750969101,
             "priceQuality": "realtime"
           }
