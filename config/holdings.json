@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 8506.60,
+      "quantity": 8004.42427826,
       "cost": 1,
       "type": "cash"
     },
@@ -71,8 +71,8 @@
     },
     {
       "symbol": "SNDK",
-      "quantity": 0.16168057,
-      "cost": 1969.15,
+      "quantity": 0.39720275,
+      "cost": 2075.05,
       "type": "watch"
     },
     {
