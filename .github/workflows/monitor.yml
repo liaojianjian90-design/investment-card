@@ -1,4 +1,4 @@
-name: Investment Health Card 5.1 Monitor
+name: Investment Health Card 5.2 Monitor
 
 on:
   push:
@@ -15,7 +15,7 @@ on:
         type: boolean
         default: false
   schedule:
-    # 5.1 仍保持 5 分钟检查一次，用于捕捉 BTC 急跌和数据异常。
+    # 5.2 仍保持 5 分钟检查一次，用于捕捉 BTC 急跌和数据异常。
     # 邮件本身由 repeatAlertHours、weekly structure id 和 oneTradePerDay 控制，不会每次都发送。
     - cron: "*/5 * * * *"
 
@@ -50,7 +50,7 @@ jobs:
       - name: Run local self-check
         run: npm test
 
-      - name: Run 5.1 monitor
+      - name: Run 5.2 monitor
         timeout-minutes: 3
         run: npm run monitor
         env:
