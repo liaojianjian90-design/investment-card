@@ -1,24 +1,8 @@
 {
-  "updatedAt": "2026-06-30T01:13:26.953Z",
+  "updatedAt": "2026-06-30T01:15:15.556Z",
   "email": {
-    "sent": true,
+    "sent": false,
     "missing": []
   },
-  "alerts": [
-    {
-      "id": "trend-wdc-620",
-      "symbol": "WDC",
-      "type": "trend-watch",
-      "severity": "low",
-      "title": "WDC 上涨追随观察",
-      "conclusion": "进入上涨追随区，但仍需人工确认。",
-      "amountText": "WDC 80 USDT",
-      "reason": "WDC 现价 648，高于 620。",
-      "reset": "WDC 回落到 590 以下后重置。",
-      "invalid": "单日暴拉、现金低于 45%、组合上限超标或当天已有主动交易时不执行。",
-      "action": "WDC 突破确认后小额跟随。",
-      "discipline": "上涨追随是确认买，不是看见突破就追高。",
-      "createdAt": "2026-06-30T01:13:27.150Z"
-    }
-  ]
+  "alerts": []
 }

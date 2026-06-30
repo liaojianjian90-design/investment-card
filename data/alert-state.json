@@ -1,5 +1,5 @@
 {
-  "highWatermark": 15948.96419476168,
+  "highWatermark": 15950.749323750331,
   "weeklyReference": {
     "week": "2026-27",
     "btcPrice": 59394.02
@@ -14,6 +14,11 @@
       "triggeredAt": "2026-06-30T01:13:27.127Z",
       "triggerPrice": 648,
       "resetBelow": 590
+    },
+    "trend-glw-230": {
+      "triggeredAt": "2026-06-30T01:15:15.733Z",
+      "triggerPrice": 253.22,
+      "resetBelow": 215
     }
   },
   "lastAlerts": {
