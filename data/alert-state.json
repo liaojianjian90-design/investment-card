@@ -1,54 +1,14 @@
 {
-  "highWatermark": 15866.537490888,
+  "highWatermark": 15976.375646021768,
   "weeklyReference": {
     "week": "2026-27",
     "btcPrice": 59000
   },
   "triggeredLevels": {
-    "watch-asx-38": {
-      "triggeredAt": "2026-06-30T07:16:58.233Z",
-      "triggerPrice": 38,
-      "resetAbove": 40
-    },
     "watch-dram-72": {
       "triggeredAt": "2026-06-30T07:17:05.496Z",
       "triggerPrice": 70,
       "resetAbove": 76
-    },
-    "watch-aaoi-125": {
-      "triggeredAt": "2026-06-30T07:17:05.496Z",
-      "triggerPrice": 120,
-      "resetAbove": 135
-    },
-    "watch-anet-150": {
-      "triggeredAt": "2026-06-30T07:17:05.500Z",
-      "triggerPrice": 150,
-      "resetAbove": 160
-    },
-    "watch-mrvl-250": {
-      "triggeredAt": "2026-06-30T07:17:05.500Z",
-      "triggerPrice": 250,
-      "resetAbove": 265
-    },
-    "watch-avgo-350": {
-      "triggeredAt": "2026-06-30T07:17:05.500Z",
-      "triggerPrice": 350,
-      "resetAbove": 367
-    },
-    "watch-tsm-410": {
-      "triggeredAt": "2026-06-30T07:17:05.502Z",
-      "triggerPrice": 260,
-      "resetAbove": 430
-    },
-    "watch-fn-500": {
-      "triggeredAt": "2026-06-30T07:17:05.502Z",
-      "triggerPrice": 500,
-      "resetAbove": 525
-    },
-    "watch-asml-1700": {
-      "triggeredAt": "2026-06-30T07:17:05.502Z",
-      "triggerPrice": 1050,
-      "resetAbove": 1800
     },
     "watch-sndk-2000": {
       "triggeredAt": "2026-06-30T07:17:05.503Z",
@@ -60,7 +20,8 @@
     "v5-core-missing-2026-27": "2026-06-30T07:16:58.218Z",
     "trend-ai-priority-2026-27": "2026-06-30T07:16:58.218Z",
     "daily-exec-summary-2026-06-30": "2026-06-30T07:16:58.232Z",
-    "watch-asx-38": "2026-06-30T07:16:58.233Z"
+    "watch-asx-38": "2026-06-30T07:16:58.233Z",
+    "ai-dip-review-2026-06-30": "2026-06-30T10:03:21.370Z"
   },
   "lastActiveTradeDate": "2026-06-30"
 }
