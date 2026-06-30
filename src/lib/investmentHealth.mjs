@@ -37,11 +37,15 @@ export const DEFAULT_V4_RULES = {
     symbols: ["AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"]
   },
   speculativeLayer: {
-    targetMax: 0.02,
-    noNewBuyAbove: 0.025,
-    reduceOnlyAbove: 0.03,
-    hardWarningAbove: 0.04,
-    symbols: ["DOGE", "BGB"]
+    targetMax: 0.04,
+    noNewBuyAbove: 0.045,
+    reduceOnlyAbove: 0.05,
+    hardWarningAbove: 0.06,
+    symbols: ["DOGE", "BGB"],
+    dogeTargetMax: 0.035,
+    dogeHardMax: 0.055,
+    bgbTargetMax: 0.01,
+    bgbHardMax: 0.02
   },
   dataFreshness: {
     maxAgeMinutes: 30,
@@ -287,7 +291,7 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: themeSymbols,
       value: groupValue(snapshot, themeSymbols),
       weightPct: themeWeight,
-      targetText: "目标 20%-30%，硬上限 30%；MU/DRAM/GLW/SMH 要形成有效仓位",
+      targetText: "目标 20%-30%，硬上限 30%；MU/DRAM/GLW/SMH 单笔 500 USDT 起，形成有效仓位",
       status: themeStatus,
       advice: corePlusStableWeight < 25 ? "核心底盘未完成前，AI 主攻仓可推进到 20% 左右，但不能突破 30% 硬上限。" : "AI 抽水机仓是收益主攻层，重点提高 MU/DRAM/GLW/SMH 的有效仓位，但不能超过硬上限。"
     },
@@ -297,9 +301,9 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: specSymbols,
       value: groupValue(snapshot, specSymbols),
       weightPct: specWeight,
-      targetText: "目标 0%-2%，2.5% 禁止新增，3% 只减不补",
+      targetText: "DOGE 可作为 BTC 高弹性卫星；DOGE+BGB 目标 0%-4%，4.5% 禁止新增，5% 只减不补",
       status: specStatus,
-      advice: specWeight >= pct(v4.speculativeLayer.noNewBuyAbove) ? "DOGE/BGB 禁止新增，后续以反弹减仓为主。" : "投机仓保持小仓位，不做摊低成本。"
+      advice: specWeight >= pct(v4.speculativeLayer.noNewBuyAbove) ? "DOGE/BGB 已到高弹性卫星仓上限，后续只等趋势或反弹减仓。" : "DOGE 可适度作为 BTC 放大器，但仍不能摊低成本或替代核心仓。"
     }
   ];
 }
@@ -358,19 +362,19 @@ export function calculateHealthScore(snapshot, rules = {}) {
 
   if (specWeight > pct(v4.speculativeLayer.targetMax)) {
     components.speculativeControl.score -= 3;
-    components.speculativeControl.reasons.push("DOGE + BGB 超过 2%，投机仓轻度偏高。");
+    components.speculativeControl.reasons.push("DOGE + BGB 超过 4%，高弹性卫星仓偏高。");
   }
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) {
     components.speculativeControl.score -= 3;
-    components.speculativeControl.reasons.push("DOGE + BGB 达到 2.5%，禁止新增投机仓。");
+    components.speculativeControl.reasons.push("DOGE + BGB 达到 4.5%，禁止新增投机仓。");
   }
   if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove)) {
     components.speculativeControl.score -= 4;
-    components.speculativeControl.reasons.push("DOGE + BGB 达到 3%，只允许反弹减仓。");
+    components.speculativeControl.reasons.push("DOGE + BGB 达到 5%，只允许趋势止盈或反弹减仓。");
   }
   if (specWeight >= pct(v4.speculativeLayer.hardWarningAbove)) {
     components.speculativeControl.score -= 5;
-    components.speculativeControl.reasons.push("DOGE + BGB 超过 4%，进入高风险警戒。");
+    components.speculativeControl.reasons.push("DOGE + BGB 超过 6%，进入高风险警戒。");
   }
 
   if (themeWeight > pct(v4.themeLayer.targetMax)) {
@@ -439,7 +443,7 @@ function generateTopAdvice(snapshot, rules, layers, freshness) {
   if (cashPct > 70) advice.push("现金过高，优先把 MU/DRAM/GLW/SMH 与 BTC/ETH 做到有效仓位。 ");
   if (btcWeight < 8 || ethWeight < 3) advice.push("BTC/ETH 未达到第一阶段核心仓，现金充足时优先补。 ");
   if (vooWeight === 0 || xautWeight === 0) advice.push("VOO/XAUT 为 0，建议分批建立长期稳定底仓。 ");
-  if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) advice.push("DOGE/BGB 投机仓偏高，禁止新增，以反弹减仓为主。 ");
+  if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) advice.push("DOGE/BGB 高弹性卫星仓达到上限，禁止新增，以趋势止盈或反弹减仓为主。 ");
   if (!advice.length) advice.push("结构基本健康，继续按月复盘和再平衡。 ");
   return [...new Set(advice.map((item) => item.trim()))];
 }
@@ -459,7 +463,7 @@ export function generateSystemJudgement(snapshot, rules = {}) {
   if (cashPct > 70) messages.push("当前账户非常安全，但现金占比过高、有效进攻仓不足。建议用三段法把 MU/DRAM/GLW/SMH 做成主攻仓，同时补 BTC/ETH/VOO/XAUT 底盘。");
   if (btcWeight < 8 || ethWeight < 3) messages.push("核心增长层不足，但 5.2 不再无限推迟 AI 主攻仓；BTC/ETH 补底盘的同时，MU/DRAM/GLW/SMH 也要形成有效仓位。 ");
   if (vooWeight === 0 || xautWeight === 0) messages.push("长期稳定层缺位，建议分批建立 VOO 与 XAUT 底仓。 ");
-  if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) messages.push("投机仓已偏高，不建议继续补 DOGE/BGB，后续应以反弹减仓为主。 ");
+  if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) messages.push("DOGE/BGB 已达到高弹性卫星仓上限，不建议继续补；DOGE 可以作为 BTC 放大器，但不能突破风控。 ");
   if (themeWeight > pct(v4.themeLayer.targetMax)) messages.push("AI抽水机仓超过 30% 后不应继续主动加仓。 ");
   if (!messages.length) messages.push("当前系统结构健康，可以继续按既定买点、现金底线和每月再平衡执行。 ");
   return messages.map((item) => item.trim());
@@ -481,10 +485,10 @@ export function generateAllowedActions(snapshot, rules = {}) {
   const themeWeight = groupWeightPct(snapshot, v4.themeLayer.symbols);
   const corePlusStable = btcWeight + ethWeight + vooWeight + xautWeight;
 
-  if (cashPct >= 75 && (btcWeight < 8 || ethWeight < 3)) actions.push("允许补 BTC/ETH 核心仓，每周合计不超过账户 3%。");
-  if (cashPct >= 75 && vooWeight === 0) actions.push("允许分批建立 VOO 底仓，不必等待完美低点。 ");
-  if (cashPct >= 75 && xautWeight === 0) actions.push("允许分批建立 XAUT 底仓，用作稳定层。 ");
-  if (corePlusStable >= 25 && themeWeight < pct(v4.themeLayer.targetMax)) actions.push("AI抽水机主攻仓应从观察转向有效仓位：MU/DRAM/GLW/SMH 优先，单笔主攻买入建议 300 USDT 起；MRVL/ANET 为第二梯队。 ");
+  if (cashPct >= 65 && (btcWeight < 8 || ethWeight < 4)) actions.push("允许补 BTC/ETH 核心仓，每周合计不超过账户 5%；单笔建议 500 USDT 起，避免 100 USDT 无效小仓。");
+  if (cashPct >= 65 && vooWeight < 4) actions.push("允许分批建立或补足 VOO 稳定层底仓，单笔建议 500 USDT 起。 ");
+  if (cashPct >= 65 && xautWeight < 3) actions.push("允许分批建立或补足 XAUT 黄金稳定层，单笔建议 500 USDT 起。 ");
+  if (corePlusStable >= 25 && themeWeight < pct(v4.themeLayer.targetMax)) actions.push("AI抽水机主攻仓应从观察转向有效仓位：MU/DRAM/GLW/SMH 优先，单笔主攻买入建议 500 USDT 起；MRVL/ANET 为第二梯队。 ");
   actions.push("允许做月度复盘、更新持仓成本和检查价格源。 ");
   return [...new Set(actions.map((item) => item.trim()))];
 }
@@ -507,10 +511,10 @@ export function generateForbiddenActions(snapshot, rules = {}) {
   if (cashPct < pct(v4.cashLayer.pauseNormalBuyBelow)) forbidden.push("不要在现金低于 40% 时普通加仓。 ");
   if (cashPct > 70) forbidden.push("不要因为现金多就一次性打光现金。 ");
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) {
-    forbidden.push("不要补 DOGE。 ");
+    forbidden.push("DOGE 不再是绝对禁止，但只有 BTC 趋势确认、DOGE+BGB 合计低于 4.5% 时才允许小额；不要把 DOGE 当核心仓。 ");
     forbidden.push("不要补 BGB。 ");
   }
-  if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove)) forbidden.push("DOGE/BGB 已进入只减不补区，不要摊低成本。 ");
+  if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove)) forbidden.push("DOGE/BGB 已进入只减不补区，不要摊低成本；DOGE 放大器逻辑只适用于上涨趋势，不适用于下跌补亏。 ");
   if ((btcWeight < 8 || ethWeight < 3 || vooWeight === 0 || xautWeight === 0) && themeWeight >= pct(v4.themeLayer.maxBeforeCoreComplete)) {
     forbidden.push("不要在没有计划的情况下乱加主题股；AI 主攻只买 MU/DRAM/GLW/SMH 等高优先级，不买杂票。 ");
   }
@@ -528,8 +532,8 @@ export function generatePhasePlan(snapshot, rules = {}) {
     {
       name: "第一阶段：现金降到 65%",
       deployAmount: toTargetAmount(0.65),
-      target: "先把有效仓位做起来，不再停留在每个标的 50-100 USDT 的心理仓。",
-      steps: ["MU/DRAM/GLW/SMH 建立有效主攻仓", "BTC/ETH 补到底盘目标", "VOO/XAUT 建立稳定层底仓", "DOGE/BGB 不新增"]
+      target: "先把有效仓位做起来，不再停留在每个标的 50-100 USDT 的心理仓；核心/稳定/主攻买入统一提高到 500 USDT 级别。",
+      steps: ["MU/DRAM/GLW/SMH 建立有效主攻仓，单笔 500 USDT 起", "BTC/ETH 补到底盘目标，核心买入避免 100 USDT 小单", "VOO/XAUT 建立稳定层底仓，每档 500-700 USDT", "DOGE 可作为 BTC 放大器，但 DOGE+BGB 超 4.5% 不新增"]
     },
     {
       name: "第二阶段：现金降到 55%",
@@ -562,8 +566,8 @@ export function generateRebalanceAlerts(snapshot, rules = {}) {
     if (weightPct(snapshot, symbol) > limit) alerts.push(message);
   }
   if (groupWeightPct(snapshot, v4.themeLayer.symbols) > pct(v4.themeLayer.hardMax)) alerts.push("AI抽水机主攻仓超过 30%，停止新增。 ");
-  if (groupWeightPct(snapshot, v4.speculativeLayer.symbols) > pct(v4.speculativeLayer.reduceOnlyAbove)) alerts.push("DOGE + BGB 超过 3%，反弹减仓。 ");
-  if (cashPct > 70) alerts.push("现金超过 70%，资金效率偏低。 ");
+  if (groupWeightPct(snapshot, v4.speculativeLayer.symbols) > pct(v4.speculativeLayer.reduceOnlyAbove)) alerts.push("DOGE + BGB 超过 5%，只允许趋势止盈或反弹减仓。 ");
+  if (cashPct > 70) alerts.push("现金超过 70%，资金效率偏低，建议按有效仓位规则推进。 ");
   if (cashPct < 40) alerts.push("现金低于 40%，防守不足。 ");
   return [...new Set(alerts.map((item) => item.trim()))];
 }

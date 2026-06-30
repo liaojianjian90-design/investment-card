@@ -513,8 +513,8 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       title: "BTC/ETH 核心仓不足",
       conclusion: "优先把 BTC 补到 8% 以上、ETH 补到 3% 以上。",
       reason: `当前 BTC ${formatPct(btcWeight)}，ETH ${formatPct(ethWeight)}，现金 ${formatPct(cashPct)}。`,
-      amountText: "每周合计不超过账户总值 2%",
-      action: "只做慢补，不追涨；现金低于 65% 后暂停结构补仓。",
+      amountText: "每周合计不超过账户总值 5%；核心仓单笔建议 500 USDT 起" ,
+      action: "只做有效慢补，不追涨；现金低于 55% 后暂停结构补仓。",
       discipline: "BTC/ETH 是加密核心仓，但不是无限加仓。"
     });
   }
@@ -527,7 +527,7 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       title: "VOO/XAUT 长期稳定层缺位",
       conclusion: "建议分批建立 VOO 与 XAUT 底仓。",
       reason: `当前 VOO ${formatPct(vooWeight)}，XAUT ${formatPct(xautWeight)}。`,
-      amountText: "VOO 每次 200-300 USDT；XAUT 每次 100-200 USDT",
+      amountText: "VOO/XAUT 每档 500-700 USDT；避免 100 USDT 级别无效底仓",
       action: "底仓建设不必只等极端低价，但必须分批执行。",
       discipline: "VOO/XAUT 是稳定层，不是短线交易仓。"
     });
@@ -539,11 +539,11 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       symbol: specSymbols.join("+"),
       type: "spec-risk",
       severity: specWeight >= reduceOnlySpecPct ? "medium" : "medium",
-      title: "DOGE/BGB 投机仓禁止新增",
+      title: "DOGE/BGB 高弹性卫星仓达到上限",
       conclusion: specWeight >= reduceOnlySpecPct ? "已进入只减不补区。" : "已达到禁止新增区。",
       reason: `${specSymbols.join(" + ")} 当前合计仓位 ${formatPct(specWeight)}。`,
-      action: "不要补 DOGE，不要补 BGB；后续以反弹减仓为主。",
-      discipline: "投机仓不能用摊低成本的方式变成主仓。"
+      action: "DOGE 只在 BTC 趋势确认且仓位未超上限时考虑；BGB 不放大。达到上限后以趋势止盈或反弹减仓为主。",
+      discipline: "DOGE 可以做 BTC 放大器，但不能用下跌摊低成本的方式变成核心仓。"
     });
   }
 
@@ -555,7 +555,7 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       severity: "high",
       title: "AI抽水机仓超过硬上限",
       conclusion: "停止新增 AI/半导体/存储/光通信仓位。",
-      reason: `AI抽水机仓当前合计 ${formatPct(themeWeight)}，超过硬上限 25%。`,
+      reason: `AI抽水机仓当前合计 ${formatPct(themeWeight)}，超过硬上限 30%。`,
       action: "只允许复盘或再平衡，不允许继续扩大AI抽水机仓。",
       discipline: "相关性高的 AI 资产不能当成真正分散。"
     });
@@ -566,10 +566,10 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       type: "theme-gate",
       severity: "medium",
       title: "核心仓未完成，AI抽水机仓暂停扩大",
-      conclusion: "BTC/ETH/VOO/XAUT 未达最低结构前，AI抽水机仓最高建议 12%。",
+      conclusion: "BTC/ETH/VOO/XAUT 未达最低结构前，AI抽水机仓仍可推进，但必须只买高优先级有效仓位。",
       reason: `核心+稳定层 ${formatPct(corePlusStable)}，AI抽水机仓 ${formatPct(themeWeight)}。`,
-      action: "优先补核心仓和稳定层；AI 标的只观察，不抢先扩大。",
-      discipline: "AI抽水机仓用于收益增强，不是账户底盘。"
+      action: "核心/稳定层和 AI 主攻仓同步推进；AI 只买 MU/DRAM/GLW/SMH 等高优先级，不买杂票。",
+      discipline: "AI抽水机仓是收益主攻层，但必须受 30% 总上限和单标的上限约束。"
     });
   }
 
