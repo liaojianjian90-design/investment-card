@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 7500.866,
+      "quantity": 6989.35,
       "cost": 1,
       "type": "cash"
     },
@@ -101,8 +101,8 @@
     },
     {
       "symbol": "GLW",
-      "quantity": 0.88859736,
-      "cost": 243.1,
+      "quantity": 2.74265644,
+      "cost": 261.12,
       "type": "watch"
     },
     {
