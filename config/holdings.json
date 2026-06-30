@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 8004.42427826,
+      "quantity": 7500.866,
       "cost": 1,
       "type": "cash"
     },
@@ -131,8 +131,8 @@
     },
     {
       "symbol": "SMH",
-      "quantity": 0,
-      "cost": 0,
+      "quantity": 0.77387993,
+      "cost": 650.85,
       "type": "watch"
     },
     {
