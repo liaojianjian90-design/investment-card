@@ -1,31 +1,31 @@
 {
-  "updatedAt": "2026-06-30T02:01:03.202Z",
+  "updatedAt": "2026-06-30T02:06:28.728Z",
   "source": "github-actions",
-  "totalValue": 15844.839543810996,
-  "cashValue": 11489.496823180001,
-  "cashPct": 72.51254764310822,
-  "dataAgeMinutes": 1,
+  "totalValue": 15982.513317942856,
+  "cashValue": 11004.215723180001,
+  "cashPct": 68.85159739442268,
+  "dataAgeMinutes": 0,
   "isStale": false,
   "isDataBlocked": false,
   "weights": {
-    "USDT": 63.02228540963958,
-    "USDGO": 9.490262233468641,
-    "BTC": 8.015498336151214,
-    "ETH": 2.491320810845244,
-    "DOGE": 2.401539141578946,
-    "BGB": 0.2943713215714996,
-    "VOO": 2.4930219243166345,
-    "XAUT": 0,
+    "USDT": 59.44308451996855,
+    "USDGO": 9.408512874454132,
+    "BTC": 8.066423862542027,
+    "ETH": 2.536642351624722,
+    "DOGE": 2.3014904818915234,
+    "BGB": 0.26283038358052063,
+    "VOO": 2.5113499432300928,
+    "XAUT": 3.125012035011312,
     "AVGO": 0,
     "FN": 0,
-    "MU": 3.649067398261163,
-    "SNDK": 1.9897778745455799,
-    "DRAM": 2.4534500518299294,
-    "WDC": 1.2098849311155053,
+    "MU": 3.630440024277003,
+    "SNDK": 2.0804956470776075,
+    "DRAM": 2.4802673430027378,
+    "WDC": 1.3537800645602667,
     "ASX": 0,
     "AAOI": 0,
-    "GLW": 1.2337860453522804,
-    "MRVL": 1.2557345213238051,
+    "GLW": 1.4245344962334419,
+    "MRVL": 1.3751359725460783,
     "ANET": 0,
     "TSM": 0,
     "ASML": 0,
@@ -39,22 +39,22 @@
       "symbol": "USDT",
       "name": "Tether",
       "type": "cash",
-      "quantity": 9985.78,
+      "quantity": 9500.4989,
       "cost": 1,
       "price": 1,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.201Z",
+      "priceSource": "Fixed 1 USDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.099Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 9985.78,
+      "value": 9500.4989,
       "pnl": 0,
       "pnlPct": 0,
-      "weightPct": 63.02228540963958
+      "weightPct": 59.44308451996855
     },
     {
       "symbol": "USDGO",
@@ -64,18 +64,18 @@
       "cost": 1.0019,
       "price": 1,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.202Z",
+      "priceSource": "Fixed 1 USDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.099Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
       "value": 1503.71682318,
       "pnl": -2.857061964042032,
       "pnlPct": -0.1896396845992635,
-      "weightPct": 9.490262233468641
+      "weightPct": 9.408512874454132
     },
     {
       "symbol": "BTC",
@@ -83,20 +83,20 @@
       "type": "crypto",
       "quantity": 0.02152615,
       "cost": 59652.38,
-      "price": 59000,
+      "price": 59890.75,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.202Z",
+      "priceSource": "Bitget BTCUSDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.099Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 1270.04285,
-      "pnl": -14.043229737000047,
-      "pnlPct": -1.09363616338527,
-      "weightPct": 8.015498336151214
+      "value": 1289.2172681125,
+      "pnl": 5.13118837549996,
+      "pnlPct": 0.3995984736904012,
+      "weightPct": 8.066423862542027
     },
     {
       "symbol": "ETH",
@@ -104,20 +104,20 @@
       "type": "crypto",
       "quantity": 0.2546747,
       "cost": 1570.39,
-      "price": 1550,
+      "price": 1591.91,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.202Z",
+      "priceSource": "Bitget ETHUSDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.159Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 394.74578499999996,
-      "pnl": -5.1928171330000055,
-      "pnlPct": -1.2984035812759902,
-      "weightPct": 2.491320810845244
+      "value": 405.419201677,
+      "pnl": 5.480599544000029,
+      "pnlPct": 1.370360228987711,
+      "weightPct": 2.536642351624722
     },
     {
       "symbol": "DOGE",
@@ -125,20 +125,20 @@
       "type": "crypto",
       "quantity": 5073.6003142,
       "cost": 0.07489,
-      "price": 0.075,
+      "price": 0.0725,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.202Z",
+      "priceSource": "Bitget DOGEUSDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.160Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 380.520023565,
-      "pnl": 0.5580960345619701,
-      "pnlPct": 0.14688209373747377,
-      "weightPct": 2.401539141578946
+      "value": 367.83602277949996,
+      "pnl": -12.125904750938048,
+      "pnlPct": -3.1913473093871136,
+      "weightPct": 2.3014904818915234
     },
     {
       "symbol": "BGB",
@@ -146,20 +146,20 @@
       "type": "crypto",
       "quantity": 25.91259087,
       "cost": 1.978,
-      "price": 1.8,
+      "price": 1.6211,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.202Z",
+      "priceSource": "Bitget BGBUSDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.161Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 46.642663565999996,
-      "pnl": -4.6124411748600025,
-      "pnlPct": -8.998988877654202,
-      "weightPct": 0.2943713215714996
+      "value": 42.006901059357,
+      "pnl": -9.248203681503,
+      "pnlPct": -18.043478260869566,
+      "weightPct": 0.26283038358052063
     },
     {
       "symbol": "VOO",
@@ -167,41 +167,41 @@
       "type": "watch",
       "quantity": 0.58957511,
       "cost": 677.85,
-      "price": 670,
+      "price": 680.79,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.202Z",
+      "priceSource": "Bitget RVOOUSDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.162Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 395.01532369999995,
-      "pnl": -4.628164613500019,
-      "pnlPct": -1.1580733200560644,
-      "weightPct": 2.4930219243166345
+      "value": 401.37683913689995,
+      "pnl": 1.7333508233999737,
+      "pnlPct": 0.43372427528213553,
+      "weightPct": 2.5113499432300928
     },
     {
       "symbol": "XAUT",
       "name": "Tether Gold",
       "type": "watch",
-      "quantity": 0,
-      "cost": 0,
-      "price": 4070.95,
+      "quantity": 0.1258369,
+      "cost": 3974.69,
+      "price": 3969.07,
       "priceOk": true,
       "priceSource": "Bitget XAUTUSDT",
-      "priceUpdatedAt": "2026-06-28T11:05:12.563Z",
-      "priceCachedFallback": true,
+      "priceUpdatedAt": "2026-06-30T02:06:28.163Z",
+      "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 0,
-      "pnl": 0,
-      "pnlPct": 0,
-      "weightPct": 0
+      "value": 499.455464683,
+      "pnl": -0.7072033780000311,
+      "pnlPct": -0.14139467480483375,
+      "weightPct": 3.125012035011312
     },
     {
       "symbol": "AVGO",
@@ -216,7 +216,7 @@
       "priceCachedFallback": true,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
       "value": 0,
@@ -237,7 +237,7 @@
       "priceCachedFallback": true,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
       "value": 0,
@@ -251,20 +251,20 @@
       "type": "watch",
       "quantity": 0.51167157,
       "cost": 1102.51,
-      "price": 1130,
+      "price": 1134,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.202Z",
+      "priceSource": "Bitget RMUUSDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.164Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 578.1888740999999,
-      "pnl": 14.065851459300006,
-      "pnlPct": 2.4934014203952812,
-      "weightPct": 3.649067398261163
+      "value": 580.2355603799999,
+      "pnl": 16.112537739300024,
+      "pnlPct": 2.8562099209984537,
+      "weightPct": 3.630440024277003
     },
     {
       "symbol": "SNDK",
@@ -272,20 +272,20 @@
       "type": "watch",
       "quantity": 0.16168057,
       "cost": 1969.15,
-      "price": 1950,
+      "price": 2056.62,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.202Z",
+      "priceSource": "Bitget RSNDKUSDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.165Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 315.2771115,
-      "pnl": -3.0961829155000373,
-      "pnlPct": -0.9725008252291714,
-      "weightPct": 1.9897778745455799
+      "value": 332.5154938734,
+      "pnl": 14.142199457899949,
+      "pnlPct": 4.442018129649832,
+      "weightPct": 2.0804956470776075
     },
     {
       "symbol": "DRAM",
@@ -293,20 +293,20 @@
       "type": "watch",
       "quantity": 5.5535032,
       "cost": 69.52,
-      "price": 70,
+      "price": 71.38,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.202Z",
+      "priceSource": "Bitget RDRAMUSDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.166Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 388.745224,
-      "pnl": 2.6656815360000223,
-      "pnlPct": 0.6904487917146203,
-      "weightPct": 2.4534500518299294
+      "value": 396.40905841599994,
+      "pnl": 10.329515951999952,
+      "pnlPct": 2.675489067894119,
+      "weightPct": 2.4802673430027378
     },
     {
       "symbol": "WDC",
@@ -314,20 +314,20 @@
       "type": "watch",
       "quantity": 0.3305247,
       "cost": 604.3,
-      "price": 580,
+      "price": 654.62,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.202Z",
+      "priceSource": "Bitget RWDCUSDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.167Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 191.704326,
-      "pnl": -8.031750209999984,
-      "pnlPct": -4.0211815323514735,
-      "weightPct": 1.2098849311155053
+      "value": 216.368079114,
+      "pnl": 16.632002904000018,
+      "pnlPct": 8.326989905675998,
+      "weightPct": 1.3537800645602667
     },
     {
       "symbol": "ASX",
@@ -342,7 +342,7 @@
       "priceCachedFallback": true,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
       "value": 0,
@@ -363,7 +363,7 @@
       "priceCachedFallback": true,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
       "value": 0,
@@ -377,20 +377,20 @@
       "type": "watch",
       "quantity": 0.88859736,
       "cost": 243.1,
-      "price": 220,
+      "price": 256.22,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.202Z",
+      "priceSource": "Bitget RGLWUSDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.168Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 195.4914192,
-      "pnl": -20.526599016000006,
-      "pnlPct": -9.502262443438916,
-      "weightPct": 1.2337860453522804
+      "value": 227.6764155792,
+      "pnl": 11.65839736320001,
+      "pnlPct": 5.396955985191284,
+      "weightPct": 1.4245344962334419
     },
     {
       "symbol": "MRVL",
@@ -398,20 +398,20 @@
       "type": "watch",
       "quantity": 0.79587648,
       "cost": 251.95,
-      "price": 250,
+      "price": 276.15,
       "priceOk": true,
-      "priceSource": "Mock price",
-      "priceUpdatedAt": "2026-06-30T02:01:03.202Z",
+      "priceSource": "Bitget RMRVLUSDT",
+      "priceUpdatedAt": "2026-06-30T02:06:28.168Z",
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
-      "value": 198.96912,
-      "pnl": -1.5519591359999936,
-      "pnlPct": -0.7739630879142655,
-      "weightPct": 1.2557345213238051
+      "value": 219.78128995199998,
+      "pnl": 19.260210815999983,
+      "pnlPct": 9.60508037308989,
+      "weightPct": 1.3751359725460783
     },
     {
       "symbol": "ANET",
@@ -426,7 +426,7 @@
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
       "value": 0,
@@ -447,7 +447,7 @@
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
       "value": 0,
@@ -468,7 +468,7 @@
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
       "value": 0,
@@ -489,7 +489,7 @@
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
       "value": 0,
@@ -510,7 +510,7 @@
       "priceCachedFallback": false,
       "priceWarning": null,
       "priceError": null,
-      "dataAgeMinutes": 1,
+      "dataAgeMinutes": 0,
       "isStale": false,
       "isDataBlocked": false,
       "value": 0,
@@ -529,32 +529,29 @@
     "file": "config/holdings.json",
     "note": "页面和邮件均以 holdings.json 为唯一仓位来源。"
   },
-  "btcFiveMinuteChangePct": 0,
-  "highWatermark": 15923.477929634584,
-  "drawdownPct": 0.4938518216377638,
-  "btcWeeklyGainPct": -0.6634001200794235,
+  "btcFiveMinuteChangePct": 0.029662791185143814,
+  "highWatermark": 15982.513317942856,
+  "drawdownPct": 0,
+  "btcWeeklyGainPct": 0.8363299874297163,
   "buyPauseUntil": null,
   "buyPaused": false,
   "healthSummary": {
     "score": {
-      "total": 85,
-      "grade": "偏保守",
+      "total": 95,
+      "grade": "优秀",
       "components": [
         {
           "label": "现金安全",
           "max": 20,
-          "score": 16,
-          "reasons": [
-            "现金超过 70%，账户安全但有效仓位不足，可能浪费行情。"
-          ]
+          "score": 20,
+          "reasons": []
         },
         {
           "label": "核心仓完整度",
           "max": 25,
-          "score": 14,
+          "score": 20,
           "reasons": [
-            "ETH 低于第一阶段 3% 目标。",
-            "XAUT 为 0，黄金稳定层缺位。"
+            "ETH 低于第一阶段 3% 目标。"
           ]
         },
         {
@@ -583,14 +580,10 @@
         }
       ],
       "reasons": [
-        "现金安全：现金超过 70%，账户安全但有效仓位不足，可能浪费行情。",
-        "核心仓完整度：ETH 低于第一阶段 3% 目标。",
-        "核心仓完整度：XAUT 为 0，黄金稳定层缺位。"
+        "核心仓完整度：ETH 低于第一阶段 3% 目标。"
       ],
       "topAdvice": [
-        "现金过高，优先把 MU/DRAM/GLW/SMH 与 BTC/ETH 做到有效仓位。",
-        "BTC/ETH 未达到第一阶段核心仓，现金充足时优先补。",
-        "VOO/XAUT 为 0，建议分批建立长期稳定底仓。"
+        "BTC/ETH 未达到第一阶段核心仓，现金充足时优先补。"
       ],
       "layers": [
         {
@@ -600,14 +593,14 @@
             "USDT",
             "USDGO"
           ],
-          "value": 11489.496823180001,
-          "weightPct": 72.51254764310822,
+          "value": 11004.215723180001,
+          "weightPct": 68.85159739442268,
           "targetText": "成熟目标 40%-45%，阶段目标 65% / 55%",
           "status": {
-            "label": "偏保守",
-            "level": "info"
+            "label": "健康",
+            "level": ""
           },
-          "advice": "账户安全但有效进攻仓偏小，可分批把 MU/DRAM/GLW/SMH 做成有效仓位，同时补核心底盘。"
+          "advice": "现金处于可执行区间，继续按规则分批。"
         },
         {
           "id": "core",
@@ -616,8 +609,8 @@
             "BTC",
             "ETH"
           ],
-          "value": 1664.7886349999999,
-          "weightPct": 10.506819146996458,
+          "value": 1694.6364697895,
+          "weightPct": 10.603066214166748,
           "targetText": "BTC 8%-10%，ETH 4%-6%，合计 12%-16%",
           "status": {
             "label": "核心不足",
@@ -632,14 +625,14 @@
             "VOO",
             "XAUT"
           ],
-          "value": 395.01532369999995,
-          "weightPct": 2.4930219243166345,
+          "value": 900.8323038199,
+          "weightPct": 5.636361978241405,
           "targetText": "VOO 6%-8%，XAUT 3%-5%；作为底盘，不抢 AI 主攻仓资金",
           "status": {
             "label": "不足",
-            "level": "warn"
+            "level": "info"
           },
-          "advice": "VOO/XAUT 长期稳定资产缺位，建议分批建立底仓。"
+          "advice": "稳定层已建立，后续按月再平衡。"
         },
         {
           "id": "theme",
@@ -661,8 +654,8 @@
             "AAOI",
             "ASX"
           ],
-          "value": 1868.3760748,
-          "weightPct": 11.791700822428263,
+          "value": 1972.9858973145997,
+          "weightPct": 12.344653547697135,
           "targetText": "目标 20%-30%，硬上限 30%；MU/DRAM/GLW/SMH 单笔 500 USDT 起，形成有效仓位",
           "status": {
             "label": "健康",
@@ -677,8 +670,8 @@
             "DOGE",
             "BGB"
           ],
-          "value": 427.162687131,
-          "weightPct": 2.6959104631504456,
+          "value": 409.84292383885696,
+          "weightPct": 2.564320865472044,
           "targetText": "DOGE 可作为 BTC 高弹性卫星；DOGE+BGB 目标 0%-4%，4.5% 禁止新增，5% 只减不补",
           "status": {
             "label": "健康",
@@ -696,14 +689,14 @@
           "USDT",
           "USDGO"
         ],
-        "value": 11489.496823180001,
-        "weightPct": 72.51254764310822,
+        "value": 11004.215723180001,
+        "weightPct": 68.85159739442268,
         "targetText": "成熟目标 40%-45%，阶段目标 65% / 55%",
         "status": {
-          "label": "偏保守",
-          "level": "info"
+          "label": "健康",
+          "level": ""
         },
-        "advice": "账户安全但有效进攻仓偏小，可分批把 MU/DRAM/GLW/SMH 做成有效仓位，同时补核心底盘。"
+        "advice": "现金处于可执行区间，继续按规则分批。"
       },
       {
         "id": "core",
@@ -712,8 +705,8 @@
           "BTC",
           "ETH"
         ],
-        "value": 1664.7886349999999,
-        "weightPct": 10.506819146996458,
+        "value": 1694.6364697895,
+        "weightPct": 10.603066214166748,
         "targetText": "BTC 8%-10%，ETH 4%-6%，合计 12%-16%",
         "status": {
           "label": "核心不足",
@@ -728,14 +721,14 @@
           "VOO",
           "XAUT"
         ],
-        "value": 395.01532369999995,
-        "weightPct": 2.4930219243166345,
+        "value": 900.8323038199,
+        "weightPct": 5.636361978241405,
         "targetText": "VOO 6%-8%，XAUT 3%-5%；作为底盘，不抢 AI 主攻仓资金",
         "status": {
           "label": "不足",
-          "level": "warn"
+          "level": "info"
         },
-        "advice": "VOO/XAUT 长期稳定资产缺位，建议分批建立底仓。"
+        "advice": "稳定层已建立，后续按月再平衡。"
       },
       {
         "id": "theme",
@@ -757,8 +750,8 @@
           "AAOI",
           "ASX"
         ],
-        "value": 1868.3760748,
-        "weightPct": 11.791700822428263,
+        "value": 1972.9858973145997,
+        "weightPct": 12.344653547697135,
         "targetText": "目标 20%-30%，硬上限 30%；MU/DRAM/GLW/SMH 单笔 500 USDT 起，形成有效仓位",
         "status": {
           "label": "健康",
@@ -773,8 +766,8 @@
           "DOGE",
           "BGB"
         ],
-        "value": 427.162687131,
-        "weightPct": 2.6959104631504456,
+        "value": 409.84292383885696,
+        "weightPct": 2.564320865472044,
         "targetText": "DOGE 可作为 BTC 高弹性卫星；DOGE+BGB 目标 0%-4%，4.5% 禁止新增，5% 只减不补",
         "status": {
           "label": "健康",
@@ -784,24 +777,20 @@
       }
     ],
     "judgement": [
-      "当前账户非常安全，但现金占比过高、有效进攻仓不足。建议用三段法把 MU/DRAM/GLW/SMH 做成主攻仓，同时补 BTC/ETH/VOO/XAUT 底盘。",
-      "核心增长层不足，但 5.2 不再无限推迟 AI 主攻仓；BTC/ETH 补底盘的同时，MU/DRAM/GLW/SMH 也要形成有效仓位。",
-      "长期稳定层缺位，建议分批建立 VOO 与 XAUT 底仓。"
+      "核心增长层不足，但 5.2 不再无限推迟 AI 主攻仓；BTC/ETH 补底盘的同时，MU/DRAM/GLW/SMH 也要形成有效仓位。"
     ],
     "allowedActions": [
       "允许补 BTC/ETH 核心仓，每周合计不超过账户 5%；单笔建议 500 USDT 起，避免 100 USDT 无效小仓。",
       "允许分批建立或补足 VOO 稳定层底仓，单笔建议 500 USDT 起。",
-      "允许分批建立或补足 XAUT 黄金稳定层，单笔建议 500 USDT 起。",
       "允许做月度复盘、更新持仓成本和检查价格源。"
     ],
     "forbiddenActions": [
-      "不要因为现金多就一次性打光现金。",
       "不要因为刚买就跌而立刻补同一个标的。"
     ],
     "phasePlan": [
       {
         "name": "第一阶段：现金降到 65%",
-        "deployAmount": 1190.3511197028513,
+        "deployAmount": 615.5820665171447,
         "target": "先把有效仓位做起来，不再停留在每个标的 50-100 USDT 的心理仓；核心/稳定/主攻买入统一提高到 500 USDT 级别。",
         "steps": [
           "MU/DRAM/GLW/SMH 建立有效主攻仓，单笔 500 USDT 起",
@@ -812,7 +801,7 @@
       },
       {
         "name": "第二阶段：现金降到 55%",
-        "deployAmount": 2774.8350740839505,
+        "deployAmount": 2213.83339831143,
         "target": "继续提高主攻仓占比，但只加高优先级 AI 抽水机标的。",
         "steps": [
           "AI 抽水机仓推进到 20% 左右",
@@ -823,7 +812,7 @@
       },
       {
         "name": "第三阶段：现金稳定 40%-45%",
-        "deployAmount": 4359.319028465051,
+        "deployAmount": 3812.084730105716,
         "target": "形成稳健进攻结构：现金仍有防守，但主攻仓能真正影响账户收益。",
         "steps": [
           "现金保留 40%-45%",
@@ -835,7 +824,7 @@
       }
     ],
     "freshness": {
-      "ageMinutes": 1,
+      "ageMinutes": 0,
       "isStale": false,
       "isBlocked": false,
       "missingPrices": [],
@@ -849,8 +838,6 @@
         "冷却机制：未配置交易记录；页面只显示规则，不伪造最近交易。"
       ]
     },
-    "rebalanceAlerts": [
-      "现金超过 70%，资金效率偏低，建议按有效仓位规则推进。"
-    ]
+    "rebalanceAlerts": []
   }
 }

@@ -1,5 +1,5 @@
 {
-  "highWatermark": 15923.477929634584,
+  "highWatermark": 15982.513317942856,
   "weeklyReference": {
     "week": "2026-27",
     "btcPrice": 59394.02
@@ -10,10 +10,20 @@
       "triggerPrice": 71.99,
       "resetAbove": 76
     },
-    "watch-mrvl-250": {
-      "triggeredAt": "2026-06-30T02:01:03.205Z",
-      "triggerPrice": 250,
-      "resetAbove": 265
+    "watch-xaut-4000": {
+      "triggeredAt": "2026-06-30T02:06:28.932Z",
+      "triggerPrice": 3969.07,
+      "resetAbove": 4100
+    },
+    "trend-wdc-620": {
+      "triggeredAt": "2026-06-30T02:06:28.949Z",
+      "triggerPrice": 654.62,
+      "resetBelow": 590
+    },
+    "trend-glw-230": {
+      "triggeredAt": "2026-06-30T02:06:28.950Z",
+      "triggerPrice": 256.22,
+      "resetBelow": 215
     }
   },
   "lastAlerts": {
