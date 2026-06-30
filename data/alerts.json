@@ -1,8 +1,30 @@
 {
-  "updatedAt": "2026-06-30T06:25:16.980Z",
+  "updatedAt": "2026-06-30T02:01:03.202Z",
   "email": {
     "sent": false,
-    "missing": []
+    "missing": [
+      "SMTP_HOST",
+      "SMTP_PORT",
+      "SMTP_USER",
+      "SMTP_PASS",
+      "ALERT_EMAIL_TO"
+    ]
   },
-  "alerts": []
+  "alerts": [
+    {
+      "id": "watch-mrvl-250",
+      "symbol": "MRVL",
+      "type": "watch-buy",
+      "severity": "medium",
+      "title": "MRVL 观察池下跌买点",
+      "conclusion": "触发观察池预设买点。",
+      "amountText": "MRVL 350 USDT",
+      "reason": "MRVL 现价 250，低于 250。",
+      "reset": "MRVL 重新站上 265 后才允许同档再次触发。",
+      "invalid": "现金低于 40%、组合上限超标、BTC 急跌或当天已有主动交易时不执行。",
+      "action": "MRVL 第二梯队 AI 互联买点；单笔 350 USDT 起。",
+      "discipline": "AI 观察池只在规则买点触发时提醒，不因单日大涨追入。",
+      "createdAt": "2026-06-30T02:01:03.232Z"
+    }
+  ]
 }

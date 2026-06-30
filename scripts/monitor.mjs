@@ -135,6 +135,9 @@ function quotesFromSnapshot(snapshot) {
         price,
         source: normalizePriceSourceLabel(row.priceSource || "GitHub快照"),
         updatedAt: row.priceUpdatedAt || snapshot.updatedAt || new Date().toISOString(),
+        dayHigh: Number.isFinite(Number(row.dayHigh)) ? Number(row.dayHigh) : null,
+        dayLow: Number.isFinite(Number(row.dayLow)) ? Number(row.dayLow) : null,
+        previousClose: Number.isFinite(Number(row.previousClose)) ? Number(row.previousClose) : null,
         fromSnapshot: true
       };
     }
@@ -169,9 +172,19 @@ async function fetchJson(url) {
 
 async function bitgetPairQuote(pair) {
   const data = await fetchJson(`https://api.bitget.com/api/v2/spot/market/tickers?symbol=${pair}`);
-  const price = Number(data.data?.[0]?.lastPr);
+  const ticker = data.data?.[0] || {};
+  const price = Number(ticker.lastPr);
   if (!Number.isFinite(price) || price <= 0) throw new Error(`invalid Bitget price for ${pair}`);
-  return { price, source: `Bitget ${pair}` };
+  const dayHigh = Number(ticker.high24h ?? ticker.highUtc24h ?? ticker.high);
+  const dayLow = Number(ticker.low24h ?? ticker.lowUtc24h ?? ticker.low);
+  const previousClose = Number(ticker.openUtc ?? ticker.open24h ?? ticker.open);
+  return {
+    price,
+    source: `Bitget ${pair}`,
+    dayHigh: Number.isFinite(dayHigh) ? dayHigh : null,
+    dayLow: Number.isFinite(dayLow) ? dayLow : null,
+    previousClose: Number.isFinite(previousClose) && previousClose > 0 ? previousClose : null
+  };
 }
 
 async function bitgetQuote(symbol) {
@@ -191,14 +204,26 @@ async function bitgetQuote(symbol) {
 async function yahooQuote(symbol) {
   const ticker = yahooSymbols[symbol];
   if (!ticker) throw new Error(`no Yahoo symbol for ${symbol}`);
-  const data = await fetchJson(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?range=1d&interval=1d`);
+  const data = await fetchJson(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?range=1d&interval=5m`);
   const result = data.chart?.result?.[0];
   const meta = result?.meta || {};
   const quote = result?.indicators?.quote?.[0] || {};
-  const close = Array.isArray(quote.close) ? quote.close.filter((item) => Number.isFinite(Number(item))).at(-1) : null;
+  const closeValues = Array.isArray(quote.close) ? quote.close.map(Number).filter(Number.isFinite) : [];
+  const highValues = Array.isArray(quote.high) ? quote.high.map(Number).filter(Number.isFinite) : [];
+  const lowValues = Array.isArray(quote.low) ? quote.low.map(Number).filter(Number.isFinite) : [];
+  const close = closeValues.at(-1);
   const price = Number(meta.regularMarketPrice ?? meta.postMarketPrice ?? meta.preMarketPrice ?? close ?? meta.previousClose ?? meta.chartPreviousClose);
   if (!Number.isFinite(price) || price <= 0) throw new Error(`invalid Yahoo price for ${ticker}`);
-  return { price, source: `Yahoo Finance ${ticker}` };
+  const dayHigh = highValues.length ? Math.max(...highValues) : Number(meta.regularMarketDayHigh);
+  const dayLow = lowValues.length ? Math.min(...lowValues) : Number(meta.regularMarketDayLow);
+  const previousClose = Number(meta.previousClose ?? meta.chartPreviousClose);
+  return {
+    price,
+    source: `Yahoo Finance ${ticker}`,
+    dayHigh: Number.isFinite(dayHigh) ? dayHigh : null,
+    dayLow: Number.isFinite(dayLow) ? dayLow : null,
+    previousClose: Number.isFinite(previousClose) && previousClose > 0 ? previousClose : null
+  };
 }
 
 function parseCsvLine(line) {
@@ -238,7 +263,16 @@ async function stooqQuote(symbol) {
     const row = Object.fromEntries(headers.map((header, index) => [header, values[index]]));
     const price = Number(row.Close);
     if (!Number.isFinite(price) || price <= 0) throw new Error(`invalid Stooq price for ${ticker}`);
-    return { price, source: `Stooq ${ticker.toUpperCase()}` };
+    const dayHigh = Number(row.High);
+    const dayLow = Number(row.Low);
+    const previousClose = Number(row.Open);
+    return {
+      price,
+      source: `Stooq ${ticker.toUpperCase()}`,
+      dayHigh: Number.isFinite(dayHigh) ? dayHigh : null,
+      dayLow: Number.isFinite(dayLow) ? dayLow : null,
+      previousClose: Number.isFinite(previousClose) && previousClose > 0 ? previousClose : null
+    };
   } catch (error) {
     if (error.name === "AbortError") throw new Error(`timeout after ${timeoutMs}ms: Stooq ${ticker}`);
     throw error;
@@ -267,7 +301,17 @@ async function quote(symbol) {
   const now = new Date().toISOString();
   if (failSymbols.has(symbol)) throw new Error(`forced test failure for ${symbol}`);
   if (mockPrices && Number.isFinite(Number(mockPrices[symbol]))) {
-    return { price: Number(mockPrices[symbol]), source: "Mock price", updatedAt: now };
+    const dayHigh = mockNumber(`${symbol}_DAY_HIGH`, `${symbol}_HIGH`);
+    const dayLow = mockNumber(`${symbol}_DAY_LOW`, `${symbol}_LOW`);
+    const previousClose = mockNumber(`${symbol}_PREV_CLOSE`, `${symbol}_PREVIOUS_CLOSE`, `${symbol}_OPEN`);
+    return {
+      price: Number(mockPrices[symbol]),
+      source: "Mock price",
+      updatedAt: now,
+      dayHigh: Number.isFinite(dayHigh) ? dayHigh : null,
+      dayLow: Number.isFinite(dayLow) ? dayLow : null,
+      previousClose: Number.isFinite(previousClose) ? previousClose : null
+    };
   }
   if (symbol === "USDT" || symbol === "USDGO") return { price: 1, source: "Fixed 1 USDT", updatedAt: now };
 
@@ -292,7 +336,7 @@ async function loadPrices(assets, fallbackQuotes = {}, activeSymbols = new Set()
   const entries = await Promise.all(assets.map(async (asset) => {
     const symbol = asset.symbol;
     const quantity = Number(asset.quantity || 0);
-    if (quantity <= 0 && symbol !== "USDT" && symbol !== "USDGO") {
+    if (quantity <= 0 && symbol !== "USDT" && symbol !== "USDGO" && !activeSymbols.has(symbol)) {
       if (fallbackQuotes[symbol]) {
         return [symbol, {
           ...fallbackQuotes[symbol],
@@ -343,6 +387,8 @@ function mockNumber(...keys) {
 
 function activePriceSymbols(rules) {
   const symbols = new Set(["BTC", "ETH", "DOGE", "BGB", "XAUT"]);
+  const aiDip = rules.aiIntradayDropOpportunityRules || rules.v5Rules?.aiIntradayDropOpportunityRules || {};
+  for (const symbol of [...(aiDip.primarySymbols || []), ...(aiDip.secondarySymbols || []), ...(aiDip.supplementalSymbols || [])]) symbols.add(symbol);
   for (const rule of rules.watchBuyRules || []) if (rule.symbol) symbols.add(rule.symbol);
   for (const rule of rules.trendWatchRules || []) if (rule.symbol) symbols.add(rule.symbol);
   for (const rule of rules.trendFollowRules || []) if (rule.symbol) symbols.add(rule.symbol);
@@ -399,6 +445,13 @@ function buildSnapshot(holdings, quotes, priceErrors, rules, priceWarnings = {})
       priceSource: quoteData?.source || null,
       priceUpdatedAt: quoteData?.updatedAt || null,
       priceCachedFallback: Boolean(quoteData?.cachedFallback),
+      dayHigh: Number.isFinite(Number(quoteData?.dayHigh)) ? Number(quoteData.dayHigh) : null,
+      dayLow: Number.isFinite(Number(quoteData?.dayLow)) ? Number(quoteData.dayLow) : null,
+      previousClose: Number.isFinite(Number(quoteData?.previousClose)) ? Number(quoteData.previousClose) : null,
+      intradayDropPctFromHigh: Number.isFinite(Number(quoteData?.dayHigh)) && Number(quoteData.dayHigh) > 0 && priceOk ? (Number(quoteData.dayHigh) - Number(quoteData.price)) / Number(quoteData.dayHigh) * 100 : 0,
+      dropPctFromPreviousClose: Number.isFinite(Number(quoteData?.previousClose)) && Number(quoteData.previousClose) > 0 && priceOk ? (Number(quoteData.previousClose) - Number(quoteData.price)) / Number(quoteData.previousClose) * 100 : 0,
+      dayLowDropPctFromHigh: Number.isFinite(Number(quoteData?.dayHigh)) && Number(quoteData.dayHigh) > 0 && Number.isFinite(Number(quoteData?.dayLow)) ? (Number(quoteData.dayHigh) - Number(quoteData.dayLow)) / Number(quoteData.dayHigh) * 100 : 0,
+      reboundPctFromDayLow: Number.isFinite(Number(quoteData?.dayLow)) && Number(quoteData.dayLow) > 0 && priceOk ? (Number(quoteData.price) - Number(quoteData.dayLow)) / Number(quoteData.dayLow) * 100 : 0,
       priceWarning: priceWarnings[asset.symbol] || quoteData?.livePriceError || null,
       priceError: priceErrors[asset.symbol] || null,
       dataAgeMinutes,
@@ -710,6 +763,28 @@ function formatPct(value) {
   return `${Number(value || 0).toFixed(1)}%`;
 }
 
+function safeMax(...values) {
+  const nums = values.map(Number).filter(Number.isFinite);
+  return nums.length ? Math.max(...nums) : 0;
+}
+
+function aiDipDropPct(row) {
+  if (!row || !row.priceOk || row.priceCachedFallback || row.isDataBlocked) return 0;
+  return safeMax(row.intradayDropPctFromHigh, row.dropPctFromPreviousClose);
+}
+
+function aiDayLowDropPct(row) {
+  if (!row || !row.priceOk || row.priceCachedFallback || row.isDataBlocked) return 0;
+  return safeMax(row.dayLowDropPctFromHigh, row.intradayDropPctFromHigh, row.dropPctFromPreviousClose);
+}
+
+function formatSymbolDrop(row) {
+  const current = aiDipDropPct(row);
+  const low = aiDayLowDropPct(row);
+  const lowText = low > current + 0.5 ? `，日内最大跌幅 ${formatPct(low)}` : "";
+  return `${row.symbol} 当前跌幅 ${formatPct(current)}${lowText}`;
+}
+
 function formatPrice(value) {
   if (value === null || value === undefined || value === "") return "-";
   if (!Number.isFinite(Number(value))) return "-";
@@ -762,6 +837,8 @@ function alertTypeLabel(type) {
     "dip-buy": "下跌加仓",
     "rapid-drop-observe": "5分钟急跌观察",
     "rapid-drop-buy": "5分钟急跌试探",
+    "ai-dip-opportunity": "AI急跌机会",
+    "ai-dip-review": "错过机会复盘",
     "risk-pause": "暂停买入",
     "trend-pause": "禁止追涨",
     "trend-follow": "BTC上涨追随",
@@ -856,6 +933,113 @@ function buildEmailContent(alerts, snapshot) {
     subject,
     text: [...header, "", ...blocks, "", ...footer].join("\n")
   };
+}
+
+function aiDipDailyMaxPct(rules, snapshot) {
+  const cfg = rules.aiIntradayDropOpportunityRules || rules.v5Rules?.aiIntradayDropOpportunityRules || {};
+  if (snapshot.cashPct >= Number(cfg.superCashPct || 70)) return Number(cfg.maxDailyBuyPctWhenCash70 || 12);
+  if (snapshot.cashPct >= Number(cfg.strongCashPct || 55)) return Number(cfg.maxDailyBuyPctWhenCash55 || 8);
+  return Number(cfg.maxDailyBuyPctWhenCash45 || 5);
+}
+
+function addAiIntradayOpportunityAlerts(alerts, alertState, rules, snapshot) {
+  const cfg = rules.aiIntradayDropOpportunityRules || rules.v5Rules?.aiIntradayDropOpportunityRules || {};
+  if (cfg.enabled === false) return false;
+  if (!canBuy(snapshot, rules)) return false;
+  if (snapshot.cashPct < Number(cfg.minCashPct || 50)) return false;
+
+  const v5 = rules.v5Rules || {};
+  const themeSymbols = v5.themeLayer?.symbols || cfg.primarySymbols || [];
+  const aiWeight = combinedWeight(snapshot, themeSymbols);
+  if (aiWeight >= Number(cfg.ignoreWhenAiWeightAbovePct || 30)) return false;
+
+  const primarySymbols = cfg.primarySymbols || ["MU", "DRAM", "GLW", "SMH"];
+  const primaryRows = primarySymbols
+    .map((symbol) => position(snapshot, symbol))
+    .filter((row) => row && row.priceOk && !row.priceCachedFallback && !row.isDataBlocked);
+
+  const primaryDropPct = Number(cfg.primaryCurrentDropPct || 5);
+  const prevCloseDropPct = Number(cfg.primaryPrevCloseDropPct || 6);
+  const multiDropPct = Number(cfg.multiSymbolDropPct || 4);
+  const multiCount = Number(cfg.multiSymbolCount || 2);
+  const smhConfirmDropPct = Number(cfg.smhConfirmDropPct || 3);
+
+  const strongRows = primaryRows.filter((row) => aiDipDropPct(row) >= primaryDropPct || Number(row.dropPctFromPreviousClose || 0) >= prevCloseDropPct);
+  const multiRows = primaryRows.filter((row) => aiDipDropPct(row) >= multiDropPct);
+  const smh = position(snapshot, "SMH");
+  const smhConfirms = smh && aiDipDropPct(smh) >= smhConfirmDropPct;
+
+  let level = null;
+  let triggeredRows = [];
+  if (snapshot.cashPct >= Number(cfg.strongCashPct || 55) && aiWeight < Number(cfg.aiSuperTargetUnderPct || 15) && multiRows.length >= 3 && (!smh || smhConfirms)) {
+    level = "S";
+    triggeredRows = multiRows;
+  } else if (aiWeight < Number(cfg.aiTargetUnderPct || 20) && (strongRows.length >= 1 || multiRows.length >= multiCount)) {
+    level = "A";
+    triggeredRows = strongRows.length ? strongRows : multiRows;
+  }
+
+  const dayKey = beijingDateKey(new Date());
+  if (level && triggeredRows.length) {
+    const maxDailyPct = aiDipDailyMaxPct(rules, snapshot);
+    const maxDailyAmount = snapshot.totalValue > 0 ? snapshot.totalValue * maxDailyPct / 100 : 0;
+    const isBasket = triggeredRows.length >= 3;
+    const minAmount = level === "S"
+      ? Number(cfg.basketAmountMin || 1500)
+      : triggeredRows.length >= 2
+        ? Number(cfg.twoSymbolAmountMin || 1000)
+        : Number(cfg.singleSymbolAmountMin || 500);
+    const maxAmount = level === "S"
+      ? Number(cfg.basketAmountMax || 2500)
+      : triggeredRows.length >= 2
+        ? Number(cfg.twoSymbolAmountMax || 1500)
+        : Number(cfg.singleSymbolAmountMax || 700);
+    const cappedMax = Math.min(maxAmount, maxDailyAmount || maxAmount);
+    const symbolText = triggeredRows.map((row) => row.symbol).join("/");
+    const amountText = cappedMax > minAmount
+      ? `AI主攻仓 ${Math.round(minAmount)}-${Math.round(cappedMax)} USDT`
+      : `AI主攻仓 ${Math.round(Math.min(minAmount, cappedMax || minAmount))} USDT`;
+    const title = level === "S" ? "AI主攻仓 S级急跌机会" : "AI主攻仓 A级急跌机会";
+    const action = isBasket
+      ? "优先用篮子方式买入 MU/GLW/SMH/DRAM；若使用 2x DRAM/RAM，单日不超过 500 USDT。"
+      : `优先执行 ${triggeredRows[0].symbol} 有效仓位，不低于 500 USDT；若同时有 SMH 也回调，可改为半导体篮子买入。`;
+    const added = addTradeAlert(alerts, alertState, rules, {
+      id: `ai-dip-${level.toLowerCase()}-${dayKey}`,
+      symbol: symbolText,
+      type: "ai-dip-opportunity",
+      severity: level === "S" ? "high" : "medium",
+      title,
+      conclusion: "现金充足且AI主攻仓未达目标，主攻标的出现盘中急跌，应提示有效仓位买入机会。",
+      amountText,
+      reason: `${triggeredRows.map(formatSymbolDrop).join("；")}；现金 ${formatPct(snapshot.cashPct)}，AI主攻仓 ${formatPct(aiWeight)}。`,
+      action,
+      invalid: "若为财报暴雷、公司基本面恶化、数据过期或当日已执行主动交易，则不执行。",
+      discipline: cfg.discipline || "急跌机会要买有效仓位，但不能突破现金、单股和AI总仓上限。"
+    });
+    return Boolean(added);
+  }
+
+  // 盘中已经跌深又快速拉回时，不发买入邮件，但保留复盘提醒，用于修正系统。
+  const reviewRows = primaryRows.filter((row) => {
+    const lowDrop = aiDayLowDropPct(row);
+    const rebound = Number(row.reboundPctFromDayLow || 0);
+    return lowDrop >= Number(cfg.reviewDayLowDropPct || 5) && rebound >= Number(cfg.reviewReboundFromLowPct || 4);
+  });
+  if (reviewRows.length && aiWeight < Number(cfg.aiTargetUnderPct || 20)) {
+    addAlert(alerts, alertState, rules, {
+      id: `ai-dip-review-${dayKey}`,
+      symbol: reviewRows.map((row) => row.symbol).join("/"),
+      type: "ai-dip-review",
+      severity: "low",
+      title: "AI主攻仓急跌反弹复盘",
+      conclusion: "主攻标的盘中深跌后已反弹；本提醒不建议追买，只用于复盘是否错过有效仓位机会。",
+      reason: `${reviewRows.map(formatSymbolDrop).join("；")}。`,
+      action: "不要追已经拉回的价格；下次同类急跌时，现金高且AI仓不足，应执行1000-1500 USDT级别有效买入。",
+      discipline: "复盘的目标是修正系统，不是事后追涨。"
+    });
+  }
+
+  return false;
 }
 
 function evaluateRules(snapshot, rules, alertState) {
@@ -975,6 +1159,10 @@ function evaluateRules(snapshot, rules, alertState) {
   let buySignalThisRun = false;
 
   if (ordinaryBuyAllowed && corePriceOk) {
+    if (!rapidDropObserve && !buySignalThisRun) {
+      buySignalThisRun ||= addAiIntradayOpportunityAlerts(alerts, alertState, rules, snapshot);
+    }
+
     const now = new Date();
     const dca = rules.fixedDca || {};
     if (!rapidDropObserve && dca.enabled && now.getUTCDay() === Number(dca.weekdayUtc) && snapshot.cashPct >= Number(dca.requireCashPct)) {

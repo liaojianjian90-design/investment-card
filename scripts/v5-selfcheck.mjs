@@ -44,6 +44,9 @@ assert(holdings.positions.some((item) => item.symbol === "GLW"), "holdings.json 
 assert(v.effectivePositionRules?.mainAttackMinBuyUSDT === 500, "主攻仓单笔买入下限必须升级到 500 USDT");
 assert(Math.abs(v.speculativeLayer.noNewBuyAbove - 0.045) < 1e-9, "DOGE+BGB 禁止新增阈值应升级到 4.5%");
 assert(Math.abs(v.speculativeLayer.reduceOnlyAbove - 0.05) < 1e-9, "DOGE+BGB 只减不补阈值应升级到 5%");
+assert(rules.aiIntradayDropOpportunityRules?.enabled === true, "必须启用 AI主攻仓急跌机会捕捉规则");
+assert(rules.aiIntradayDropOpportunityRules?.primarySymbols?.includes("GLW"), "AI急跌机会捕捉必须包含 GLW");
+assert(rules.aiIntradayDropOpportunityRules?.singleSymbolAmountMin >= 500, "AI急跌单标的买入下限必须不低于 500 USDT");
 
 
 const score = calculateHealthScore(snapshot, rules);
@@ -65,6 +68,6 @@ assert(!indexHtml.includes("手动买入 / 卖出入口"), "前端必须移除�
 assert(!indexHtml.includes("云端同步设置"), "前端必须移除云端同步设置");
 assert(!indexHtml.includes("手动更新仓位"), "前端必须移除手动更新仓位模块");
 assert(!indexHtml.includes("manual-trades.json"), "页面不应再提示 manual-trades.json");
-assert(serviceWorkerSource.includes("investment-card-github-pages-v515"), "Service Worker 缓存版本必须升级到 v515");
+assert(serviceWorkerSource.includes("investment-card-github-pages-v516"), "Service Worker 缓存版本必须升级到 v516");
 
-console.log(JSON.stringify({ ok: true, score: score.total, grade: score.grade, themeLayer: v.themeLayer.name, version: "5.2.1", holdingsMode: "holdings-json-only" }, null, 2));
+console.log(JSON.stringify({ ok: true, score: score.total, grade: score.grade, themeLayer: v.themeLayer.name, version: "5.2.2", holdingsMode: "holdings-json-only" }, null, 2));
