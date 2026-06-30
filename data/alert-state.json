@@ -1,5 +1,5 @@
 {
-  "highWatermark": 15975.826279943984,
+  "highWatermark": 15980.34818017129,
   "weeklyReference": {
     "week": "2026-27",
     "btcPrice": 59000
@@ -9,11 +9,6 @@
       "triggeredAt": "2026-06-30T07:17:05.496Z",
       "triggerPrice": 70,
       "resetAbove": 76
-    },
-    "watch-sndk-2000": {
-      "triggeredAt": "2026-06-30T07:17:05.503Z",
-      "triggerPrice": 1950,
-      "resetAbove": 2100
     }
   },
   "lastAlerts": {
