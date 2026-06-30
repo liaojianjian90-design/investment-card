@@ -1,14 +1,21 @@
 {
-  "updatedAt": "2026-06-30T07:17:26.964Z",
+  "updatedAt": "2026-06-30T07:22:08.336Z",
   "email": {
-    "sent": false,
-    "missing": [
-      "SMTP_HOST",
-      "SMTP_PORT",
-      "SMTP_USER",
-      "SMTP_PASS",
-      "ALERT_EMAIL_TO"
-    ]
+    "sent": true,
+    "missing": []
   },
-  "alerts": []
+  "alerts": [
+    {
+      "id": "ai-dip-review-2026-06-30",
+      "symbol": "MU/DRAM/GLW",
+      "type": "ai-dip-review",
+      "severity": "low",
+      "title": "AI主攻仓急跌反弹复盘",
+      "conclusion": "主攻标的盘中深跌后已反弹；本提醒不建议追买，只用于复盘是否错过有效仓位机会。",
+      "reason": "MU 当前跌幅 1.2%，日内最大跌幅 6.1%；DRAM 当前跌幅 1.9%，日内最大跌幅 5.8%；GLW 当前跌幅 2.9%，日内最大跌幅 7.3%。",
+      "action": "不要追已经拉回的价格；下次同类急跌时，现金高且AI仓不足，应执行1000-1500 USDT级别有效买入。",
+      "discipline": "复盘的目标是修正系统，不是事后追涨。",
+      "createdAt": "2026-06-30T07:22:08.491Z"
+    }
+  ]
 }
