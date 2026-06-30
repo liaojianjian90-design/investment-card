@@ -1,34 +1,8 @@
 {
-  "updatedAt": "2026-06-30T10:20:18.067Z",
+  "updatedAt": "2026-06-30T10:25:13.670Z",
   "email": {
-    "sent": true,
+    "sent": false,
     "missing": []
   },
-  "alerts": [
-    {
-      "symbol": "BTC/ETH",
-      "type": "core-skew",
-      "severity": "low",
-      "title": "BTC/ETH 总量达标但结构偏科",
-      "conclusion": "核心增长层不是不足，而是单项结构不均衡。",
-      "reason": "当前 BTC/ETH 合计 10.5%，已达到 8.0%-13.0% 目标区间；偏低项：ETH。",
-      "amountText": "这只是结构提示，不触发机械买入",
-      "action": "新增资金仍优先 AI 主攻仓；BTC/ETH 只有深跌或趋势确认后再补。",
-      "discipline": "总量达标优先于单项完美；不要为了修正偏科而错过 AI 主升方向。",
-      "id": "v5-core-skew-2026-27",
-      "createdAt": "2026-06-30T10:20:18.231Z"
-    },
-    {
-      "id": "ai-dip-review-2026-06-30",
-      "symbol": "MU/GLW",
-      "type": "ai-dip-review",
-      "severity": "low",
-      "title": "AI主攻仓急跌反弹复盘",
-      "conclusion": "主攻标的盘中深跌后已反弹；本提醒不建议追买，只用于复盘是否错过有效仓位机会。",
-      "reason": "MU 当前跌幅 1.9%，日内最大跌幅 6.1%；GLW 当前跌幅 2.7%，日内最大跌幅 7.3%。",
-      "action": "不要追已经拉回的价格；下次同类急跌时，现金高且AI仓不足，应执行1000-1500 USDT级别有效买入。",
-      "discipline": "复盘的目标是修正系统，不是事后追涨。",
-      "createdAt": "2026-06-30T10:20:18.244Z"
-    }
-  ]
+  "alerts": []
 }
