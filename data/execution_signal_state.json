@@ -1,51 +1,27 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-06-30T20:45:18+08:00",
+  "updatedAt": "2026-06-30T20:55:15+08:00",
   "signals": {
     "2026-06-30|ai_dip_opportunity|A|GLW": {
-      "active": false,
-      "currentDedupeKey": "2026-06-30|ai_dip_opportunity|A|GLW|episode=20260630T202514+0800",
-      "episodeStartedAt": "2026-06-30T20:25:14+08:00",
-      "lastSatisfiedAt": "2026-06-30T20:40:17+08:00",
-      "lastClearedAt": "2026-06-30T20:45:18+08:00",
-      "lastCheckedAt": "2026-06-30T20:45:18+08:00",
-      "episodeSeq": 2,
-      "dataStatus": "cleared",
+      "active": true,
+      "currentDedupeKey": "2026-06-30|ai_dip_opportunity|A|GLW|episode=20260630T205515+0800",
+      "episodeStartedAt": "2026-06-30T20:55:15+08:00",
+      "lastSatisfiedAt": "2026-06-30T20:55:15+08:00",
+      "lastClearedAt": null,
+      "lastCheckedAt": "2026-06-30T20:55:15+08:00",
+      "episodeSeq": 3,
+      "dataStatus": "satisfied",
       "lastMetrics": {
-        "cashPct": 68.94562078964785,
-        "aiPrimaryPct": 12.4289750186727,
-        "totalAssetValue": 15939.132941667624,
+        "cashPct": 68.99699954550567,
+        "aiPrimaryPct": 12.401457231908593,
+        "totalAssetValue": 15927.263833947145,
         "symbolMoves": [
           {
-            "symbol": "MU",
-            "price": 1144.02,
-            "changePct": 0,
-            "intradayDropPct": -1.7164948453608262,
-            "dayLowDropPct": -6.094501718213063,
-            "priceQuality": "realtime"
-          },
-          {
-            "symbol": "DRAM",
-            "price": 72.14,
-            "changePct": 0,
-            "intradayDropPct": -2.4212092519951387,
-            "dayLowDropPct": -5.789260110915732,
-            "priceQuality": "realtime"
-          },
-          {
             "symbol": "GLW",
-            "price": 253.13,
+            "price": 251.76,
             "changePct": 0,
-            "intradayDropPct": -4.734484964811255,
+            "intradayDropPct": -5.250084678785138,
             "dayLowDropPct": -7.25226750969101,
-            "priceQuality": "realtime"
-          },
-          {
-            "symbol": "SMH",
-            "price": 634.86,
-            "changePct": 0,
-            "intradayDropPct": -0.7084877774128423,
-            "dayLowDropPct": -2.371009868781177,
             "priceQuality": "realtime"
           }
         ]
