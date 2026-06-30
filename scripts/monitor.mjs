@@ -155,7 +155,7 @@ async function fetchJson(url) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(url, {
-      headers: { "user-agent": "investment-monitor-card/5.0" },
+      headers: { "user-agent": "investment-monitor-card/5.3.1" },
       signal: controller.signal
     });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${url}`);
@@ -252,7 +252,7 @@ async function stooqQuote(symbol) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(`https://stooq.com/q/l/?s=${encodeURIComponent(ticker)}&f=sd2t2ohlcv&h&e=csv`, {
-      headers: { "user-agent": "investment-monitor-card/5.0" },
+      headers: { "user-agent": "investment-monitor-card/5.3.1" },
       signal: controller.signal
     });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
@@ -445,12 +445,12 @@ function buildSnapshot(holdings, quotes, priceErrors, rules, priceWarnings = {})
       priceSource: quoteData?.source || null,
       priceUpdatedAt: quoteData?.updatedAt || null,
       priceCachedFallback: Boolean(quoteData?.cachedFallback),
-      dayHigh: Number.isFinite(Number(quoteData?.dayHigh)) ? Number(quoteData.dayHigh) : null,
-      dayLow: Number.isFinite(Number(quoteData?.dayLow)) ? Number(quoteData.dayLow) : null,
-      previousClose: Number.isFinite(Number(quoteData?.previousClose)) ? Number(quoteData.previousClose) : null,
+      dayHigh: Number.isFinite(Number(quoteData?.dayHigh)) && Number(quoteData.dayHigh) > 0 ? Number(quoteData.dayHigh) : null,
+      dayLow: Number.isFinite(Number(quoteData?.dayLow)) && Number(quoteData.dayLow) > 0 ? Number(quoteData.dayLow) : null,
+      previousClose: Number.isFinite(Number(quoteData?.previousClose)) && Number(quoteData.previousClose) > 0 ? Number(quoteData.previousClose) : null,
       intradayDropPctFromHigh: Number.isFinite(Number(quoteData?.dayHigh)) && Number(quoteData.dayHigh) > 0 && priceOk ? (Number(quoteData.dayHigh) - Number(quoteData.price)) / Number(quoteData.dayHigh) * 100 : 0,
       dropPctFromPreviousClose: Number.isFinite(Number(quoteData?.previousClose)) && Number(quoteData.previousClose) > 0 && priceOk ? (Number(quoteData.previousClose) - Number(quoteData.price)) / Number(quoteData.previousClose) * 100 : 0,
-      dayLowDropPctFromHigh: Number.isFinite(Number(quoteData?.dayHigh)) && Number(quoteData.dayHigh) > 0 && Number.isFinite(Number(quoteData?.dayLow)) ? (Number(quoteData.dayHigh) - Number(quoteData.dayLow)) / Number(quoteData.dayHigh) * 100 : 0,
+      dayLowDropPctFromHigh: Number.isFinite(Number(quoteData?.dayHigh)) && Number(quoteData.dayHigh) > 0 && Number.isFinite(Number(quoteData?.dayLow)) && Number(quoteData.dayLow) > 0 ? (Number(quoteData.dayHigh) - Number(quoteData.dayLow)) / Number(quoteData.dayHigh) * 100 : 0,
       reboundPctFromDayLow: Number.isFinite(Number(quoteData?.dayLow)) && Number(quoteData.dayLow) > 0 && priceOk ? (Number(quoteData.price) - Number(quoteData.dayLow)) / Number(quoteData.dayLow) * 100 : 0,
       priceWarning: priceWarnings[asset.symbol] || quoteData?.livePriceError || null,
       priceError: priceErrors[asset.symbol] || null,
@@ -524,6 +524,45 @@ function addWeeklyAlert(alerts, alertState, rules, baseId, alert) {
   return addAlert(alerts, alertState, rules, { ...alert, id: `${baseId}-${isoWeek(new Date())}` });
 }
 
+function addLowFrequencyExecutionAlerts(alerts, alertState, rules, snapshot) {
+  const policy = rules.lowFrequencyExecutionPolicy || rules.v5Rules?.lowFrequencyExecutionPolicy || {};
+  if (policy.enabled === false) return;
+  const v5 = getV4Rules(rules);
+  const aiSymbols = v5.themeLayer?.symbols || [];
+  const aiWeight = combinedWeight(snapshot, aiSymbols);
+  const coreWeight = combinedWeight(snapshot, ["BTC", "ETH"]);
+  const stableWeight = combinedWeight(snapshot, ["VOO", "XAUT"]);
+  const today = beijingDateKey(new Date());
+  if (policy.dailySummary !== false) {
+    addAlert(alerts, alertState, rules, {
+      id: `daily-exec-summary-${today}`,
+      symbol: "PORTFOLIO",
+      type: "daily-summary",
+      severity: "low",
+      title: "每日低频执行摘要",
+      conclusion: "今天只看是否有A/S级AI急跌、风控、再平衡或预设价位；没有就不操作。",
+      reason: `现金 ${formatPct(snapshot.cashPct)}；AI主攻仓 ${formatPct(aiWeight)}；BTC/ETH ${formatPct(coreWeight)}；VOO/XAUT ${formatPct(stableWeight)}。`,
+      action: snapshot.cashPct > 70
+        ? "现金偏高，但新增资金优先 AI 主攻仓；BTC/XAUT 只做底仓观察。"
+        : "维持低频执行；上涨不追，AI急跌按规则买，BTC/XAUT 不机械补。",
+      discipline: policy.principle || "平时少动；上涨不追；急跌敢买；单笔有效；仓位达标就停。"
+    });
+  }
+  const reviewWeekday = Number(policy.weeklyReviewWeekdayUtc ?? 0);
+  if (policy.weeklyReview !== false && new Date().getUTCDay() === reviewWeekday) {
+    addWeeklyAlert(alerts, alertState, rules, "weekly-exec-review", {
+      symbol: "PORTFOLIO",
+      type: "weekly-review",
+      severity: "low",
+      title: "每周执行复盘",
+      conclusion: "复盘本周是否过度看盘、是否错过A/S级机会、是否出现无效小单。",
+      reason: `当前现金 ${formatPct(snapshot.cashPct)}，AI主攻仓 ${formatPct(aiWeight)}，目标 25%-35%，35% 后停止新增，40% 为硬上限。`,
+      action: "下周只围绕 MU/DRAM/GLW/SMH 与 SMH 的有效价位执行；BTC/XAUT 只在深跌或趋势确认后补。",
+      discipline: "系统目标不是让你更忙，而是只在值得花钱的时候打断你。"
+    });
+  }
+}
+
 function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
   const v5 = getV4Rules(rules);
   const emailPolicy = v5.emailPolicy || {};
@@ -553,8 +592,8 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       title: "现金过高，资金效率偏低",
       conclusion: "账户很安全，但长期资产配置不足。",
       reason: `当前现金比例 ${formatPct(cashPct)}，超过 ${formatPct(cashStructurePct)}。`,
-      action: "不要一次性打光现金；优先用小额、分批方式补 BTC/ETH 最低核心仓，并建立 VOO/XAUT 底仓。",
-      discipline: "现金是防守和二次进攻权，但长期 80%+ 现金会降低资金效率。"
+      action: "不要一次性打光现金；当前新增资金优先 AI 主攻仓，BTC/XAUT 只保留底仓，不机械补。",
+      discipline: "现金是防守和二次进攻权，但长期 70%+ 现金会降低资金效率；主升方向优先。"
     });
   }
 
@@ -563,12 +602,12 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       symbol: "BTC/ETH",
       type: "core-fill",
       severity: "low",
-      title: "BTC/ETH 核心仓不足",
-      conclusion: "优先把 BTC 补到 8% 以上、ETH 补到 3% 以上。",
+      title: "BTC/ETH 底仓观察",
+      conclusion: "BTC/ETH 不再因目标不足机械占用新增资金。",
       reason: `当前 BTC ${formatPct(btcWeight)}，ETH ${formatPct(ethWeight)}，现金 ${formatPct(cashPct)}。`,
-      amountText: "每周合计不超过账户总值 5%；核心仓单笔建议 500 USDT 起" ,
-      action: "只做有效慢补，不追涨；现金低于 55% 后暂停结构补仓。",
-      discipline: "BTC/ETH 是加密核心仓，但不是无限加仓。"
+      amountText: "BTC 仅在 56k/55k 或重新站稳 62k 后小额补；ETH 只在深跌价位补" ,
+      action: "AI 主攻仓低于 25% 时，BTC/ETH 只做底仓观察。",
+      discipline: "BTC/ETH 是加密底仓，但当前不抢 AI 主攻资金。"
     });
   }
 
@@ -577,12 +616,12 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       symbol: "VOO/XAUT",
       type: "stable-build",
       severity: "low",
-      title: "VOO/XAUT 长期稳定层缺位",
-      conclusion: "建议分批建立 VOO 与 XAUT 底仓。",
+      title: "VOO/XAUT 防守底仓观察",
+      conclusion: "稳定层不再抢当前主升方向资金。",
       reason: `当前 VOO ${formatPct(vooWeight)}，XAUT ${formatPct(xautWeight)}。`,
-      amountText: "VOO/XAUT 每档 500-700 USDT；避免 100 USDT 级别无效底仓",
-      action: "底仓建设不必只等极端低价，但必须分批执行。",
-      discipline: "VOO/XAUT 是稳定层，不是短线交易仓。"
+      amountText: "XAUT 3900 上方不补，3850 以下再补；VOO 只在大跌价位补",
+      action: "AI 主攻仓低于 25% 时，VOO/XAUT 只保留底仓。",
+      discipline: "VOO/XAUT 是保险层，不是当前收益主攻。"
     });
   }
 
@@ -608,7 +647,7 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       severity: "high",
       title: "AI抽水机仓超过硬上限",
       conclusion: "停止新增 AI/半导体/存储/光通信仓位。",
-      reason: `AI抽水机仓当前合计 ${formatPct(themeWeight)}，超过硬上限 30%。`,
+      reason: `AI抽水机仓当前合计 ${formatPct(themeWeight)}，超过 35% 停止新增线。`,
       action: "只允许复盘或再平衡，不允许继续扩大AI抽水机仓。",
       discipline: "相关性高的 AI 资产不能当成真正分散。"
     });
@@ -618,11 +657,11 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       symbol: "AI",
       type: "theme-gate",
       severity: "medium",
-      title: "核心仓未完成，AI抽水机仓暂停扩大",
-      conclusion: "BTC/ETH/VOO/XAUT 未达最低结构前，AI抽水机仓仍可推进，但必须只买高优先级有效仓位。",
+      title: "AI主攻仓优先推进",
+      conclusion: "当前阶段允许 AI 主攻仓先推进到 25%-35%。",
       reason: `核心+稳定层 ${formatPct(corePlusStable)}，AI抽水机仓 ${formatPct(themeWeight)}。`,
-      action: "核心/稳定层和 AI 主攻仓同步推进；AI 只买 MU/DRAM/GLW/SMH 等高优先级，不买杂票。",
-      discipline: "AI抽水机仓是收益主攻层，但必须受 30% 总上限和单标的上限约束。"
+      action: "新增资金优先 MU/DRAM/GLW/SMH 与 SMH；BTC/XAUT 只在深跌或趋势确认后补。",
+      discipline: "AI抽水机仓是收益主攻层，但必须受 35% 停止新增线、40% 硬上限和单标的上限约束。"
     });
   }
 
@@ -661,6 +700,54 @@ function position(snapshot, symbol) {
 
 function combinedWeight(snapshot, symbols) {
   return symbols.reduce((sum, symbol) => sum + (position(snapshot, symbol)?.weightPct || 0), 0);
+}
+
+function getTrendPriorityPolicy(rules) {
+  return rules.trendPriorityPolicy || rules.v5Rules?.trendPriorityPolicy || {};
+}
+
+function currentAiWeight(snapshot, rules) {
+  const v5 = getV4Rules(rules);
+  return combinedWeight(snapshot, v5.themeLayer?.symbols || []);
+}
+
+function shouldDeferCoreStableBuy(snapshot, rules, symbol, row) {
+  const policy = getTrendPriorityPolicy(rules);
+  if (!policy.enabled) return false;
+  const aiWeight = currentAiWeight(snapshot, rules);
+  const deferBelow = Number(policy.deferCoreStableWhenAiBelowPct ?? 25);
+  if (aiWeight >= deferBelow) return false;
+  if (symbol === "XAUT") {
+    const deep = Number(policy.xautDeepBuyBelow ?? 3850);
+    return !Number.isFinite(row?.price) || Number(row.price) > deep;
+  }
+  if (symbol === "BTC") {
+    const activeBelow = Number(policy.btcActiveBuyBelow ?? 56000);
+    return !Number.isFinite(row?.price) || Number(row.price) > activeBelow;
+  }
+  return false;
+}
+
+function addTrendPriorityAlerts(alerts, alertState, rules, snapshot) {
+  const policy = getTrendPriorityPolicy(rules);
+  if (!policy.enabled) return;
+  const v5 = getV4Rules(rules);
+  const aiWeight = combinedWeight(snapshot, v5.themeLayer?.symbols || []);
+  const coreWeight = combinedWeight(snapshot, ["BTC", "ETH"]);
+  const stableWeight = combinedWeight(snapshot, ["VOO", "XAUT"]);
+  const minAi = Number(policy.aiPriorityTargetMinPct ?? 25);
+  if (snapshot.cashPct >= 45 && aiWeight < minAi) {
+    addWeeklyAlert(alerts, alertState, rules, "trend-ai-priority", {
+      symbol: "AI",
+      type: "trend-priority",
+      severity: "medium",
+      title: "新增资金优先 AI 主攻仓",
+      conclusion: "BTC/XAUT 当前只做底仓观察，不因目标不足机械补仓。",
+      reason: `现金 ${formatPct(snapshot.cashPct)}；AI主攻仓 ${formatPct(aiWeight)}，低于 ${formatPct(minAi)}；BTC/ETH ${formatPct(coreWeight)}；VOO/XAUT ${formatPct(stableWeight)}。`,
+      action: "新增资金优先等待 MU/DRAM/GLW/SMH 或 SMH 的 A/S 急跌与有效回调；BTC 只看 56k/55k 或 62k 重新确认，XAUT 只看 3850 以下。",
+      discipline: policy.principle || "主升方向优先，防守底仓不抢新增资金。"
+    });
+  }
 }
 
 function updateRiskState(snapshot, rules, alertState) {
@@ -839,6 +926,8 @@ function alertTypeLabel(type) {
     "rapid-drop-buy": "5分钟急跌试探",
     "ai-dip-opportunity": "AI急跌机会",
     "ai-dip-review": "错过机会复盘",
+    "daily-summary": "每日摘要",
+    "weekly-review": "周复盘",
     "risk-pause": "暂停买入",
     "trend-pause": "禁止追涨",
     "trend-follow": "BTC上涨追随",
@@ -925,8 +1014,9 @@ function buildEmailContent(alerts, snapshot) {
     "2. 顺序必须是：数据有效 → 现金安全 → 回撤可控 → 冷却期通过 → 仓位合规 → 价格触发。",
     "3. 现金低于 35% 时，任何新增买入提醒都不执行；现金低于 40% 时暂停普通加仓。",
     "4. 当天已经执行过主动交易时，不再新增第二笔主动买入。",
-    "5. AI抽水机仓只做收益增强，MRVL/ANET/AVGO 不替代 BTC/ETH/VOO/XAUT 核心配置。",
-    "6. 如果只是因为情绪上头，默认不买，等下一次监控刷新。"
+    "5. AI抽水机仓只买 MU/DRAM/GLW/SMH 等主攻层，MRVL/ANET/AVGO 不替代核心配置。",
+    "6. 5.3.1 低频执行原则：平时少动；上涨不追；急跌敢买；单笔有效；仓位达标就停。",
+    "7. 如果只是因为情绪上头，默认不买，等下一次监控刷新。"
   ];
 
   return {
@@ -1052,8 +1142,9 @@ function evaluateRules(snapshot, rules, alertState) {
   const btcFiveMinuteChangePct = Number(snapshot.btcFiveMinuteChangePct);
   const btcFiveMinuteDropPct = Number.isFinite(btcFiveMinuteChangePct) ? Math.max(0, -btcFiveMinuteChangePct) : 0;
   const rapidDropRules = rules.rapidDropRules || {};
-  const rapidDropObserve = btcFiveMinuteDropPct >= Number(rapidDropRules.observeDropPct || Infinity);
-  const rapidDropBuy = btcFiveMinuteDropPct >= Number(rapidDropRules.buyDropPct || Infinity);
+  const rapidEnabled = rapidDropRules.enabled !== false;
+  const rapidDropObserve = rapidEnabled && btcFiveMinuteDropPct >= Number(rapidDropRules.observeDropPct || Infinity);
+  const rapidDropBuy = rapidEnabled && btcFiveMinuteDropPct >= Number(rapidDropRules.buyDropPct || Infinity);
 
   const actionablePriceErrors = Object.keys(snapshot.priceErrors || {}).filter((symbol) => {
     const row = position(snapshot, symbol);
@@ -1153,6 +1244,8 @@ function evaluateRules(snapshot, rules, alertState) {
   }
 
   addV5StructuralAlerts(alerts, alertState, rules, snapshot);
+  addTrendPriorityAlerts(alerts, alertState, rules, snapshot);
+  addLowFrequencyExecutionAlerts(alerts, alertState, rules, snapshot);
 
   const ordinaryBuyAllowed = canBuy(snapshot, rules) && snapshot.cashPct >= Number(rules.ordinaryBuyCashMinPct || 40);
   const corePriceOk = Number.isFinite(btc?.price) && Number.isFinite(eth?.price);
@@ -1229,6 +1322,8 @@ function evaluateRules(snapshot, rules, alertState) {
       const riskFloor = Number(rapidDropRules.riskFloor || 52000);
       const btcRiskMode = btc.price <= riskFloor;
       const candidates = (rules.dipBuyRules || [])
+        .filter((rule) => rule.enabled !== false)
+        .filter((rule) => !shouldDeferCoreStableBuy(snapshot, rules, "BTC", btc))
         .filter((rule) => btc.price <= Number(rule.btcPriceBelow))
         .filter((rule) => snapshot.cashPct >= Number(rule.requireCashPct || 40))
         .filter((rule) => !alreadyTriggered(alertState, rule.id))
@@ -1272,6 +1367,7 @@ function evaluateRules(snapshot, rules, alertState) {
 
     if (!rapidDropObserve && !buySignalThisRun && Number.isFinite(eth?.price) && !eth.priceCachedFallback) {
       const candidates = (rules.ethDipRules || [])
+        .filter((rule) => rule.enabled !== false)
         .filter((rule) => eth.price <= Number(rule.priceBelow))
         .filter((rule) => !alreadyTriggered(alertState, rule.id))
         .sort((a, b) => Number(a.priceBelow) - Number(b.priceBelow));
@@ -1298,11 +1394,12 @@ function evaluateRules(snapshot, rules, alertState) {
 
     if (!rapidDropObserve && !buySignalThisRun) {
       const triggeredSymbols = new Set();
-      const watchRules = [...(rules.watchBuyRules || [])].sort((a, b) => Number(a.priceBelow) - Number(b.priceBelow));
+      const watchRules = [...(rules.watchBuyRules || [])].filter((rule) => rule.enabled !== false).sort((a, b) => Number(a.priceBelow) - Number(b.priceBelow));
       for (const rule of watchRules) {
         if (buySignalThisRun || triggeredSymbols.has(rule.symbol)) continue;
         const row = position(snapshot, rule.symbol);
         if (!row || !row.priceOk || row.priceCachedFallback || row.isDataBlocked || row.price > Number(rule.priceBelow)) continue;
+        if (shouldDeferCoreStableBuy(snapshot, rules, rule.symbol, row)) continue;
         if (snapshot.cashPct < Number(rule.requireCashPct || rules.ordinaryBuyCashMinPct || 40)) continue;
         if (alreadyTriggered(alertState, rule.id)) continue;
         const amount = Number(rule.amount || 0);
@@ -1339,7 +1436,7 @@ function evaluateRules(snapshot, rules, alertState) {
     }
 
     if (!rapidDropObserve && !buySignalThisRun) {
-      for (const rule of rules.trendWatchRules || []) {
+      for (const rule of (rules.trendWatchRules || []).filter((rule) => rule.enabled !== false)) {
         if (buySignalThisRun) continue;
         const row = position(snapshot, rule.symbol);
         if (!row || !row.priceOk || row.priceCachedFallback || row.isDataBlocked || row.price < Number(rule.priceAbove)) continue;
@@ -1371,7 +1468,7 @@ function evaluateRules(snapshot, rules, alertState) {
     }
 
     if (!rapidDropObserve && !buySignalThisRun && Number.isFinite(btc?.price) && !btc.priceCachedFallback) {
-      for (const rule of rules.trendFollowRules || []) {
+      for (const rule of (rules.trendFollowRules || []).filter((rule) => rule.enabled !== false)) {
         if (buySignalThisRun) continue;
         if (btc.price < Number(rule.btcPriceAbove)) continue;
         if (snapshot.btcWeeklyGainPct > Number(rule.maxWeeklyGainPct || 999)) {

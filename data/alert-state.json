@@ -1,47 +1,66 @@
 {
-  "highWatermark": 16019.999191443538,
+  "highWatermark": 15866.537490888,
   "weeklyReference": {
     "week": "2026-27",
-    "btcPrice": 59394.02
+    "btcPrice": 59000
   },
   "triggeredLevels": {
+    "watch-asx-38": {
+      "triggeredAt": "2026-06-30T07:16:58.233Z",
+      "triggerPrice": 38,
+      "resetAbove": 40
+    },
     "watch-dram-72": {
-      "triggeredAt": "2026-06-27T13:05:14.615Z",
-      "triggerPrice": 71.99,
+      "triggeredAt": "2026-06-30T07:17:05.496Z",
+      "triggerPrice": 70,
       "resetAbove": 76
     },
-    "trend-wdc-620": {
-      "triggeredAt": "2026-06-30T06:29:04.643Z",
-      "triggerPrice": 661.99,
-      "resetBelow": 590
+    "watch-aaoi-125": {
+      "triggeredAt": "2026-06-30T07:17:05.496Z",
+      "triggerPrice": 120,
+      "resetAbove": 135
     },
-    "trend-asx-42": {
-      "triggeredAt": "2026-06-30T06:29:04.647Z",
-      "triggerPrice": 42.43,
-      "resetBelow": 40
+    "watch-anet-150": {
+      "triggeredAt": "2026-06-30T07:17:05.500Z",
+      "triggerPrice": 150,
+      "resetAbove": 160
     },
-    "trend-aaoi-145": {
-      "triggeredAt": "2026-06-30T06:29:04.647Z",
-      "triggerPrice": 149.34,
-      "resetBelow": 135
+    "watch-mrvl-250": {
+      "triggeredAt": "2026-06-30T07:17:05.500Z",
+      "triggerPrice": 250,
+      "resetAbove": 265
     },
-    "trend-glw-230": {
-      "triggeredAt": "2026-06-30T06:29:04.647Z",
-      "triggerPrice": 260.3,
-      "resetBelow": 215
+    "watch-avgo-350": {
+      "triggeredAt": "2026-06-30T07:17:05.500Z",
+      "triggerPrice": 350,
+      "resetAbove": 367
+    },
+    "watch-tsm-410": {
+      "triggeredAt": "2026-06-30T07:17:05.502Z",
+      "triggerPrice": 260,
+      "resetAbove": 430
+    },
+    "watch-fn-500": {
+      "triggeredAt": "2026-06-30T07:17:05.502Z",
+      "triggerPrice": 500,
+      "resetAbove": 525
+    },
+    "watch-asml-1700": {
+      "triggeredAt": "2026-06-30T07:17:05.502Z",
+      "triggerPrice": 1050,
+      "resetAbove": 1800
+    },
+    "watch-sndk-2000": {
+      "triggeredAt": "2026-06-30T07:17:05.503Z",
+      "triggerPrice": 1950,
+      "resetAbove": 2100
     }
   },
   "lastAlerts": {
-    "doge-stop-add": "2026-06-30T01:09:33.844Z",
-    "watch-dram-72": "2026-06-27T13:05:14.629Z",
-    "v5-cash-high-structure-2026-27": "2026-06-29T02:05:18.174Z",
-    "v5-core-missing-2026-27": "2026-06-29T02:05:18.174Z",
-    "v5-stable-missing-2026-27": "2026-06-29T02:05:18.174Z",
-    "v5-spec-no-new-buy": "2026-06-29T02:05:18.174Z",
-    "v5-mrvl-observe-2026-27": "2026-06-29T02:05:18.174Z",
-    "fixed-dca-2026-27": "2026-06-29T02:05:18.188Z",
-    "watch-mrvl-250": "2026-06-30T02:01:03.232Z",
-    "ai-dip-review-2026-06-30": "2026-06-30T06:29:04.642Z"
+    "v5-core-missing-2026-27": "2026-06-30T07:16:58.218Z",
+    "trend-ai-priority-2026-27": "2026-06-30T07:16:58.218Z",
+    "daily-exec-summary-2026-06-30": "2026-06-30T07:16:58.232Z",
+    "watch-asx-38": "2026-06-30T07:16:58.233Z"
   },
   "lastActiveTradeDate": "2026-06-30"
 }

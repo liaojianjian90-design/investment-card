@@ -1,51 +1,51 @@
 export const DEFAULT_V4_RULES = {
   cashLayer: {
-    targetMatureMin: 0.40,
+    targetMatureMin: 0.35,
     targetMatureMax: 0.45,
     phase1Target: 0.65,
-    phase2Target: 0.55,
-    pauseNormalBuyBelow: 0.40,
-    stopNewBuyBelow: 0.35,
-    defenseModeBelow: 0.30
+    phase2Target: 0.50,
+    pauseNormalBuyBelow: 0.35,
+    stopNewBuyBelow: 0.30,
+    defenseModeBelow: 0.28
   },
   coreGrowthLayer: {
-    btcFirstTargetMin: 0.08,
-    btcMatureTargetMin: 0.10,
-    btcMatureTargetMax: 0.12,
-    ethFirstTargetMin: 0.04,
-    ethMatureTargetMin: 0.04,
-    ethMatureTargetMax: 0.06,
-    btcEthTotalTargetMin: 0.12,
-    btcEthTotalTargetMax: 0.16,
+    btcFirstTargetMin: 0.05,
+    btcMatureTargetMin: 0.05,
+    btcMatureTargetMax: 0.08,
+    ethFirstTargetMin: 0.03,
+    ethMatureTargetMin: 0.03,
+    ethMatureTargetMax: 0.05,
+    btcEthTotalTargetMin: 0.08,
+    btcEthTotalTargetMax: 0.13,
     weeklyCoreBuyLimitPct: 0.03
   },
   stableLayer: {
-    vooFirstTargetMin: 0.04,
-    vooFirstTargetMax: 0.06,
-    vooMatureTargetMin: 0.06,
-    vooMatureTargetMax: 0.08,
+    vooFirstTargetMin: 0.03,
+    vooFirstTargetMax: 0.05,
+    vooMatureTargetMin: 0.05,
+    vooMatureTargetMax: 0.07,
     xautFirstTargetMin: 0.02,
     xautFirstTargetMax: 0.03,
     xautMatureTargetMin: 0.03,
-    xautMatureTargetMax: 0.05
+    xautMatureTargetMax: 0.04
   },
   themeLayer: {
-    targetMin: 0.20,
-    targetMax: 0.30,
-    hardMax: 0.30,
-    maxBeforeCoreComplete: 0.20,
+    targetMin: 0.25,
+    targetMax: 0.35,
+    hardMax: 0.40,
+    maxBeforeCoreComplete: 0.30,
     symbols: ["AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"]
   },
   speculativeLayer: {
-    targetMax: 0.04,
+    targetMax: 0.045,
     noNewBuyAbove: 0.045,
     reduceOnlyAbove: 0.05,
     hardWarningAbove: 0.06,
     symbols: ["DOGE", "BGB"],
-    dogeTargetMax: 0.035,
+    dogeTargetMax: 0.04,
     dogeHardMax: 0.055,
     bgbTargetMax: 0.01,
-    bgbHardMax: 0.02
+    bgbHardMax: 0.015
   },
   dataFreshness: {
     maxAgeMinutes: 30,
@@ -261,9 +261,9 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: ["USDT", "USDGO"],
       value: cashValue,
       weightPct: cashPct,
-      targetText: "成熟目标 40%-45%，阶段目标 65% / 55%",
+      targetText: "成熟目标 35%-45%，阶段目标 65% / 50%",
       status: cashStatus,
-      advice: cashPct > 70 ? "账户安全但有效进攻仓偏小，可分批把 MU/DRAM/GLW/SMH 做成有效仓位，同时补核心底盘。" : cashPct < 40 ? "现金防守不足，暂停普通加仓。" : "现金处于可执行区间，继续按规则分批。"
+      advice: cashPct > 65 ? "现金安全但资金效率偏低，新增资金优先给 AI 主攻仓。" : cashPct < 35 ? "现金防守不足，暂停普通加仓。" : "现金处于可执行区间，继续按 AI 优先规则分批。"
     },
     {
       id: "core",
@@ -271,9 +271,9 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: ["BTC", "ETH"],
       value: groupValue(snapshot, ["BTC", "ETH"]),
       weightPct: coreWeight,
-      targetText: "BTC 8%-10%，ETH 4%-6%，合计 12%-16%",
+      targetText: "BTC 5%-8%，ETH 3%-5%；当前阶段只做底仓，不抢 AI 主攻资金",
       status: coreStatus,
-      advice: btcWeight < 8 || ethWeight < 3 ? "BTC/ETH 未达到第一阶段核心仓，现金充足时可分批补，但不再把所有资金都停留在小仓观察。" : "核心仓已具备基础，后续只慢慢补到成熟目标。"
+      advice: btcWeight < 5 || ethWeight < 3 ? "BTC/ETH 可以保留底仓，但在 AI 主攻仓未达 25% 前不机械补仓。" : "加密底仓已具备基础，后续只在深跌或趋势确认后补。"
     },
     {
       id: "stable",
@@ -281,9 +281,9 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: ["VOO", "XAUT"],
       value: groupValue(snapshot, ["VOO", "XAUT"]),
       weightPct: stableWeight,
-      targetText: "VOO 6%-8%，XAUT 3%-5%；作为底盘，不抢 AI 主攻仓资金",
+      targetText: "VOO 5%-7%，XAUT 3%-4%；保险底仓，不做当前主攻",
       status: stableStatus,
-      advice: vooWeight === 0 || xautWeight === 0 ? "VOO/XAUT 长期稳定资产缺位，建议分批建立底仓。" : "稳定层已建立，后续按月再平衡。"
+      advice: vooWeight === 0 || xautWeight === 0 ? "稳定层只需底仓；新增资金优先 AI，VOO/XAUT 只在深跌价位补。" : "稳定层已建立，当前不继续抢 AI 主攻资金。"
     },
     {
       id: "theme",
@@ -291,9 +291,9 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: themeSymbols,
       value: groupValue(snapshot, themeSymbols),
       weightPct: themeWeight,
-      targetText: "目标 20%-30%，硬上限 30%；MU/DRAM/GLW/SMH 单笔 500 USDT 起，形成有效仓位",
+      targetText: "目标 25%-35%，35% 停止新增，40% 硬上限；MU/DRAM/GLW/SMH 单笔 500 USDT 起",
       status: themeStatus,
-      advice: corePlusStableWeight < 25 ? "核心底盘未完成前，AI 主攻仓可推进到 20% 左右，但不能突破 30% 硬上限。" : "AI 抽水机仓是收益主攻层，重点提高 MU/DRAM/GLW/SMH 的有效仓位，但不能超过硬上限。"
+      advice: themeWeight < 25 ? "当前阶段 AI 主攻仓优先推进到 25% 以上，BTC/XAUT 不抢新增资金。" : "AI 抽水机仓是收益主攻层，35% 后停止新增，40% 为硬上限。"
     },
     {
       id: "speculative",
@@ -345,11 +345,11 @@ export function calculateHealthScore(snapshot, rules = {}) {
 
   if (btcWeight < pct(v4.coreGrowthLayer.btcFirstTargetMin)) {
     components.coreCompleteness.score -= 5;
-    components.coreCompleteness.reasons.push("BTC 低于第一阶段 8% 目标。");
+    components.coreCompleteness.reasons.push("BTC 低于底仓 5% 目标。");
   }
   if (ethWeight < pct(v4.coreGrowthLayer.ethFirstTargetMin)) {
     components.coreCompleteness.score -= 5;
-    components.coreCompleteness.reasons.push("ETH 低于第一阶段 3% 目标。");
+    components.coreCompleteness.reasons.push("ETH 低于底仓 3% 目标。");
   }
   if (vooWeight <= 0) {
     components.coreCompleteness.score -= 6;
@@ -440,9 +440,10 @@ function generateTopAdvice(snapshot, rules, layers, freshness) {
   const xautWeight = weightPct(snapshot, "XAUT");
   const specWeight = groupWeightPct(snapshot, v4.speculativeLayer.symbols);
   if (freshness.isBlocked) advice.push("先等待数据刷新，不根据过期数据买入。");
-  if (cashPct > 70) advice.push("现金过高，优先把 MU/DRAM/GLW/SMH 与 BTC/ETH 做到有效仓位。 ");
-  if (btcWeight < 8 || ethWeight < 3) advice.push("BTC/ETH 未达到第一阶段核心仓，现金充足时优先补。 ");
-  if (vooWeight === 0 || xautWeight === 0) advice.push("VOO/XAUT 为 0，建议分批建立长期稳定底仓。 ");
+  const themeWeight = groupWeightPct(snapshot, v4.themeLayer.symbols);
+  if (cashPct > 65 && themeWeight < 25) advice.push("现金偏高且 AI 主攻仓不足，新增资金优先 MU/DRAM/GLW/SMH；BTC/XAUT 暂不机械补仓。 ");
+  if (btcWeight < 5 || ethWeight < 3) advice.push("BTC/ETH 只做底仓观察，深跌或趋势确认后再补，不抢 AI 主攻资金。 ");
+  if (vooWeight === 0 || xautWeight === 0) advice.push("VOO/XAUT 稳定层只需底仓，当前优先级低于 AI 主攻仓。 ");
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) advice.push("DOGE/BGB 高弹性卫星仓达到上限，禁止新增，以趋势止盈或反弹减仓为主。 ");
   if (!advice.length) advice.push("结构基本健康，继续按月复盘和再平衡。 ");
   return [...new Set(advice.map((item) => item.trim()))];
@@ -460,11 +461,11 @@ export function generateSystemJudgement(snapshot, rules = {}) {
   const themeWeight = groupWeightPct(snapshot, v4.themeLayer.symbols);
   const messages = [];
   if (freshness.isBlocked) messages.push("当前数据已过期或关键价格缺失，只能做结构分析，不能做买入判断。");
-  if (cashPct > 70) messages.push("当前账户非常安全，但现金占比过高、有效进攻仓不足。建议用三段法把 MU/DRAM/GLW/SMH 做成主攻仓，同时补 BTC/ETH/VOO/XAUT 底盘。");
-  if (btcWeight < 8 || ethWeight < 3) messages.push("核心增长层不足，但 5.2 不再无限推迟 AI 主攻仓；BTC/ETH 补底盘的同时，MU/DRAM/GLW/SMH 也要形成有效仓位。 ");
-  if (vooWeight === 0 || xautWeight === 0) messages.push("长期稳定层缺位，建议分批建立 VOO 与 XAUT 底仓。 ");
+  if (cashPct > 65 && themeWeight < 25) messages.push("当前现金仍偏高，AI 主攻仓未达 25%；新增资金优先给 MU/DRAM/GLW/SMH，BTC/XAUT 只保留底仓。 ");
+  if (btcWeight < 5 || ethWeight < 3) messages.push("BTC/ETH 属于底仓观察，不在弱势阶段机械补；只有深跌或趋势重新确认后才补。 ");
+  if (vooWeight === 0 || xautWeight === 0) messages.push("VOO/XAUT 是保险底仓，当前不应继续抢占 AI 主攻资金。 ");
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) messages.push("DOGE/BGB 已达到高弹性卫星仓上限，不建议继续补；DOGE 可以作为 BTC 放大器，但不能突破风控。 ");
-  if (themeWeight > pct(v4.themeLayer.targetMax)) messages.push("AI抽水机仓超过 30% 后不应继续主动加仓。 ");
+  if (themeWeight > 35) messages.push("AI抽水机仓超过 35% 后停止新增，40% 为硬上限。 ");
   if (!messages.length) messages.push("当前系统结构健康，可以继续按既定买点、现金底线和每月再平衡执行。 ");
   return messages.map((item) => item.trim());
 }
@@ -485,10 +486,10 @@ export function generateAllowedActions(snapshot, rules = {}) {
   const themeWeight = groupWeightPct(snapshot, v4.themeLayer.symbols);
   const corePlusStable = btcWeight + ethWeight + vooWeight + xautWeight;
 
-  if (cashPct >= 65 && (btcWeight < 8 || ethWeight < 4)) actions.push("允许补 BTC/ETH 核心仓，每周合计不超过账户 5%；单笔建议 500 USDT 起，避免 100 USDT 无效小仓。");
-  if (cashPct >= 65 && vooWeight < 4) actions.push("允许分批建立或补足 VOO 稳定层底仓，单笔建议 500 USDT 起。 ");
-  if (cashPct >= 65 && xautWeight < 3) actions.push("允许分批建立或补足 XAUT 黄金稳定层，单笔建议 500 USDT 起。 ");
-  if (corePlusStable >= 25 && themeWeight < pct(v4.themeLayer.targetMax)) actions.push("AI抽水机主攻仓应从观察转向有效仓位：MU/DRAM/GLW/SMH 优先，单笔主攻买入建议 500 USDT 起；MRVL/ANET 为第二梯队。 ");
+  if (themeWeight < 25 && cashPct >= 45) actions.push("新增资金第一优先给 AI 主攻仓：MU/DRAM/GLW/SMH 或 SMH，单笔 500 USDT 起；A/S 急跌执行 1000-2500 USDT。 ");
+  if (cashPct >= 45 && (btcWeight < 5 || ethWeight < 3)) actions.push("BTC/ETH 仅保留底仓观察；BTC 56k/55k 或重新站稳 62k 后才考虑小额补，不抢 AI 主攻资金。 ");
+  if (cashPct >= 45 && xautWeight < 3) actions.push("XAUT 已降级为保险底仓；3900 上方不补，3850 以下才考虑 500 USDT 级别补仓。 ");
+  if (themeWeight >= 25 && themeWeight < 35) actions.push("AI 主攻仓进入健康进攻区，后续只在急跌或深回调时继续加，不追涨。 ");
   actions.push("允许做月度复盘、更新持仓成本和检查价格源。 ");
   return [...new Set(actions.map((item) => item.trim()))];
 }
@@ -508,17 +509,20 @@ export function generateForbiddenActions(snapshot, rules = {}) {
   const corePlusStable = btcWeight + ethWeight + vooWeight + xautWeight;
 
   if (freshness.isBlocked) forbidden.push("不要在数据过期或价格源失败时买入。 ");
-  if (cashPct < pct(v4.cashLayer.pauseNormalBuyBelow)) forbidden.push("不要在现金低于 40% 时普通加仓。 ");
+  if (cashPct < pct(v4.cashLayer.pauseNormalBuyBelow)) forbidden.push("不要在现金低于 35% 时普通加仓。 ");
   if (cashPct > 70) forbidden.push("不要因为现金多就一次性打光现金。 ");
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) {
     forbidden.push("DOGE 不再是绝对禁止，但只有 BTC 趋势确认、DOGE+BGB 合计低于 4.5% 时才允许小额；不要把 DOGE 当核心仓。 ");
     forbidden.push("不要补 BGB。 ");
   }
   if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove)) forbidden.push("DOGE/BGB 已进入只减不补区，不要摊低成本；DOGE 放大器逻辑只适用于上涨趋势，不适用于下跌补亏。 ");
-  if ((btcWeight < 8 || ethWeight < 3 || vooWeight === 0 || xautWeight === 0) && themeWeight >= pct(v4.themeLayer.maxBeforeCoreComplete)) {
+  if (themeWeight < 25 && cashPct >= 45) {
+    forbidden.push("不要把新增资金继续分散到 BTC/XAUT 或杂票；AI 主攻仓未达 25% 前，优先等 MU/DRAM/GLW/SMH 的有效买点。 ");
+  }
+  if ((btcWeight < 5 || ethWeight < 3 || vooWeight === 0 || xautWeight === 0) && themeWeight >= pct(v4.themeLayer.maxBeforeCoreComplete)) {
     forbidden.push("不要在没有计划的情况下乱加主题股；AI 主攻只买 MU/DRAM/GLW/SMH 等高优先级，不买杂票。 ");
   }
-  if (themeWeight >= pct(v4.themeLayer.hardMax)) forbidden.push("不要继续新增 AI抽水机仓，先复盘是否超过 30% 硬上限。 ");
+  if (themeWeight >= 35) forbidden.push("AI抽水机仓超过 35% 后不要继续新增，40% 为硬上限。 ");
   forbidden.push("不要因为刚买就跌而立刻补同一个标的。 ");
   if (cooldown.blockedSymbols.length) forbidden.push(`冷却中标的不要补仓：${cooldown.blockedSymbols.join("、")}。`);
   return [...new Set(forbidden.map((item) => item.trim()))];
@@ -530,22 +534,22 @@ export function generatePhasePlan(snapshot, rules = {}) {
   const toTargetAmount = (targetPct) => Math.max(0, total * (cashPct / 100 - targetPct));
   return [
     {
-      name: "第一阶段：现金降到 65%",
+      name: "第一阶段：现金降到 60%-65%",
       deployAmount: toTargetAmount(0.65),
-      target: "先把有效仓位做起来，不再停留在每个标的 50-100 USDT 的心理仓；核心/稳定/主攻买入统一提高到 500 USDT 级别。",
-      steps: ["MU/DRAM/GLW/SMH 建立有效主攻仓，单笔 500 USDT 起", "BTC/ETH 补到底盘目标，核心买入避免 100 USDT 小单", "VOO/XAUT 建立稳定层底仓，每档 500-700 USDT", "DOGE 可作为 BTC 放大器，但 DOGE+BGB 超 4.5% 不新增"]
+      target: "新增资金优先 AI 主攻仓；BTC/XAUT 弱势阶段只保留底仓，不继续机械补仓。",
+      steps: ["MU/DRAM/GLW/SMH 建立有效主攻仓，单笔 500 USDT 起", "AI A/S 急跌机会执行 1000-2500 USDT", "BTC 只在 56k/55k 或趋势确认后小额补", "XAUT 3850 以下才补，3900 上方不补"]
     },
     {
-      name: "第二阶段：现金降到 55%",
-      deployAmount: toTargetAmount(0.55),
-      target: "继续提高主攻仓占比，但只加高优先级 AI 抽水机标的。",
-      steps: ["AI 抽水机仓推进到 20% 左右", "MU/DRAM/GLW 单项向 4%-7% 目标靠拢", "SMH 做半导体篮子补充", "MRVL/ANET 只在回调或催化剂确认后加"]
+      name: "第二阶段：现金降到 45%-50%",
+      deployAmount: toTargetAmount(0.50),
+      target: "AI 主攻仓推进到 25%-35%，让账户真正吃到主升方向。",
+      steps: ["AI 抽水机仓推进到 25% 以上", "MU/DRAM/GLW/SMH 单项向 4%-8% 目标靠拢", "MRVL/ANET/AVGO 只做第二梯队", "不因 BTC/XAUT 目标不足而挤占 AI 弹药"]
     },
     {
-      name: "第三阶段：现金稳定 40%-45%",
+      name: "第三阶段：现金稳定 35%-45%",
       deployAmount: toTargetAmount(0.45),
-      target: "形成稳健进攻结构：现金仍有防守，但主攻仓能真正影响账户收益。",
-      steps: ["现金保留 40%-45%", "AI 抽水机仓 20%-30%", "单一主攻标的不超过 8%", "投机仓只减不补", "每月复盘再平衡"]
+      target: "形成趋势优先结构：现金有防守，AI 主攻仓能真正影响账户收益。",
+      steps: ["现金保留 35%-45%", "AI 抽水机仓 25%-35%", "AI 35% 后停止新增，40% 硬上限", "BTC/XAUT 只做保险底仓", "每月复盘再平衡"]
     }
   ];
 }
@@ -565,7 +569,7 @@ export function generateRebalanceAlerts(snapshot, rules = {}) {
   for (const [symbol, limit, message] of checks) {
     if (weightPct(snapshot, symbol) > limit) alerts.push(message);
   }
-  if (groupWeightPct(snapshot, v4.themeLayer.symbols) > pct(v4.themeLayer.hardMax)) alerts.push("AI抽水机主攻仓超过 30%，停止新增。 ");
+  if (groupWeightPct(snapshot, v4.themeLayer.symbols) > pct(v4.themeLayer.hardMax)) alerts.push("AI抽水机主攻仓超过 30%，停止新增；35% 为硬上限。 ");
   if (groupWeightPct(snapshot, v4.speculativeLayer.symbols) > pct(v4.speculativeLayer.reduceOnlyAbove)) alerts.push("DOGE + BGB 超过 5%，只允许趋势止盈或反弹减仓。 ");
   if (cashPct > 70) alerts.push("现金超过 70%，资金效率偏低，建议按有效仓位规则推进。 ");
   if (cashPct < 40) alerts.push("现金低于 40%，防守不足。 ");

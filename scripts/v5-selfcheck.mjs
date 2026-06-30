@@ -36,10 +36,10 @@ function recalcCash(target, cashPct) {
 }
 
 assert(v.themeLayer.name === "AI抽水机主攻仓", "主题层名称必须升级为 AI抽水机主攻仓");
-assert(Math.abs(v.themeLayer.targetMax - 0.30) < 1e-9, "AI抽水机仓目标上限应为 30%");
-assert(Math.abs(v.themeLayer.hardMax - 0.30) < 1e-9, "AI抽水机仓硬上限应为 30%");
+assert(Math.abs(v.themeLayer.targetMax - 0.35) < 1e-9, "AI抽水机仓目标上限应为 35%");
+assert(Math.abs(v.themeLayer.hardMax - 0.40) < 1e-9, "AI抽水机仓硬上限应为 40%");
 assert(v.themeLayer.prioritySymbols.includes("GLW"), "GLW 必须进入 AI抽水机核心优先标的");
-assert(v.themeLayer.prioritySymbols.includes("MU") && v.themeLayer.prioritySymbols.includes("DRAM"), "MU/DRAM 必须保留核心优先级");
+assert(v.themeLayer.prioritySymbols.includes("MU") && v.themeLayer.prioritySymbols.includes("DRAM") && v.themeLayer.prioritySymbols.includes("SMH"), "MU/DRAM/SMH 必须保留核心优先级");
 assert(holdings.positions.some((item) => item.symbol === "GLW"), "holdings.json 必须包含 GLW");
 assert(v.effectivePositionRules?.mainAttackMinBuyUSDT === 500, "主攻仓单笔买入下限必须升级到 500 USDT");
 assert(Math.abs(v.speculativeLayer.noNewBuyAbove - 0.045) < 1e-9, "DOGE+BGB 禁止新增阈值应升级到 4.5%");
@@ -61,13 +61,21 @@ setWeight(highTheme, "GLW", 10);
 assert(generateForbiddenActions(highTheme, rules).some((item) => item.includes("AI抽水机") || item.includes("AI/半导体")), "AI抽水机仓超过 30% 时必须禁止新增");
 
 const lowCash = clone(snapshot);
-recalcCash(lowCash, 34);
-assert(generateAllowedActions(lowCash, rules)[0].includes("不允许新增买入"), "现金 <35% 时必须停止新增买入");
+lowCash.isDataBlocked = false;
+lowCash.isStale = false;
+lowCash.dataAgeMinutes = 0;
+for (const row of lowCash.positions || []) { row.isDataBlocked = false; row.isStale = false; }
+recalcCash(lowCash, 29);
+assert(generateAllowedActions(lowCash, rules)[0].includes("不允许新增买入"), "现金 <30% 时必须停止新增买入");
 
 assert(!indexHtml.includes("手动买入 / 卖出入口"), "前端必须移除手动买入/卖出入口");
 assert(!indexHtml.includes("云端同步设置"), "前端必须移除云端同步设置");
 assert(!indexHtml.includes("手动更新仓位"), "前端必须移除手动更新仓位模块");
 assert(!indexHtml.includes("manual-trades.json"), "页面不应再提示 manual-trades.json");
-assert(serviceWorkerSource.includes("investment-card-github-pages-v516"), "Service Worker 缓存版本必须升级到 v516");
+assert(serviceWorkerSource.includes("investment-card-github-pages-v518"), "Service Worker 缓存版本必须升级到 v518");
+assert(rules.trendPriorityPolicy?.enabled === true, "必须启用趋势优先策略");
+assert(rules.trendPriorityPolicy?.aiPriorityTargetMinPct === 25, "AI新增资金优先目标下限应为 25%");
+assert((rules.dipBuyRules || []).find((rule) => rule.id === "dip-btc-58000")?.enabled === false, "BTC 58000 档必须在 5.3.1 中禁用");
+assert((rules.watchBuyRules || []).find((rule) => rule.id === "watch-xaut-3850")?.amount === 500, "XAUT 3850 档应调整为 500 USDT");
 
-console.log(JSON.stringify({ ok: true, score: score.total, grade: score.grade, themeLayer: v.themeLayer.name, version: "5.2.2", holdingsMode: "holdings-json-only" }, null, 2));
+console.log(JSON.stringify({ ok: true, score: score.total, grade: score.grade, themeLayer: v.themeLayer.name, version: "5.3.1", holdingsMode: "holdings-json-only" }, null, 2));

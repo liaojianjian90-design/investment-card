@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
-  <title>投资健康卡 5.2.2</title>
+  <title>投资健康卡 5.3.1</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <style>
     :root {
@@ -404,10 +404,10 @@
 <body>
   <main class="shell">
     <section class="hero">
-      <div class="eyebrow">Investment Health Card 5.2.2</div>
-      <h1>投资健康卡 5.2.2</h1>
+      <div class="eyebrow">Investment Health Card 5.3.1</div>
+      <h1>投资健康卡 5.3.1</h1>
       <p class="subtitle">
-        AI急跌机会捕捉版。以 config/holdings.json 为唯一仓位来源；现金目标 40%-45%，BTC/ETH/VOO/XAUT 做底盘，MU / DRAM / GLW / SMH 做有效主攻仓；当现金充足、AI仓未达标且主攻标的盘中急跌时，邮件应提示 1000-2500 USDT 级别有效买入，避免只补几百美金而浪费行情。
+        趋势优先 + AI新增资金优先执行版。以 config/holdings.json 为唯一仓位来源；现金目标 40%-50%，BTC/ETH/VOO/XAUT 做底盘，MU / DRAM / GLW / SMH 做有效主攻仓。平时少动，上涨不追；只有 A/S 级 AI 急跌、风控、再平衡或预设价位触发时才打断你。
       </p>
     </section>
 
@@ -421,7 +421,7 @@
 
     <section class="card">
       <h2>投资健康评分</h2>
-      <p class="section-note">5.2.2 评分重点加入“有效仓位 + 急跌机会捕捉”：现金过高会被视为浪费行情，AI 主攻仓目标为 20%-30%；盘中急跌只发人工执行提醒，不生成自动交易指令。</p>
+      <p class="section-note">5.3.1 评分重点是“趋势优先 + AI新增资金优先”：BTC/XAUT 只保留底仓，AI 主攻仓目标提升为 25%-35%，35% 后停止新增，40% 为硬上限；盘中急跌只发人工执行提醒，不生成自动交易指令。</p>
       <div id="v4Health"></div>
       <div class="notice" id="v4Judgement"></div>
     </section>
@@ -487,8 +487,8 @@
     </section>
 
     <section class="card">
-      <h2>投资纪律系统 5.2.2</h2>
-      <p class="section-note">优先级：数据有效性 → 现金安全 → 回撤状态 → 投机仓限制 → AI主攻仓急跌机会 → 核心仓缺口 → 稳定层底仓 → 主题仓上限 → 趋势跟随。</p>
+      <h2>投资纪律系统 5.3.1</h2>
+      <p class="section-note">优先级：数据有效性 → 现金安全 → 回撤状态 → 投机仓限制 → AI主攻仓A/S急跌机会 → 核心/稳定层预设价位 → 主题仓上限 → 止盈与再平衡。上涨不追，低价值提醒降频。</p>
 
       <div class="grid rule-grid">
         <div class="rule-box">
@@ -498,7 +498,7 @@
             <li><strong>数据超过 30 分钟：</strong>禁止按信号买入。</li>
             <li><strong>现金低于 35%：</strong>停止所有新增买入。</li>
             <li><strong>现金低于 40%：</strong>暂停普通加仓，只允许观察。</li>
-            <li><strong>一天最多一笔主动交易：</strong>BTC 急跌或核心买点触发后，当天不再触发 AI 抽水机仓买入。</li>
+            <li><strong>一天最多一笔主动交易：</strong>A/S 级AI急跌、核心买点或稳定层买点触发后，当天不再触发第二笔主动买入。</li>
           </ul>
         </div>
 
@@ -537,14 +537,14 @@
           <table>
             <thead><tr><th>BTC 价位</th><th>提醒方案</th><th>重置</th></tr></thead>
             <tbody>
-              <tr><td>≤ 58000</td><td>BTC 450 + ETH 250</td><td>站上 59200</td></tr>
-              <tr><td>≤ 57000</td><td>BTC 650 + ETH 350</td><td>站上 58200</td></tr>
-              <tr><td>≤ 56000</td><td>BTC 850 + ETH 450</td><td>站上 57200</td></tr>
-              <tr><td>≤ 55000</td><td>BTC 1100 + ETH 600</td><td>站上 56500</td></tr>
+              <tr><td>≤ 58000</td><td>BTC 500</td><td>站上 59200</td></tr>
+              <tr><td>≤ 57000</td><td>BTC 700</td><td>站上 58200</td></tr>
+              <tr><td>≤ 56000</td><td>BTC 900</td><td>站上 57200</td></tr>
+              <tr><td>≤ 55000</td><td>BTC 1100</td><td>站上 56500</td></tr>
               <tr><td>≤ 52000</td><td>暂停主动买入</td><td>站上 54000</td></tr>
             </tbody>
           </table>
-          <p class="muted">若 BTC 5 分钟急跌 ≥ 1.5%，普通买点暂停；急跌 ≥ 2.5% 且现金 ≥ 45% 时，只提醒有效小波段，BTC 350 + ETH 200 起。</p>
+          <p class="muted">5.3.1 不再用 BTC 58k/57k 打断你；BTC 56k/55k 才小额底仓补充，XAUT 3900 上方不补，新增资金优先 AI 主攻仓。ETH 独立买点：≤1500 买500，≤1350 买800。</p>
         </div>
 
         <div class="rule-box">
@@ -552,8 +552,8 @@
           <table>
             <thead><tr><th>标的</th><th>下跌买点</th><th>上涨追随</th></tr></thead>
             <tbody>
-              <tr><td>VOO</td><td>≤655 买 500；≤625 买 700</td><td>≥685 趋势确认后 500</td></tr>
-              <tr><td>XAUT</td><td>≤4000 买 500；≤3850 买 700</td><td>≥4200 趋势确认后 500</td></tr>
+              <tr><td>VOO</td><td>≤655 买 500；≤625 买 700</td><td>上涨不追，达到 6%-8% 暂停快速加仓</td></tr>
+              <tr><td>XAUT</td><td>已有第一笔；3920-3900 补 300-400；≤3850 买 700</td><td>3950-3980 区间持有，不因小跌频繁补</td></tr>
             </tbody>
           </table>
         </div>
@@ -596,8 +596,8 @@
           <h3>九、止盈与再平衡</h3>
           <ul class="rule-list">
             <li>DOGE ≥ 0.085 提醒卖 30%；DOGE ≥ 0.095 提醒卖 50%。</li>
-            <li>BTC 超过 25%、ETH 超过 12%、VOO 超过 30%、XAUT 超过 12% 提醒再平衡。</li>
-            <li>AI 抽水机仓单项超过上限时，只提醒减仓或暂停加仓，不提醒追买。</li>
+            <li>BTC 超过 25%、ETH 超过 12%、VOO 超过 25%、XAUT 超过 12% 提醒再平衡。</li>
+            <li>AI 主攻仓超过 30% 停止新增，超过 35% 做再平衡；单项超过 8% 停止新增，超过 10% 卖出 15% 回现金。</li>
             <li>止盈不是看空，是把过热仓位换回现金，保留下次进攻权。</li>
           </ul>
         </div>
@@ -613,14 +613,14 @@
 
   <script type="module">
     import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs";
-    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v516";
+    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v518";
 
     const DEFAULT_HOLDINGS = {
       "baseCurrency": "USDT",
       "cash": [
             {
                   "symbol": "USDT",
-                  "quantity": 9985.78,
+                  "quantity": 9485.61733194,
                   "cost": 1,
                   "type": "cash"
             },
@@ -664,8 +664,8 @@
             },
             {
                   "symbol": "XAUT",
-                  "quantity": 0,
-                  "cost": 0,
+                  "quantity": 0.1258369,
+                  "cost": 3974.69,
                   "type": "watch"
             },
             {
@@ -767,12 +767,12 @@
       dataStaleWarnMinutes: 10,
       dataStaleBlockMinutes: 30,
       targets: {
-        BTC: { minPct: 8, targetMaxPct: 18, stopAddPct: 22, trimPct: 25 },
-        ETH: { minPct: 3, targetMaxPct: 8, stopAddPct: 10, trimPct: 12 },
-        DOGE: { minPct: 0, targetMaxPct: 2, stopAddPct: 2, trimPct: 3 },
+        BTC: { minPct: 8, targetMaxPct: 10, stopAddPct: 18, trimPct: 25 },
+        ETH: { minPct: 4, targetMaxPct: 6, stopAddPct: 10, trimPct: 12 },
+        DOGE: { minPct: 0, targetMaxPct: 4, stopAddPct: 4.5, trimPct: 5.5 },
         BGB: { minPct: 0, targetMaxPct: 1, stopAddPct: 1, trimPct: 2 },
-        VOO: { minPct: 10, targetMaxPct: 20, stopAddPct: 20, trimPct: 30 },
-        XAUT: { minPct: 5, targetMaxPct: 8, stopAddPct: 8, trimPct: 12 },
+        VOO: { minPct: 6, targetMaxPct: 8, stopAddPct: 15, trimPct: 25 },
+        XAUT: { minPct: 4, targetMaxPct: 6, stopAddPct: 10, trimPct: 12 },
         MRVL: { minPct: 0, targetMaxPct: 1.5, stopAddPct: 1.5, trimPct: 2 },
         ANET: { minPct: 0, targetMaxPct: 1.5, stopAddPct: 1.5, trimPct: 2 },
         TSM: { minPct: 0, targetMaxPct: 2, stopAddPct: 2, trimPct: 3 },
@@ -782,8 +782,8 @@
       },
       portfolioCaps: [
         { symbols: ["BTC", "ETH", "DOGE", "BGB"], maxPct: 40 },
-        { symbols: ["DOGE", "BGB"], maxPct: 4 },
-        { symbols: ["AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"], maxPct: 30 }
+        { symbols: ["DOGE", "BGB"], maxPct: 6 },
+        { symbols: ["AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"], maxPct: 35 }
       ]
     };
 
