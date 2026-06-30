@@ -8,13 +8,13 @@
   "targets": {
     "BTC": {
       "minPct": 8,
-      "targetMaxPct": 18,
-      "stopAddPct": 22,
+      "targetMaxPct": 10,
+      "stopAddPct": 18,
       "trimPct": 25
     },
     "ETH": {
-      "minPct": 3,
-      "targetMaxPct": 8,
+      "minPct": 4,
+      "targetMaxPct": 6,
       "stopAddPct": 10,
       "trimPct": 12
     },
@@ -31,22 +31,22 @@
       "trimPct": 2
     },
     "VOO": {
-      "minPct": 10,
-      "targetMaxPct": 20,
+      "minPct": 6,
+      "targetMaxPct": 8,
       "stopAddPct": 20,
       "trimPct": 30
     },
     "XAUT": {
-      "minPct": 5,
-      "targetMaxPct": 8,
+      "minPct": 3,
+      "targetMaxPct": 5,
       "stopAddPct": 8,
       "trimPct": 12
     },
     "AVGO": {
       "minPct": 0,
-      "targetMaxPct": 4,
-      "stopAddPct": 4,
-      "trimPct": 5
+      "targetMaxPct": 3,
+      "stopAddPct": 5,
+      "trimPct": 6
     },
     "FN": {
       "minPct": 0,
@@ -56,27 +56,27 @@
     },
     "MU": {
       "minPct": 0,
-      "targetMaxPct": 5,
+      "targetMaxPct": 7,
       "stopAddPct": 8,
       "trimPct": 10
     },
     "SNDK": {
       "minPct": 0,
-      "targetMaxPct": 2,
-      "stopAddPct": 2,
-      "trimPct": 3
+      "targetMaxPct": 3,
+      "stopAddPct": 4,
+      "trimPct": 5
     },
     "DRAM": {
       "minPct": 0,
-      "targetMaxPct": 5,
+      "targetMaxPct": 7,
       "stopAddPct": 8,
       "trimPct": 10
     },
     "WDC": {
       "minPct": 0,
-      "targetMaxPct": 2,
-      "stopAddPct": 2,
-      "trimPct": 3
+      "targetMaxPct": 3,
+      "stopAddPct": 4,
+      "trimPct": 5
     },
     "ASX": {
       "minPct": 0,
@@ -92,45 +92,45 @@
     },
     "GLW": {
       "minPct": 0,
-      "targetMaxPct": 5,
+      "targetMaxPct": 7,
       "stopAddPct": 8,
       "trimPct": 10
     },
     "MRVL": {
       "minPct": 0,
-      "targetMaxPct": 1.5,
-      "stopAddPct": 1.5,
-      "trimPct": 2
+      "targetMaxPct": 3,
+      "stopAddPct": 5,
+      "trimPct": 6
     },
     "ANET": {
       "minPct": 0,
-      "targetMaxPct": 1.5,
-      "stopAddPct": 1.5,
-      "trimPct": 2
+      "targetMaxPct": 3,
+      "stopAddPct": 5,
+      "trimPct": 6
     },
     "TSM": {
       "minPct": 0,
-      "targetMaxPct": 2,
-      "stopAddPct": 2,
-      "trimPct": 3
+      "targetMaxPct": 3,
+      "stopAddPct": 5,
+      "trimPct": 6
     },
     "ASML": {
       "minPct": 0,
-      "targetMaxPct": 1.5,
-      "stopAddPct": 1.5,
-      "trimPct": 2
+      "targetMaxPct": 3,
+      "stopAddPct": 5,
+      "trimPct": 6
     },
     "SMH": {
       "minPct": 0,
-      "targetMaxPct": 3,
-      "stopAddPct": 3,
-      "trimPct": 5
+      "targetMaxPct": 6,
+      "stopAddPct": 8,
+      "trimPct": 10
     },
     "SOXX": {
       "minPct": 0,
-      "targetMaxPct": 3,
-      "stopAddPct": 3,
-      "trimPct": 5
+      "targetMaxPct": 6,
+      "stopAddPct": 8,
+      "trimPct": 10
     }
   },
   "portfolioCaps": [
@@ -173,19 +173,20 @@
         "GLW",
         "ASX"
       ],
-      "maxPct": 25,
-      "message": "AI抽水机主攻仓最高不超过 25%，超过后停止新增。"
+      "maxPct": 30,
+      "message": "AI抽水机主攻仓最高不超过 30%，超过后停止新增并复盘。"
     },
     {
       "id": "cap-storage-12",
       "symbols": [
         "DRAM",
         "MU",
+        "GLW",
         "SNDK",
         "WDC"
       ],
-      "maxPct": 12,
-      "message": "存储周期篮子超过 12%，不再追加 DRAM/MU/SNDK/WDC。"
+      "maxPct": 22,
+      "message": "AI第一主攻层 MU/DRAM/GLW 与存储补充仓合计超过 22%，暂停继续集中加仓。"
     },
     {
       "id": "cap-optical-high-beta-4",
@@ -224,8 +225,8 @@
         "GLW",
         "ASX"
       ],
-      "maxPct": 25,
-      "message": "AI抽水机主攻仓最高不超过 25%，超过后停止新增。"
+      "maxPct": 30,
+      "message": "AI抽水机主攻仓最高不超过 30%，超过后停止新增并复盘。"
     }
   ],
   "drawdownRules": [
@@ -908,9 +909,9 @@
   "v4Rules": {
     "cashLayer": {
       "targetMatureMin": 0.4,
-      "targetMatureMax": 0.5,
-      "phase1Target": 0.7,
-      "phase2Target": 0.6,
+      "targetMatureMax": 0.45,
+      "phase1Target": 0.65,
+      "phase2Target": 0.55,
       "pauseNormalBuyBelow": 0.4,
       "stopNewBuyBelow": 0.35,
       "defenseModeBelow": 0.3
@@ -919,28 +920,28 @@
       "btcFirstTargetMin": 0.08,
       "btcMatureTargetMin": 0.08,
       "btcMatureTargetMax": 0.1,
-      "ethFirstTargetMin": 0.03,
+      "ethFirstTargetMin": 0.04,
       "ethMatureTargetMin": 0.04,
-      "ethMatureTargetMax": 0.05,
+      "ethMatureTargetMax": 0.06,
       "btcEthTotalTargetMin": 0.12,
-      "btcEthTotalTargetMax": 0.18,
-      "weeklyCoreBuyLimitPct": 0.02
+      "btcEthTotalTargetMax": 0.16,
+      "weeklyCoreBuyLimitPct": 0.03
     },
     "stableLayer": {
-      "vooFirstTargetMin": 0.03,
+      "vooFirstTargetMin": 0.04,
       "vooFirstTargetMax": 0.06,
       "vooMatureTargetMin": 0.06,
-      "vooMatureTargetMax": 0.1,
+      "vooMatureTargetMax": 0.08,
       "xautFirstTargetMin": 0.02,
       "xautFirstTargetMax": 0.03,
       "xautMatureTargetMin": 0.03,
       "xautMatureTargetMax": 0.05
     },
     "themeLayer": {
-      "targetMin": 0.08,
-      "targetMax": 0.2,
-      "hardMax": 0.25,
-      "maxBeforeCoreComplete": 0.12,
+      "targetMin": 0.2,
+      "targetMax": 0.3,
+      "hardMax": 0.3,
+      "maxBeforeCoreComplete": 0.2,
       "symbols": [
         "MU",
         "DRAM",
@@ -959,26 +960,6 @@
         "ASX"
       ],
       "subGroups": {
-        "aiChipNetwork": [
-          "AVGO",
-          "MRVL",
-          "ANET"
-        ],
-        "aiStorage": [
-          "MU",
-          "WDC",
-          "DRAM",
-          "SNDK"
-        ],
-        "semiInfra": [
-          "TSM",
-          "ASML"
-        ],
-        "highBetaOptical": [
-          "FN",
-          "AAOI",
-          "ASX"
-        ],
         "aiPumpCore": [
           "MU",
           "DRAM",
@@ -993,9 +974,18 @@
           "ANET",
           "AVGO"
         ],
+        "semiInfra": [
+          "TSM",
+          "ASML"
+        ],
         "storageSupplement": [
           "WDC",
           "SNDK"
+        ],
+        "highBetaOptical": [
+          "FN",
+          "AAOI",
+          "ASX"
         ]
       },
       "name": "AI抽水机主攻仓",
@@ -1004,8 +994,8 @@
         "DRAM",
         "GLW"
       ],
-      "priorityNote": "MU、DRAM、GLW 同列 AI 抽水机主攻观察：存储/HBM + 光纤/玻璃基板基础设施。",
-      "singleCoreTargetPct": 0.05,
+      "priorityNote": "5.2 将 MU、DRAM、GLW 定义为第一主攻层；目标不是小仓观察，而是逐步形成有效仓位。",
+      "singleCoreTargetPct": 0.07,
       "singleCoreHardMaxPct": 0.08
     },
     "speculativeLayer": {
@@ -1034,17 +1024,45 @@
       "sameSymbolBuyHours": 48,
       "postBuyNoDipBuyHours": 24
     },
-    "versionName": "投资健康卡 5.0：核心配置 + AI观察 + 邮件风控版",
-    "mrvlRule": {
+    "versionName": "投资健康卡 5.2：有效仓位 + AI主攻仓版",
+    "effectivePositionRules": {
       "enabled": true,
-      "role": "AI互联 / 定制芯片 / 数据中心网络观察仓",
-      "firstBuyPct": 0.005,
-      "normalWatchPct": 0.01,
-      "targetMaxPct": 0.015,
-      "hardMaxPct": 0.02,
-      "requireCoreMinimumComplete": true,
-      "mailWhenUnheld": "observe_only",
-      "note": "MRVL 可以加入 AI 观察池，但不是核心仓；核心仓未达标时只显示观察，不触发买入邮件。"
+      "mainAttackMinBuyUSDT": 300,
+      "watchMinBuyUSDT": 150,
+      "mainAttackSymbols": [
+        "MU",
+        "DRAM",
+        "GLW",
+        "SMH"
+      ],
+      "secondarySymbols": [
+        "MRVL",
+        "ANET",
+        "AVGO",
+        "TSM",
+        "ASML",
+        "SOXX"
+      ],
+      "note": "主攻仓单笔过小会浪费行情；除测试单外，主攻仓建议单笔 300 USDT 起，观察仓 150 USDT 起。"
+    },
+    "aiPumpRules": {
+      "enabled": true,
+      "currentTargetMin": 0.2,
+      "currentTargetMax": 0.3,
+      "matureTargetMin": 0.2,
+      "matureTargetMax": 0.3,
+      "hardMax": 0.3,
+      "prioritySymbols": [
+        "MU",
+        "DRAM",
+        "GLW"
+      ],
+      "priorityEqualWeight": true,
+      "singlePriorityTargetPct": 0.07,
+      "singlePriorityHardMaxPct": 0.08,
+      "mainAttackMinBuyUSDT": 300,
+      "noLeverage": true,
+      "note": "5.2 从小观察仓升级为有效主攻仓；GLW 与 MU、DRAM 同级，主攻仓要有足够仓位但不突破单标的 8% 和 AI 总仓 30%。"
     },
     "emailPolicy": {
       "enabled": true,
@@ -1078,31 +1096,24 @@
       "frontendNeverReceivesApiKey": true,
       "note": "Bitget API 只用于读取现货资产数量；API Key/Passphrase/RSA 私钥只能放在 GitHub Secrets 或服务器环境变量，不能写进前端或仓库。"
     },
-    "aiPumpRules": {
+    "mrvlRule": {
       "enabled": true,
-      "currentTargetMin": 0.08,
-      "currentTargetMax": 0.12,
-      "matureTargetMin": 0.15,
-      "matureTargetMax": 0.2,
-      "hardMax": 0.25,
-      "prioritySymbols": [
-        "MU",
-        "DRAM",
-        "GLW"
-      ],
-      "priorityEqualWeight": true,
-      "singlePriorityTargetPct": 0.05,
-      "singlePriorityHardMaxPct": 0.08,
-      "noLeverage": true,
-      "note": "从小仓观察升级为稳健进攻的 AI 抽水机仓；GLW 与 MU、DRAM 同等重视，但仍受单标的和主题总仓上限约束。"
+      "role": "AI互联 / 定制芯片 / 数据中心网络观察仓",
+      "firstBuyPct": 0.005,
+      "normalWatchPct": 0.01,
+      "targetMaxPct": 0.03,
+      "hardMaxPct": 0.05,
+      "requireCoreMinimumComplete": false,
+      "mailWhenUnheld": "observe_only",
+      "note": "MRVL 是第二梯队 AI 网络/互联主攻观察，目标 2%-3%，硬上限 5%，不替代 MU/DRAM/GLW 第一主攻层。"
     }
   },
   "v5Rules": {
     "cashLayer": {
       "targetMatureMin": 0.4,
-      "targetMatureMax": 0.5,
-      "phase1Target": 0.7,
-      "phase2Target": 0.6,
+      "targetMatureMax": 0.45,
+      "phase1Target": 0.65,
+      "phase2Target": 0.55,
       "pauseNormalBuyBelow": 0.4,
       "stopNewBuyBelow": 0.35,
       "defenseModeBelow": 0.3
@@ -1111,28 +1122,28 @@
       "btcFirstTargetMin": 0.08,
       "btcMatureTargetMin": 0.08,
       "btcMatureTargetMax": 0.1,
-      "ethFirstTargetMin": 0.03,
+      "ethFirstTargetMin": 0.04,
       "ethMatureTargetMin": 0.04,
-      "ethMatureTargetMax": 0.05,
+      "ethMatureTargetMax": 0.06,
       "btcEthTotalTargetMin": 0.12,
-      "btcEthTotalTargetMax": 0.18,
-      "weeklyCoreBuyLimitPct": 0.02
+      "btcEthTotalTargetMax": 0.16,
+      "weeklyCoreBuyLimitPct": 0.03
     },
     "stableLayer": {
-      "vooFirstTargetMin": 0.03,
+      "vooFirstTargetMin": 0.04,
       "vooFirstTargetMax": 0.06,
       "vooMatureTargetMin": 0.06,
-      "vooMatureTargetMax": 0.1,
+      "vooMatureTargetMax": 0.08,
       "xautFirstTargetMin": 0.02,
       "xautFirstTargetMax": 0.03,
       "xautMatureTargetMin": 0.03,
       "xautMatureTargetMax": 0.05
     },
     "themeLayer": {
-      "targetMin": 0.08,
-      "targetMax": 0.2,
-      "hardMax": 0.25,
-      "maxBeforeCoreComplete": 0.12,
+      "targetMin": 0.2,
+      "targetMax": 0.3,
+      "hardMax": 0.3,
+      "maxBeforeCoreComplete": 0.2,
       "symbols": [
         "MU",
         "DRAM",
@@ -1151,26 +1162,6 @@
         "ASX"
       ],
       "subGroups": {
-        "aiChipNetwork": [
-          "AVGO",
-          "MRVL",
-          "ANET"
-        ],
-        "aiStorage": [
-          "MU",
-          "WDC",
-          "DRAM",
-          "SNDK"
-        ],
-        "semiInfra": [
-          "TSM",
-          "ASML"
-        ],
-        "highBetaOptical": [
-          "FN",
-          "AAOI",
-          "ASX"
-        ],
         "aiPumpCore": [
           "MU",
           "DRAM",
@@ -1185,9 +1176,18 @@
           "ANET",
           "AVGO"
         ],
+        "semiInfra": [
+          "TSM",
+          "ASML"
+        ],
         "storageSupplement": [
           "WDC",
           "SNDK"
+        ],
+        "highBetaOptical": [
+          "FN",
+          "AAOI",
+          "ASX"
         ]
       },
       "name": "AI抽水机主攻仓",
@@ -1196,8 +1196,8 @@
         "DRAM",
         "GLW"
       ],
-      "priorityNote": "MU、DRAM、GLW 同列 AI 抽水机主攻观察：存储/HBM + 光纤/玻璃基板基础设施。",
-      "singleCoreTargetPct": 0.05,
+      "priorityNote": "5.2 将 MU、DRAM、GLW 定义为第一主攻层；目标不是小仓观察，而是逐步形成有效仓位。",
+      "singleCoreTargetPct": 0.07,
       "singleCoreHardMaxPct": 0.08
     },
     "speculativeLayer": {
@@ -1226,17 +1226,45 @@
       "sameSymbolBuyHours": 48,
       "postBuyNoDipBuyHours": 24
     },
-    "versionName": "投资健康卡 5.1：稳健进攻 + AI抽水机主攻仓版",
-    "mrvlRule": {
+    "versionName": "投资健康卡 5.2：有效仓位 + AI主攻仓版",
+    "effectivePositionRules": {
       "enabled": true,
-      "role": "AI互联 / 定制芯片 / 数据中心网络观察仓",
-      "firstBuyPct": 0.005,
-      "normalWatchPct": 0.01,
-      "targetMaxPct": 0.015,
-      "hardMaxPct": 0.02,
-      "requireCoreMinimumComplete": true,
-      "mailWhenUnheld": "observe_only",
-      "note": "MRVL 可以加入 AI 观察池，但不是核心仓；核心仓未达标时只显示观察，不触发买入邮件。"
+      "mainAttackMinBuyUSDT": 300,
+      "watchMinBuyUSDT": 150,
+      "mainAttackSymbols": [
+        "MU",
+        "DRAM",
+        "GLW",
+        "SMH"
+      ],
+      "secondarySymbols": [
+        "MRVL",
+        "ANET",
+        "AVGO",
+        "TSM",
+        "ASML",
+        "SOXX"
+      ],
+      "note": "主攻仓单笔过小会浪费行情；除测试单外，主攻仓建议单笔 300 USDT 起，观察仓 150 USDT 起。"
+    },
+    "aiPumpRules": {
+      "enabled": true,
+      "currentTargetMin": 0.2,
+      "currentTargetMax": 0.3,
+      "matureTargetMin": 0.2,
+      "matureTargetMax": 0.3,
+      "hardMax": 0.3,
+      "prioritySymbols": [
+        "MU",
+        "DRAM",
+        "GLW"
+      ],
+      "priorityEqualWeight": true,
+      "singlePriorityTargetPct": 0.07,
+      "singlePriorityHardMaxPct": 0.08,
+      "mainAttackMinBuyUSDT": 300,
+      "noLeverage": true,
+      "note": "5.2 从小观察仓升级为有效主攻仓；GLW 与 MU、DRAM 同级，主攻仓要有足够仓位但不突破单标的 8% 和 AI 总仓 30%。"
     },
     "emailPolicy": {
       "enabled": true,
@@ -1270,23 +1298,16 @@
       "frontendNeverReceivesApiKey": true,
       "note": "Bitget API 只用于读取现货资产数量；API Key/Passphrase/RSA 私钥只能放在 GitHub Secrets 或服务器环境变量，不能写进前端或仓库。"
     },
-    "aiPumpRules": {
+    "mrvlRule": {
       "enabled": true,
-      "currentTargetMin": 0.08,
-      "currentTargetMax": 0.12,
-      "matureTargetMin": 0.15,
-      "matureTargetMax": 0.2,
-      "hardMax": 0.25,
-      "prioritySymbols": [
-        "MU",
-        "DRAM",
-        "GLW"
-      ],
-      "priorityEqualWeight": true,
-      "singlePriorityTargetPct": 0.05,
-      "singlePriorityHardMaxPct": 0.08,
-      "noLeverage": true,
-      "note": "从小仓观察升级为稳健进攻的 AI 抽水机仓；GLW 与 MU、DRAM 同等重视，但仍受单标的和主题总仓上限约束。"
+      "role": "AI互联 / 定制芯片 / 数据中心网络观察仓",
+      "firstBuyPct": 0.005,
+      "normalWatchPct": 0.01,
+      "targetMaxPct": 0.03,
+      "hardMaxPct": 0.05,
+      "requireCoreMinimumComplete": false,
+      "mailWhenUnheld": "observe_only",
+      "note": "MRVL 是第二梯队 AI 网络/互联主攻观察，目标 2%-3%，硬上限 5%，不替代 MU/DRAM/GLW 第一主攻层。"
     }
   }
 }

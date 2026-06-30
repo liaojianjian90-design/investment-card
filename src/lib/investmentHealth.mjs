@@ -1,9 +1,9 @@
 export const DEFAULT_V4_RULES = {
   cashLayer: {
     targetMatureMin: 0.40,
-    targetMatureMax: 0.50,
-    phase1Target: 0.70,
-    phase2Target: 0.60,
+    targetMatureMax: 0.45,
+    phase1Target: 0.65,
+    phase2Target: 0.55,
     pauseNormalBuyBelow: 0.40,
     stopNewBuyBelow: 0.35,
     defenseModeBelow: 0.30
@@ -12,28 +12,28 @@ export const DEFAULT_V4_RULES = {
     btcFirstTargetMin: 0.08,
     btcMatureTargetMin: 0.10,
     btcMatureTargetMax: 0.12,
-    ethFirstTargetMin: 0.03,
+    ethFirstTargetMin: 0.04,
     ethMatureTargetMin: 0.04,
     ethMatureTargetMax: 0.06,
-    btcEthTotalTargetMin: 0.15,
-    btcEthTotalTargetMax: 0.18,
-    weeklyCoreBuyLimitPct: 0.02
+    btcEthTotalTargetMin: 0.12,
+    btcEthTotalTargetMax: 0.16,
+    weeklyCoreBuyLimitPct: 0.03
   },
   stableLayer: {
     vooFirstTargetMin: 0.04,
     vooFirstTargetMax: 0.06,
-    vooMatureTargetMin: 0.10,
-    vooMatureTargetMax: 0.12,
+    vooMatureTargetMin: 0.06,
+    vooMatureTargetMax: 0.08,
     xautFirstTargetMin: 0.02,
     xautFirstTargetMax: 0.03,
-    xautMatureTargetMin: 0.05,
-    xautMatureTargetMax: 0.07
+    xautMatureTargetMin: 0.03,
+    xautMatureTargetMax: 0.05
   },
   themeLayer: {
-    targetMin: 0.05,
-    targetMax: 0.10,
-    hardMax: 0.15,
-    maxBeforeCoreComplete: 0.05,
+    targetMin: 0.20,
+    targetMax: 0.30,
+    hardMax: 0.30,
+    maxBeforeCoreComplete: 0.20,
     symbols: ["AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"]
   },
   speculativeLayer: {
@@ -203,7 +203,7 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       ? { label: "停止新增", level: "risk" }
       : cashPct < pct(v4.cashLayer.pauseNormalBuyBelow)
         ? { label: "防守不足", level: "warn" }
-        : cashPct > 80
+        : cashPct > 70
           ? { label: "偏保守", level: "info" }
           : cashPct >= pct(v4.cashLayer.targetMatureMin) && cashPct <= 75
             ? { label: "健康", level: "" }
@@ -257,9 +257,9 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: ["USDT", "USDGO"],
       value: cashValue,
       weightPct: cashPct,
-      targetText: "成熟目标 55%-60%，阶段目标 75% / 65%",
+      targetText: "成熟目标 40%-45%，阶段目标 65% / 55%",
       status: cashStatus,
-      advice: cashPct > 80 ? "账户安全但资金效率偏低，可分批补核心仓和稳定层。" : cashPct < 40 ? "现金防守不足，暂停普通加仓。" : "现金处于可执行区间，继续按规则分批。"
+      advice: cashPct > 70 ? "账户安全但有效进攻仓偏小，可分批把 MU/DRAM/GLW/SMH 做成有效仓位，同时补核心底盘。" : cashPct < 40 ? "现金防守不足，暂停普通加仓。" : "现金处于可执行区间，继续按规则分批。"
     },
     {
       id: "core",
@@ -267,9 +267,9 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: ["BTC", "ETH"],
       value: groupValue(snapshot, ["BTC", "ETH"]),
       weightPct: coreWeight,
-      targetText: "BTC 10%-12%，ETH 4%-6%，合计 25%-18%",
+      targetText: "BTC 8%-10%，ETH 4%-6%，合计 12%-16%",
       status: coreStatus,
-      advice: btcWeight < 8 || ethWeight < 3 ? "BTC/ETH 未达到第一阶段核心仓，现金充足时优先小额补。" : "核心仓已具备基础，后续只慢慢补到成熟目标。"
+      advice: btcWeight < 8 || ethWeight < 3 ? "BTC/ETH 未达到第一阶段核心仓，现金充足时可分批补，但不再把所有资金都停留在小仓观察。" : "核心仓已具备基础，后续只慢慢补到成熟目标。"
     },
     {
       id: "stable",
@@ -277,7 +277,7 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: ["VOO", "XAUT"],
       value: groupValue(snapshot, ["VOO", "XAUT"]),
       weightPct: stableWeight,
-      targetText: "VOO 10%-12%，XAUT 5%-7%；第一阶段先建底仓",
+      targetText: "VOO 6%-8%，XAUT 3%-5%；作为底盘，不抢 AI 主攻仓资金",
       status: stableStatus,
       advice: vooWeight === 0 || xautWeight === 0 ? "VOO/XAUT 长期稳定资产缺位，建议分批建立底仓。" : "稳定层已建立，后续按月再平衡。"
     },
@@ -287,9 +287,9 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: themeSymbols,
       value: groupValue(snapshot, themeSymbols),
       weightPct: themeWeight,
-      targetText: "目标 5%-10%，硬上限 25%；核心未稳前不超过 5%",
+      targetText: "目标 20%-30%，硬上限 30%；MU/DRAM/GLW/SMH 要形成有效仓位",
       status: themeStatus,
-      advice: corePlusStableWeight < 25 ? "核心仓和稳定层未完成前，AI抽水机/半导体/存储/光通信不要抢跑。" : "AI抽水机仓可作为收益增强，但不能超过硬上限。"
+      advice: corePlusStableWeight < 25 ? "核心底盘未完成前，AI 主攻仓可推进到 20% 左右，但不能突破 30% 硬上限。" : "AI 抽水机仓是收益主攻层，重点提高 MU/DRAM/GLW/SMH 的有效仓位，但不能超过硬上限。"
     },
     {
       id: "speculative",
@@ -326,9 +326,9 @@ export function calculateHealthScore(snapshot, rules = {}) {
     drawdownState: { label: "回撤状态", max: 10, score: 10, reasons: [] }
   };
 
-  if (cashPct > 80) {
+  if (cashPct > 70) {
     components.cashSafety.score -= 4;
-    components.cashSafety.reasons.push("现金超过 80%，账户安全但收益效率偏低。");
+    components.cashSafety.reasons.push("现金超过 70%，账户安全但有效仓位不足，可能浪费行情。");
   }
   if (cashPct < 40) {
     components.cashSafety.score -= 8;
@@ -375,11 +375,11 @@ export function calculateHealthScore(snapshot, rules = {}) {
 
   if (themeWeight > pct(v4.themeLayer.targetMax)) {
     components.themeControl.score -= 5;
-    components.themeControl.reasons.push("AI抽水机主攻仓超过 10%，谨慎加仓。");
+    components.themeControl.reasons.push("AI抽水机主攻仓超过 30%，停止新增并复盘。");
   }
   if (themeWeight > pct(v4.themeLayer.hardMax)) {
     components.themeControl.score -= 8;
-    components.themeControl.reasons.push("AI抽水机主攻仓超过 25%，停止新增AI抽水机仓。");
+    components.themeControl.reasons.push("AI抽水机主攻仓超过 30%，停止新增AI抽水机仓。");
   }
 
   if (freshness.isStale) {
@@ -413,7 +413,7 @@ export function calculateHealthScore(snapshot, rules = {}) {
   const reasons = Object.values(components).flatMap((item) => item.reasons.map((reason) => `${item.label}：${reason}`));
   const topAdvice = generateTopAdvice(snapshot, rules, layers, freshness).slice(0, 3);
   let grade = total >= 88 ? "优秀" : total >= 75 ? "健康" : total >= 65 ? "偏保守" : total >= 50 ? "偏激进" : "高风险";
-  if (cashPct > 80 && total >= 65) grade = "偏保守";
+  if (cashPct > 70 && total >= 65) grade = "偏保守";
   if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove) || themeWeight > pct(v4.themeLayer.hardMax) || cashPct < 40) grade = total < 60 ? "高风险" : "偏激进";
 
   return {
@@ -436,7 +436,7 @@ function generateTopAdvice(snapshot, rules, layers, freshness) {
   const xautWeight = weightPct(snapshot, "XAUT");
   const specWeight = groupWeightPct(snapshot, v4.speculativeLayer.symbols);
   if (freshness.isBlocked) advice.push("先等待数据刷新，不根据过期数据买入。");
-  if (cashPct > 80) advice.push("现金过高，优先用小额分批方式补核心仓和稳定层。 ");
+  if (cashPct > 70) advice.push("现金过高，优先把 MU/DRAM/GLW/SMH 与 BTC/ETH 做到有效仓位。 ");
   if (btcWeight < 8 || ethWeight < 3) advice.push("BTC/ETH 未达到第一阶段核心仓，现金充足时优先补。 ");
   if (vooWeight === 0 || xautWeight === 0) advice.push("VOO/XAUT 为 0，建议分批建立长期稳定底仓。 ");
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) advice.push("DOGE/BGB 投机仓偏高，禁止新增，以反弹减仓为主。 ");
@@ -456,11 +456,11 @@ export function generateSystemJudgement(snapshot, rules = {}) {
   const themeWeight = groupWeightPct(snapshot, v4.themeLayer.symbols);
   const messages = [];
   if (freshness.isBlocked) messages.push("当前数据已过期或关键价格缺失，只能做结构分析，不能做买入判断。");
-  if (cashPct > 80) messages.push("当前账户非常安全，但现金占比过高，长期资金效率偏低。建议优先补 BTC/ETH 核心仓，并建立 VOO/XAUT 底仓。");
-  if (btcWeight < 8 || ethWeight < 3) messages.push("核心增长层不足，BTC/ETH 应优先补到第一阶段目标，再考虑扩大AI抽水机仓。 ");
+  if (cashPct > 70) messages.push("当前账户非常安全，但现金占比过高、有效进攻仓不足。建议用三段法把 MU/DRAM/GLW/SMH 做成主攻仓，同时补 BTC/ETH/VOO/XAUT 底盘。");
+  if (btcWeight < 8 || ethWeight < 3) messages.push("核心增长层不足，但 5.2 不再无限推迟 AI 主攻仓；BTC/ETH 补底盘的同时，MU/DRAM/GLW/SMH 也要形成有效仓位。 ");
   if (vooWeight === 0 || xautWeight === 0) messages.push("长期稳定层缺位，建议分批建立 VOO 与 XAUT 底仓。 ");
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) messages.push("投机仓已偏高，不建议继续补 DOGE/BGB，后续应以反弹减仓为主。 ");
-  if (themeWeight > pct(v4.themeLayer.targetMax)) messages.push("AI抽水机仓偏高，AI抽水机/半导体/存储/光通信不应继续主动加仓。 ");
+  if (themeWeight > pct(v4.themeLayer.targetMax)) messages.push("AI抽水机仓超过 30% 后不应继续主动加仓。 ");
   if (!messages.length) messages.push("当前系统结构健康，可以继续按既定买点、现金底线和每月再平衡执行。 ");
   return messages.map((item) => item.trim());
 }
@@ -481,10 +481,10 @@ export function generateAllowedActions(snapshot, rules = {}) {
   const themeWeight = groupWeightPct(snapshot, v4.themeLayer.symbols);
   const corePlusStable = btcWeight + ethWeight + vooWeight + xautWeight;
 
-  if (cashPct >= 75 && (btcWeight < 8 || ethWeight < 3)) actions.push("允许小额补 BTC/ETH 核心仓，每周合计不超过账户 2%。");
+  if (cashPct >= 75 && (btcWeight < 8 || ethWeight < 3)) actions.push("允许补 BTC/ETH 核心仓，每周合计不超过账户 3%。");
   if (cashPct >= 75 && vooWeight === 0) actions.push("允许分批建立 VOO 底仓，不必等待完美低点。 ");
   if (cashPct >= 75 && xautWeight === 0) actions.push("允许分批建立 XAUT 底仓，用作稳定层。 ");
-  if (corePlusStable >= 25 && themeWeight < pct(v4.themeLayer.targetMax)) actions.push("AI抽水机主攻仓可小额观察，但必须低于 10% 并服从买点；MU/DRAM/GLW 为优先主攻，MRVL/ANET 小仓验证。 ");
+  if (corePlusStable >= 25 && themeWeight < pct(v4.themeLayer.targetMax)) actions.push("AI抽水机主攻仓应从观察转向有效仓位：MU/DRAM/GLW/SMH 优先，单笔主攻买入建议 300 USDT 起；MRVL/ANET 为第二梯队。 ");
   actions.push("允许做月度复盘、更新持仓成本和检查价格源。 ");
   return [...new Set(actions.map((item) => item.trim()))];
 }
@@ -505,16 +505,16 @@ export function generateForbiddenActions(snapshot, rules = {}) {
 
   if (freshness.isBlocked) forbidden.push("不要在数据过期或价格源失败时买入。 ");
   if (cashPct < pct(v4.cashLayer.pauseNormalBuyBelow)) forbidden.push("不要在现金低于 40% 时普通加仓。 ");
-  if (cashPct > 80) forbidden.push("不要因为现金多就一次性打光现金。 ");
+  if (cashPct > 70) forbidden.push("不要因为现金多就一次性打光现金。 ");
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) {
     forbidden.push("不要补 DOGE。 ");
     forbidden.push("不要补 BGB。 ");
   }
   if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove)) forbidden.push("DOGE/BGB 已进入只减不补区，不要摊低成本。 ");
   if ((btcWeight < 8 || ethWeight < 3 || vooWeight === 0 || xautWeight === 0) && themeWeight >= pct(v4.themeLayer.maxBeforeCoreComplete)) {
-    forbidden.push("不要在核心仓不足时优先加主题股。 ");
+    forbidden.push("不要在没有计划的情况下乱加主题股；AI 主攻只买 MU/DRAM/GLW/SMH 等高优先级，不买杂票。 ");
   }
-  if (themeWeight >= pct(v4.themeLayer.hardMax)) forbidden.push("不要继续新增 AI抽水机/半导体/存储/光通信AI抽水机仓。 ");
+  if (themeWeight >= pct(v4.themeLayer.hardMax)) forbidden.push("不要继续新增 AI抽水机仓，先复盘是否超过 30% 硬上限。 ");
   forbidden.push("不要因为刚买就跌而立刻补同一个标的。 ");
   if (cooldown.blockedSymbols.length) forbidden.push(`冷却中标的不要补仓：${cooldown.blockedSymbols.join("、")}。`);
   return [...new Set(forbidden.map((item) => item.trim()))];
@@ -526,22 +526,22 @@ export function generatePhasePlan(snapshot, rules = {}) {
   const toTargetAmount = (targetPct) => Math.max(0, total * (cashPct / 100 - targetPct));
   return [
     {
-      name: "第一阶段：现金降到 75%",
-      deployAmount: toTargetAmount(0.75),
-      target: "先修复结构，不追求一次买满。",
-      steps: ["BTC 补到 8% 以上", "ETH 补到 3% 以上", "VOO 建立 4%-6% 底仓", "XAUT 建立 2%-3% 底仓", "DOGE/BGB 不新增"]
-    },
-    {
-      name: "第二阶段：现金降到 65%",
+      name: "第一阶段：现金降到 65%",
       deployAmount: toTargetAmount(0.65),
-      target: "提高长期资产比例，同时保留防守现金。",
-      steps: ["VOO 增加到 8% 左右", "XAUT 增加到 4% 左右", "BTC/ETH 慢慢补", "AI抽水机仓可小幅增加但不超过 8%-10%"]
+      target: "先把有效仓位做起来，不再停留在每个标的 50-100 USDT 的心理仓。",
+      steps: ["MU/DRAM/GLW/SMH 建立有效主攻仓", "BTC/ETH 补到底盘目标", "VOO/XAUT 建立稳定层底仓", "DOGE/BGB 不新增"]
     },
     {
-      name: "第三阶段：现金稳定 55%-60%",
-      deployAmount: toTargetAmount(0.60),
-      target: "形成成熟配置并进入再平衡模式。",
-      steps: ["形成长期目标配置", "每月复盘一次", "超过上限的资产做再平衡", "投机仓只减不补"]
+      name: "第二阶段：现金降到 55%",
+      deployAmount: toTargetAmount(0.55),
+      target: "继续提高主攻仓占比，但只加高优先级 AI 抽水机标的。",
+      steps: ["AI 抽水机仓推进到 20% 左右", "MU/DRAM/GLW 单项向 4%-7% 目标靠拢", "SMH 做半导体篮子补充", "MRVL/ANET 只在回调或催化剂确认后加"]
+    },
+    {
+      name: "第三阶段：现金稳定 40%-45%",
+      deployAmount: toTargetAmount(0.45),
+      target: "形成稳健进攻结构：现金仍有防守，但主攻仓能真正影响账户收益。",
+      steps: ["现金保留 40%-45%", "AI 抽水机仓 20%-30%", "单一主攻标的不超过 8%", "投机仓只减不补", "每月复盘再平衡"]
     }
   ];
 }
@@ -561,9 +561,9 @@ export function generateRebalanceAlerts(snapshot, rules = {}) {
   for (const [symbol, limit, message] of checks) {
     if (weightPct(snapshot, symbol) > limit) alerts.push(message);
   }
-  if (groupWeightPct(snapshot, v4.themeLayer.symbols) > pct(v4.themeLayer.hardMax)) alerts.push("AI抽水机/半导体/存储/光通信超过 25%，停止新增。 ");
+  if (groupWeightPct(snapshot, v4.themeLayer.symbols) > pct(v4.themeLayer.hardMax)) alerts.push("AI抽水机主攻仓超过 30%，停止新增。 ");
   if (groupWeightPct(snapshot, v4.speculativeLayer.symbols) > pct(v4.speculativeLayer.reduceOnlyAbove)) alerts.push("DOGE + BGB 超过 3%，反弹减仓。 ");
-  if (cashPct > 80) alerts.push("现金超过 80%，资金效率偏低。 ");
+  if (cashPct > 70) alerts.push("现金超过 70%，资金效率偏低。 ");
   if (cashPct < 40) alerts.push("现金低于 40%，防守不足。 ");
   return [...new Set(alerts.map((item) => item.trim()))];
 }
