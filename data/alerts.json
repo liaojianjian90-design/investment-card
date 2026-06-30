@@ -1,21 +1,8 @@
 {
-  "updatedAt": "2026-06-30T10:03:21.172Z",
+  "updatedAt": "2026-06-30T10:05:17.052Z",
   "email": {
-    "sent": true,
+    "sent": false,
     "missing": []
   },
-  "alerts": [
-    {
-      "id": "ai-dip-review-2026-06-30",
-      "symbol": "MU/GLW",
-      "type": "ai-dip-review",
-      "severity": "low",
-      "title": "AI主攻仓急跌反弹复盘",
-      "conclusion": "主攻标的盘中深跌后已反弹；本提醒不建议追买，只用于复盘是否错过有效仓位机会。",
-      "reason": "MU 当前跌幅 1.7%，日内最大跌幅 6.1%；GLW 当前跌幅 3.1%，日内最大跌幅 7.3%。",
-      "action": "不要追已经拉回的价格；下次同类急跌时，现金高且AI仓不足，应执行1000-1500 USDT级别有效买入。",
-      "discipline": "复盘的目标是修正系统，不是事后追涨。",
-      "createdAt": "2026-06-30T10:03:21.370Z"
-    }
-  ]
+  "alerts": []
 }
