@@ -1,8 +1,8 @@
 {
-  "updatedAt": null,
+  "updatedAt": "2026-07-01T10:03:10.993Z",
   "email": {
     "sent": false,
-    "mode": "position-dashboard-only"
+    "missing": []
   },
   "alerts": []
 }
