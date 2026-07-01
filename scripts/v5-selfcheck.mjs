@@ -23,11 +23,11 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-assert(rules.systemVersion === "5.4.1", "系统版本必须为 5.4.1");
-assert(rules.positionDashboardOnly === true, "5.4.1 必须启用仓位体检模式");
+assert(rules.systemVersion === "5.4.2", "系统版本必须为 5.4.2");
+assert(rules.positionDashboardOnly === true, "5.4.2 必须启用仓位体检模式");
 assert(rules.v5Rules?.positionDashboardOnly?.enabled === true, "v5Rules 必须启用仓位体检模式");
-assert(rules.aiIntradayDropOpportunityRules?.enabled === false, "5.4.1 必须关闭 AI 急跌自动买入日志");
-assert(rules.lowFrequencyExecutionPolicy?.enabled === false, "5.4.1 必须关闭低频执行摘要");
+assert(rules.aiIntradayDropOpportunityRules?.enabled === false, "5.4.2 必须关闭 AI 急跌自动买入日志");
+assert(rules.lowFrequencyExecutionPolicy?.enabled === false, "5.4.2 必须关闭低频执行摘要");
 
 assert(v.themeLayer.name === "AI抽水机主攻仓", "主题层名称应保留 AI抽水机主攻仓");
 assert(holdings.positions.some((item) => item.symbol === "CRCL"), "holdings.json 必须包含 CRCL");
@@ -47,21 +47,26 @@ assert(indexHtml.includes("操作前人工复核流程"), "首页必须显示操
 assert(indexHtml.includes("账户总盈亏"), "首页必须显示账户总盈亏模块");
 assert(indexHtml.includes("以 16,000 USDT 为基准"), "首页必须显示 16000 USDT 盈亏基准");
 assert(rules.performanceBaseline?.amount === 16000, "总盈亏基准必须为 16000 USDT");
-assert(!indexHtml.includes("id=\"executionLogSection\""), "5.4.1 前端不应再展示执行纪律日志模块");
-assert(!indexHtml.includes("<h3>八、AI主攻仓急跌机会捕捉</h3>"), "5.4.1 前端不应再展示自动急跌买入模块");
+assert(indexHtml.indexOf("<h2>账户快照</h2>") < indexHtml.indexOf("<h2>持仓与盈亏</h2>"), "持仓与盈亏必须放在账户快照下方");
+assert(indexHtml.indexOf("<h2>持仓与盈亏</h2>") < indexHtml.indexOf("<h2>资产仓位结构 + CRCL卫星仓</h2>"), "持仓与盈亏必须放在资产结构上方");
+assert(indexHtml.includes("默认按当前持仓市值 / 仓位占比从高到低排序"), "持仓与盈亏必须说明默认排序规则");
+assert(indexHtml.includes("const sortedPositions ="), "持仓列表必须按仓位大小排序后再展示");
+assert(rules.dashboardLayout?.defaultPositionSort === "weightPctDesc", "规则文件必须记录持仓默认按仓位占比降序排序");
+assert(!indexHtml.includes("id=\"executionLogSection\""), "5.4.2 前端不应再展示执行纪律日志模块");
+assert(!indexHtml.includes("<h3>八、AI主攻仓急跌机会捕捉</h3>"), "5.4.2 前端不应再展示自动急跌买入模块");
 assert(!indexHtml.includes("手动买入 / 卖出入口"), "前端必须移除手动买入/卖出入口");
 assert(!indexHtml.includes("云端同步设置"), "前端必须移除云端同步设置");
 
-assert(serviceWorkerSource.includes("investment-card-github-pages-v525"), "Service Worker 缓存版本必须升级到 v525");
-assert(serviceWorkerSource.includes("investmentHealth.mjs?v=525"), "investmentHealth 模块引用必须升级到 v525");
+assert(serviceWorkerSource.includes("investment-card-github-pages-v526"), "Service Worker 缓存版本必须升级到 v526");
+assert(serviceWorkerSource.includes("investmentHealth.mjs?v=526"), "investmentHealth 模块引用必须升级到 v526");
 assert(workflowSource.includes("POSITION_DASHBOARD_ONLY"), "GitHub Actions 必须传入 POSITION_DASHBOARD_ONLY");
-assert(workflowSource.includes('cron: "17,47 13-22 * * 1-5"'), "5.4.1 默认应降频到每 30 分钟刷新");
+assert(workflowSource.includes('cron: "17,47 13-22 * * 1-5"'), "5.4.2 默认应降频到每 30 分钟刷新");
 
 console.log(JSON.stringify({
   ok: true,
   score: score.total,
   grade: score.grade,
-  version: "5.4.1",
+  version: "5.4.2",
   mode: "position-dashboard-only",
   crclLayer: "independent"
 }, null, 2));

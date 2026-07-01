@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
-  <title>投资健康卡 5.4.1</title>
+  <title>投资健康卡 5.4.2</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <style>
     :root {
@@ -672,8 +672,8 @@
 <body>
   <main class="shell">
     <section class="hero">
-      <div class="eyebrow">Investment Health Card 5.4.1</div>
-      <h1>投资健康卡 5.4.1</h1>
+      <div class="eyebrow">Investment Health Card 5.4.2</div>
+      <h1>投资健康卡 5.4.2</h1>
       <p class="subtitle">
         仓位体检版。以 config/holdings.json 为唯一仓位来源，只负责统计总资产、总盈亏、现金比例、资产分层、单项仓位、AI相关仓、DOGE/BGB投机层和CRCL独立卫星仓风险。网站只做体检和预警，不再自动指挥加仓或减仓；任何实际操作前，先发最新仓位和 Bitget 截图人工复核。
       </p>
@@ -692,16 +692,39 @@
     </section>
 
     <section class="card">
-      <h2>投资健康评分</h2>
-      <p class="section-note">5.4 评分重点是“仓位体检 + 风险边界”：系统只统计现金、核心层、稳定层、AI相关仓、DOGE/BGB投机层和CRCL卫星仓的实际占比；不自动给买入或卖出指令。任何操作前，先用最新仓位和 Bitget 截图人工复核。</p>
-      <div id="v4Health"></div>
-      <div class="notice" id="v4Judgement"></div>
+      <h2>持仓与盈亏</h2>
+      <p class="section-note">默认按当前持仓市值 / 仓位占比从高到低排序，最大仓位排最上面；手机端使用卡片显示，重点看市值、仓位、盈亏、价格源和数据状态。</p>
+      <div class="desktop-table">
+        <table>
+          <thead>
+            <tr>
+              <th>标的</th>
+              <th>市值 / 仓位</th>
+              <th>盈亏</th>
+              <th>现价 / 来源</th>
+              <th>数量 / 成本</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody id="positionRows"></tbody>
+        </table>
+      </div>
+      <div class="position-cards" id="positionCards"></div>
     </section>
+
 
     <section class="card">
       <h2>资产仓位结构 + CRCL卫星仓</h2>
       <p class="section-note">这一栏只看仓位事实：安全现金层 → 核心增长层 → 长期稳定层 → AI相关主线仓 → DOGE/BGB投机清理层 → CRCL加密金融基础设施卫星仓。它只告诉你偏高、偏低或接近上限，不直接告诉你今天买什么。</p>
       <div class="grid layers-grid" id="v4Layers"></div>
+    </section>
+
+
+    <section class="card">
+      <h2>投资健康评分</h2>
+      <p class="section-note">5.4 评分重点是“仓位体检 + 风险边界”：系统只统计现金、核心层、稳定层、AI相关仓、DOGE/BGB投机层和CRCL卫星仓的实际占比；不自动给买入或卖出指令。任何操作前，先用最新仓位和 Bitget 截图人工复核。</p>
+      <div id="v4Health"></div>
+      <div class="notice" id="v4Judgement"></div>
     </section>
 
     <section class="card">
@@ -727,35 +750,15 @@
     </section>
 
     <section class="card">
+      <h2>仓位风险提示</h2>
+      <div class="alerts" id="alerts"></div>
+    </section>
+
+
+    <section class="card">
       <h2>操作前人工复核流程</h2>
       <p class="section-note">网站不再给自动买卖计划。真正下单前，先暂停、发最新仓位或截图、说明想操作什么，再人工判断是否属于情绪交易。</p>
       <div class="grid phase-grid" id="v4PhasePlan"></div>
-    </section>
-
-    <section class="card">
-      <h2>持仓与盈亏</h2>
-      <p class="section-note">手机端使用卡片显示：重点看市值、仓位、盈亏、价格源和数据状态；观察池数量为 0 时也会显示，方便看买点是否接近。</p>
-      <div class="desktop-table">
-        <table>
-          <thead>
-            <tr>
-              <th>标的</th>
-              <th>市值 / 仓位</th>
-              <th>盈亏</th>
-              <th>现价 / 来源</th>
-              <th>数量 / 成本</th>
-              <th>状态</th>
-            </tr>
-          </thead>
-          <tbody id="positionRows"></tbody>
-        </table>
-      </div>
-      <div class="position-cards" id="positionCards"></div>
-    </section>
-
-    <section class="card">
-      <h2>仓位风险提示</h2>
-      <div class="alerts" id="alerts"></div>
     </section>
 
     <section class="card">
@@ -814,8 +817,8 @@
   </main>
 
   <script type="module">
-    import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs?v=525";
-    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v525";
+    import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs?v=526";
+    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v526";
 
     const DEFAULT_HOLDINGS = {
       "baseCurrency": "USDT",
@@ -2077,7 +2080,15 @@
     }
 
     function renderPositions(snapshot, rules) {
-      document.getElementById("positionRows").innerHTML = snapshot.positions.map((row) => {
+      const sortedPositions = [...(snapshot.positions || [])].sort((a, b) => {
+        const weightDiff = Number(b.weightPct || 0) - Number(a.weightPct || 0);
+        if (Math.abs(weightDiff) > 1e-9) return weightDiff;
+        const valueDiff = Number(b.value || 0) - Number(a.value || 0);
+        if (Math.abs(valueDiff) > 1e-9) return valueDiff;
+        return String(a.symbol || "").localeCompare(String(b.symbol || ""));
+      });
+
+      document.getElementById("positionRows").innerHTML = sortedPositions.map((row) => {
         const status = statusFor(row, snapshot, rules);
         return `
           <tr>
@@ -2094,7 +2105,7 @@
         `;
       }).join("");
 
-      document.getElementById("positionCards").innerHTML = snapshot.positions.map((row) => {
+      document.getElementById("positionCards").innerHTML = sortedPositions.map((row) => {
         const status = statusFor(row, snapshot, rules);
         return `
           <article class="asset-card">

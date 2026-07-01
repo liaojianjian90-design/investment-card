@@ -1514,7 +1514,7 @@
       "sameSymbolBuyHours": 48,
       "postBuyNoDipBuyHours": 24
     },
-    "versionName": "5.4 仓位体检版",
+    "versionName": "5.4.2 仓位体检 + 总盈亏 + 持仓排序版",
     "effectivePositionRules": {
       "enabled": true,
       "mainAttackMinBuyUSDT": 500,
@@ -1820,8 +1820,8 @@
       "note": "总盈亏展示基准，不参与仓位分层和交易决策。"
     }
   },
-  "systemVersion": "5.4.1",
-  "systemName": "投资健康卡 5.4.1 仓位体检 + 总盈亏版",
+  "systemVersion": "5.4.2",
+  "systemName": "投资健康卡 5.4.2 仓位体检 + 总盈亏 + 持仓排序版",
   "aiIntradayDropOpportunityRules": {
     "enabled": false,
     "version": "5.3.5",
@@ -1913,5 +1913,11 @@
     "currency": "USDT",
     "label": "总盈亏基准本金",
     "note": "以16000 USDT作为整套账户的总盈亏计算基准；页面只展示当前总资产相对该基准的盈亏金额和盈亏率，不自动给交易指令。"
+  },
+  "dashboardLayout": {
+    "version": "5.4.2",
+    "positionSectionOrder": "afterAccountSnapshot",
+    "defaultPositionSort": "weightPctDesc",
+    "note": "持仓与盈亏放在账户快照下方，默认按当前持仓市值/仓位占比从高到低排序。"
   }
 }
