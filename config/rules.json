@@ -1811,11 +1811,17 @@
     "positionDashboardOnly": {
       "enabled": true,
       "name": "仓位体检模式",
-      "note": "网站只统计仓位结构、风险上限和数据状态；不自动给加仓/减仓指令。任何操作前先人工复核。"
+      "note": "网站只统计仓位结构、风险上限和数据状态；不自动给加仓/减仓指令。任何操作前先人工复核。",
+      "versionName": "5.4.1 仓位体检 + 总盈亏版"
+    },
+    "performanceBaseline": {
+      "amount": 16000,
+      "currency": "USDT",
+      "note": "总盈亏展示基准，不参与仓位分层和交易决策。"
     }
   },
-  "systemVersion": "5.4",
-  "systemName": "投资健康卡 5.4 仓位体检版",
+  "systemVersion": "5.4.1",
+  "systemName": "投资健康卡 5.4.1 仓位体检 + 总盈亏版",
   "aiIntradayDropOpportunityRules": {
     "enabled": false,
     "version": "5.3.5",
@@ -1901,5 +1907,11 @@
     ],
     "principle": "BTC/ETH 合计达标后，单项偏低只显示核心偏科；CRCL 独立做加密金融基础设施卫星仓；BTC/XAUT 保留底仓，不因目标不足机械占用新增资金；AI 主攻仓未到 25% 前，新增资金默认优先 AI。"
   },
-  "positionDashboardOnly": true
+  "positionDashboardOnly": true,
+  "performanceBaseline": {
+    "amount": 16000,
+    "currency": "USDT",
+    "label": "总盈亏基准本金",
+    "note": "以16000 USDT作为整套账户的总盈亏计算基准；页面只展示当前总资产相对该基准的盈亏金额和盈亏率，不自动给交易指令。"
+  }
 }

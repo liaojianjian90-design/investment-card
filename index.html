@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
-  <title>投资健康卡 5.4</title>
+  <title>投资健康卡 5.4.1</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <style>
     :root {
@@ -169,6 +169,89 @@
     .section-note { margin-top: -6px; margin-bottom: 14px; font-size: 14px; }
     .positive { color: var(--green); font-weight: 900; }
     .negative { color: var(--red); font-weight: 900; }
+
+    .performance-panel {
+      border: 2px solid rgba(15, 118, 110, 0.35);
+      background: linear-gradient(135deg, #fffdf7 0%, #e7f4ef 100%);
+      box-shadow: 0 18px 42px rgba(15, 118, 110, 0.14);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .performance-panel.performance-negative {
+      border-color: rgba(180, 35, 24, 0.35);
+      background: linear-gradient(135deg, #fffdf7 0%, #fff1f0 100%);
+      box-shadow: 0 18px 42px rgba(180, 35, 24, 0.12);
+    }
+
+    .performance-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .performance-kicker {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .performance-title {
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: 950;
+      line-height: 1.15;
+      margin-top: 4px;
+    }
+
+    .performance-note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .performance-main-value {
+      font-size: clamp(30px, 8vw, 56px);
+      font-weight: 950;
+      line-height: 1;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .performance-main-label {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+      margin-top: 7px;
+    }
+
+    .performance-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .performance-item {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(226, 221, 210, 0.85);
+      border-radius: 16px;
+      padding: 14px;
+      min-height: 86px;
+    }
+
+    .performance-item .label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .performance-item .value {
+      font-size: 20px;
+      font-weight: 950;
+      margin-top: 4px;
+    }
 
     .position-cards { display: none; }
     .asset-card {
@@ -511,6 +594,15 @@
       .grid { gap: 8px; }
 
       .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .performance-head { flex-direction: column; gap: 10px; margin-bottom: 11px; }
+      .performance-main-value, .performance-main-label { text-align: left; }
+      .performance-main-value { white-space: normal; }
+      .performance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .performance-item { padding: 10px; border-radius: 12px; min-height: 66px; }
+      .performance-item .label { font-size: 11px; }
+      .performance-item .value { font-size: 16px; }
+      .performance-title { font-size: 20px; }
+      .performance-note { font-size: 12px; }
       .metric { padding: 9px 10px; border-radius: 11px; min-height: 64px; }
       .metric .label { font-size: 11px; }
       .metric .value { font-size: 17px; line-height: 1.25; }
@@ -580,11 +672,15 @@
 <body>
   <main class="shell">
     <section class="hero">
-      <div class="eyebrow">Investment Health Card 5.4</div>
-      <h1>投资健康卡 5.4</h1>
+      <div class="eyebrow">Investment Health Card 5.4.1</div>
+      <h1>投资健康卡 5.4.1</h1>
       <p class="subtitle">
-        仓位体检版。以 config/holdings.json 为唯一仓位来源，只负责统计总资产、现金比例、资产分层、单项仓位、AI相关仓、DOGE/BGB投机层和CRCL独立卫星仓风险。网站只做体检和预警，不再自动指挥加仓或减仓；任何实际操作前，先发最新仓位和 Bitget 截图人工复核。
+        仓位体检版。以 config/holdings.json 为唯一仓位来源，只负责统计总资产、总盈亏、现金比例、资产分层、单项仓位、AI相关仓、DOGE/BGB投机层和CRCL独立卫星仓风险。网站只做体检和预警，不再自动指挥加仓或减仓；任何实际操作前，先发最新仓位和 Bitget 截图人工复核。
       </p>
+    </section>
+
+    <section class="card performance-panel" id="performancePanel">
+      <div class="muted">正在读取账户总盈亏...</div>
     </section>
 
     <section class="card">
@@ -718,8 +814,8 @@
   </main>
 
   <script type="module">
-    import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs?v=524";
-    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v524";
+    import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs?v=525";
+    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v525";
 
     const DEFAULT_HOLDINGS = {
       "baseCurrency": "USDT",
@@ -878,6 +974,7 @@
       ordinaryBuyCashMinPct: 40,
       dataStaleWarnMinutes: 10,
       dataStaleBlockMinutes: 30,
+      performanceBaseline: { amount: 16000, currency: "USDT", label: "总盈亏基准本金" },
       targets: {
         BTC: { minPct: 8, targetMaxPct: 10, stopAddPct: 18, trimPct: 25 },
         ETH: { minPct: 4, targetMaxPct: 6, stopAddPct: 10, trimPct: 12 },
@@ -1539,6 +1636,71 @@
       return `${Number(value || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT`;
     }
 
+    function formatSignedMoney(value) {
+      const n = Number(value || 0);
+      const sign = n > 0 ? "+" : n < 0 ? "-" : "";
+      return `${sign}${formatMoney(Math.abs(n))}`;
+    }
+
+    function formatSignedPct(value) {
+      const n = Number(value || 0);
+      const sign = n > 0 ? "+" : n < 0 ? "-" : "";
+      return `${sign}${Math.abs(n).toFixed(2)}%`;
+    }
+
+    function resolvePerformanceBaseline(rules) {
+      const direct = rules?.performanceBaseline || rules?.v5Rules?.performanceBaseline || {};
+      const amount = Number(direct.amount || 16000);
+      return {
+        amount: Number.isFinite(amount) && amount > 0 ? amount : 16000,
+        currency: direct.currency || "USDT",
+        label: direct.label || "总盈亏基准本金"
+      };
+    }
+
+    function renderPerformance(snapshot, rules) {
+      const panel = document.getElementById("performancePanel");
+      if (!panel) return;
+      const baseline = resolvePerformanceBaseline(rules);
+      const currentValue = Number(snapshot?.totalValue || 0);
+      const pnl = currentValue - baseline.amount;
+      const pnlPct = baseline.amount > 0 ? pnl / baseline.amount * 100 : 0;
+      const cls = pnl >= 0 ? "performance-positive" : "performance-negative";
+      const statusText = pnl >= 0 ? "当前高于基准本金" : "当前低于基准本金";
+      panel.className = `card performance-panel ${cls}`;
+      panel.innerHTML = `
+        <div class="performance-head">
+          <div>
+            <div class="performance-kicker">账户总盈亏</div>
+            <div class="performance-title">以 16,000 USDT 为基准</div>
+            <div class="performance-note">这里只看当前总资产相对基准本金的结果；不自动给买卖指令。</div>
+          </div>
+          <div>
+            <div class="performance-main-value ${pnlClass(pnl)}">${formatSignedMoney(pnl)}</div>
+            <div class="performance-main-label">总盈亏金额 · ${statusText}</div>
+          </div>
+        </div>
+        <div class="performance-grid">
+          <div class="performance-item">
+            <div class="label">基准本金</div>
+            <div class="value">${formatMoney(baseline.amount)}</div>
+          </div>
+          <div class="performance-item">
+            <div class="label">当前总资产</div>
+            <div class="value">${formatMoney(currentValue)}</div>
+          </div>
+          <div class="performance-item">
+            <div class="label">总盈亏率</div>
+            <div class="value ${pnlClass(pnl)}">${formatSignedPct(pnlPct)}</div>
+          </div>
+          <div class="performance-item">
+            <div class="label">统计口径</div>
+            <div class="value">持仓市值</div>
+          </div>
+        </div>
+      `;
+    }
+
     function formatPct(value) {
       return `${Number(value || 0).toFixed(1)}%`;
     }
@@ -2058,6 +2220,7 @@
       }
       const alerts = await safeFetchJson("data/alerts.json", { alerts: [] });
       renderV4Dashboard(snapshot, rules);
+      renderPerformance(snapshot, rules);
       renderSummary(snapshot);
       renderTargetRules(snapshot, rules);
       renderCapRules(snapshot, rules);

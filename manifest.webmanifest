@@ -1,6 +1,6 @@
 {
-  "name": "投资健康卡 5.4 仓位体检版",
-  "short_name": "投资卡5.4",
+  "name": "投资健康卡 5.4.1 仓位体检版",
+  "short_name": "投资卡5.4.1",
   "description": "仓位统计、风险上限提示和操作前人工复核仪表盘。",
   "start_url": "./index.html",
   "scope": "./",
