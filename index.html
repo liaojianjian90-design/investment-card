@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
-  <title>投资健康卡 5.4.2</title>
+  <title>投资健康卡 5.4.2.1</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <style>
     :root {
@@ -161,6 +161,49 @@
       color: var(--muted);
       font-size: 12px;
       font-weight: 800;
+    }
+
+
+
+    /* 5.4.2.1 手机端文字溢出修复：仓位体检规则里的长文本、代码、表格内容都必须在卡片内换行 */
+    .rule-box,
+    .action-card,
+    .phase-card,
+    .layer-card,
+    .metric,
+    .notice,
+    .asset-card {
+      min-width: 0;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .rule-box table,
+    .action-card table,
+    .notice table {
+      width: 100%;
+      max-width: 100%;
+      table-layout: fixed;
+    }
+
+    .rule-box th,
+    .rule-box td,
+    .action-card th,
+    .action-card td {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    code,
+    .muted,
+    .section-note,
+    .layer-symbols,
+    .layer-target,
+    .layer-advice {
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .symbol { font-weight: 900; }
@@ -651,6 +694,17 @@
       table { font-size: 12px; }
       th, td { padding: 8px 6px; }
 
+      /* 仓位体检规则手机端：防止表格和长句撑破卡片 */
+      .rule-box { overflow: hidden; }
+      .rule-box table { table-layout: fixed; display: table; width: 100%; max-width: 100%; }
+      .rule-box th, .rule-box td { white-space: normal; overflow-wrap: anywhere; word-break: break-word; font-size: 11px; line-height: 1.45; padding: 7px 5px; }
+      .rule-box th:nth-child(1), .rule-box td:nth-child(1) { width: 30%; }
+      .rule-box th:nth-child(2), .rule-box td:nth-child(2) { width: 40%; }
+      .rule-box th:nth-child(3), .rule-box td:nth-child(3) { width: 30%; }
+      .rule-list li { overflow-wrap: anywhere; word-break: break-word; }
+      #holdingsSourceCard code { display: inline; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+
+
       .execution-log-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
       .execution-stat { padding: 9px 10px; border-radius: 11px; }
       .execution-stat .stat-value { font-size: 18px; }
@@ -665,6 +719,10 @@
 
     @media (max-width: 380px) {
       .summary-grid, .layers-grid, .action-grid, .score-components, .trade-grid, .sync-grid, .editor-grid { grid-template-columns: 1fr; }
+
+      .rule-box th, .rule-box td { font-size: 10.5px; padding: 6px 4px; }
+      .rule-box .pill { white-space: normal; text-align: center; }
+
     }
 
   </style>
@@ -672,8 +730,8 @@
 <body>
   <main class="shell">
     <section class="hero">
-      <div class="eyebrow">Investment Health Card 5.4.2</div>
-      <h1>投资健康卡 5.4.2</h1>
+      <div class="eyebrow">Investment Health Card 5.4.2.1</div>
+      <h1>投资健康卡 5.4.2.1</h1>
       <p class="subtitle">
         仓位体检版。以 config/holdings.json 为唯一仓位来源，只负责统计总资产、总盈亏、现金比例、资产分层、单项仓位、AI相关仓、DOGE/BGB投机层和CRCL独立卫星仓风险。网站只做体检和预警，不再自动指挥加仓或减仓；任何实际操作前，先发最新仓位和 Bitget 截图人工复核。
       </p>
