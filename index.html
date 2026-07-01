@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
-  <title>投资健康卡 5.3.5.1</title>
+  <title>投资健康卡 5.3.6</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <style>
     :root {
@@ -208,6 +208,173 @@
     .alert-item.medium { border-color: #f4c27a; background: var(--amber-soft); }
     .alerts { display: grid; gap: 10px; }
 
+
+    .execution-log-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0 14px;
+    }
+
+    .execution-stat {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: var(--soft);
+    }
+
+    .execution-stat .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .execution-stat .stat-value {
+      margin-top: 4px;
+      font-size: 22px;
+      font-weight: 1000;
+      line-height: 1.15;
+    }
+
+    .execution-log-list { display: grid; gap: 12px; }
+
+    .execution-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      background: #fffefa;
+      box-shadow: 0 8px 20px rgba(28, 23, 15, 0.045);
+    }
+
+    .execution-card.pending { border-color: #f4c27a; background: linear-gradient(180deg, var(--amber-soft), #fffefa 58%); }
+    .execution-card.executed { border-color: #9bd7c0; background: linear-gradient(180deg, var(--green-soft), #fffefa 58%); }
+    .execution-card.skipped { border-color: #d9d2c4; background: #fffefa; }
+    .execution-card.expired { border-color: #ffb4ab; background: linear-gradient(180deg, var(--red-soft), #fffefa 58%); }
+    .execution-card.review_only { border-color: #b7c7ef; background: linear-gradient(180deg, var(--blue-soft), #fffefa 58%); }
+
+    .execution-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .execution-notice {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 900;
+      background: var(--red-soft);
+      border-radius: 999px;
+      padding: 4px 9px;
+    }
+
+    .execution-title {
+      font-size: 19px;
+      font-weight: 1000;
+      margin: 0 0 4px;
+    }
+
+    .execution-time {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .execution-reason {
+      margin: 0 0 12px;
+      font-size: 14px;
+    }
+
+    .execution-suggestion {
+      display: grid;
+      grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
+      gap: 12px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.58);
+      margin: 12px 0;
+    }
+
+    .execution-amount-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .execution-amount {
+      margin-top: 4px;
+      font-size: 24px;
+      font-weight: 1000;
+      color: var(--green);
+      line-height: 1.1;
+    }
+
+    .execution-action-text {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .execution-symbols {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .execution-symbol-tag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      padding: 4px 9px;
+    }
+
+    .execution-next-step {
+      border-left: 4px solid var(--green);
+      background: var(--green-soft);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    .execution-help-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .execution-help-button {
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 900;
+      background: var(--green);
+      color: #fff;
+      cursor: default;
+    }
+
+    .execution-help-button.secondary { background: var(--amber-soft); color: var(--amber); }
+
+    .execution-empty {
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.5);
+      color: var(--muted);
+    }
+
     label {
       display: block;
       font-size: 12px;
@@ -391,6 +558,15 @@
 
       table { font-size: 12px; }
       th, td { padding: 8px 6px; }
+
+      .execution-log-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+      .execution-stat { padding: 9px 10px; border-radius: 11px; }
+      .execution-stat .stat-value { font-size: 18px; }
+      .execution-card { padding: 11px; border-radius: 13px; }
+      .execution-title { font-size: 16px; }
+      .execution-time, .execution-reason, .execution-action-text, .execution-next-step { font-size: 12px; }
+      .execution-suggestion { grid-template-columns: 1fr; gap: 7px; padding: 10px; }
+      .execution-amount { font-size: 20px; }
       .judgement-list { padding-left: 17px; }
       .judgement-list li { margin: 4px 0; }
     }
@@ -404,8 +580,8 @@
 <body>
   <main class="shell">
     <section class="hero">
-      <div class="eyebrow">Investment Health Card 5.3.5.1</div>
-      <h1>投资健康卡 5.3.5.1</h1>
+      <div class="eyebrow">Investment Health Card 5.3.6</div>
+      <h1>投资健康卡 5.3.6</h1>
       <p class="subtitle">
         趋势优先 + AI新增资金优先执行版。以 config/holdings.json 为唯一仓位来源；现金目标 40%-50%，BTC/ETH/VOO/XAUT 做底盘，MU / DRAM / GLW / SMH 做有效主攻仓。CRCL 独立归属加密金融基础设施卫星仓，只允许小仓观察，不与 DOGE/BGB 合并计算投机仓上限，也不与 AI 主攻仓争资金。平时少动，上涨不追；只有 A/S 级 AI 急跌、风控、再平衡或预设价位触发时才打断你。
       </p>
@@ -421,7 +597,7 @@
 
     <section class="card">
       <h2>投资健康评分</h2>
-      <p class="section-note">5.3.5.1 评分重点是“趋势优先 + 核心总量优先判断 + CRCL卫星仓”：BTC/ETH 合计达标后，不再因为单项偏低显示核心不足；CRCL 独立归属加密金融基础设施卫星仓，不纳入 DOGE/BGB 投机仓合计，不影响 AI 主攻仓优先级。</p>
+      <p class="section-note">5.3.6 评分重点是“趋势优先 + 核心总量优先判断 + CRCL卫星仓”：BTC/ETH 合计达标后，不再因为单项偏低显示核心不足；CRCL 独立归属加密金融基础设施卫星仓，不纳入 DOGE/BGB 投机仓合计，不影响 AI 主攻仓优先级。</p>
       <div id="v4Health"></div>
       <div class="notice" id="v4Judgement"></div>
     </section>
@@ -486,8 +662,15 @@
       <div class="alerts" id="alerts"></div>
     </section>
 
+
+    <section class="card" id="executionLogSection">
+      <h2>执行纪律日志</h2>
+      <p class="section-note">这里记录系统曾经提醒过你的买入机会，以及你后来有没有执行。它不是交易记录，而是用来复盘自己有没有错过机会、有没有因为情绪犹豫。</p>
+      <div id="executionLogBox"></div>
+    </section>
+
     <section class="card">
-      <h2>投资纪律系统 5.3.5.1</h2>
+      <h2>投资纪律系统 5.3.6</h2>
       <p class="section-note">优先级：数据有效性 → 现金安全 → 回撤状态 → DOGE/BGB投机仓限制 → CRCL独立卫星仓限制 → AI主攻仓A/S急跌机会 → 核心/稳定层预设价位 → 主题仓上限 → 止盈与再平衡。上涨不追，低价值提醒降频。</p>
 
       <div class="grid rule-grid">
@@ -544,7 +727,7 @@
               <tr><td>≤ 52000</td><td>暂停主动买入</td><td>站上 54000</td></tr>
             </tbody>
           </table>
-          <p class="muted">5.3.5.1 不再用 BTC/ETH 单项偏低打断你；BTC/ETH 合计达标即视为核心总量达标，单项偏低只作为“核心偏科”提示。新增资金仍优先 AI 主攻仓。</p>
+          <p class="muted">5.3.6 不再用 BTC/ETH 单项偏低打断你；BTC/ETH 合计达标即视为核心总量达标，单项偏低只作为“核心偏科”提示。新增资金仍优先 AI 主攻仓。</p>
         </div>
 
         <div class="rule-box">
@@ -613,7 +796,7 @@
   </main>
 
   <script type="module">
-    import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs?v=522";
+    import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs?v=523";
     const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v522";
 
     const DEFAULT_HOLDINGS = {
@@ -1805,6 +1988,167 @@
       `).join("");
     }
 
+
+
+    function executionStatusMeta(record) {
+      const status = String(record?.status || "pending");
+      if (status === "executed") return { label: "已买入", className: "success", cardClass: "executed" };
+      if (status === "skipped") return { label: "未买入", className: "", cardClass: "skipped" };
+      if (status === "expired") return { label: "已错过", className: "risk", cardClass: "expired" };
+      if (status === "review_only") return { label: "仅复盘", className: "info", cardClass: "review_only" };
+      return { label: "等待你确认", className: "warn", cardClass: "pending" };
+    }
+
+    function executionTitle(record) {
+      const type = String(record?.type || "");
+      const level = String(record?.level || "");
+      if (type === "ai_dip_opportunity" && level === "S") return "AI主攻仓出现强急跌机会（S级）";
+      if (type === "ai_dip_opportunity" && level === "A") return "AI主攻仓出现急跌机会（A级）";
+      if (type === "manual_emotional_trade") return "情绪交易复盘";
+      if (level === "RISK") return "系统记录了一条风险提醒";
+      return "系统记录了一条投资提醒";
+    }
+
+    function parseExecutionDate(value) {
+      if (!value) return null;
+      const normalized = String(value).replace("+08:00", "+08:00");
+      const date = new Date(normalized);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function formatExecutionTime(value) {
+      const date = parseExecutionDate(value);
+      if (!date) return "时间未知";
+      return new Intl.DateTimeFormat("zh-CN", {
+        timeZone: "Asia/Shanghai",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }).format(date).replace(/\//g, "年");
+    }
+
+    function executionAmountText(record) {
+      const min = Number(record?.suggestedAmountMin);
+      const max = Number(record?.suggestedAmountMax);
+      const currency = String(record?.suggestedCurrency || "USDT").replace("USDT", "U");
+      if (Number.isFinite(min) && Number.isFinite(max) && min > 0 && max > 0 && min !== max) return `${Math.round(min)} - ${Math.round(max)} ${currency}`;
+      const amount = Number.isFinite(max) && max > 0 ? max : min;
+      if (Number.isFinite(amount) && amount > 0) return `${Math.round(amount)} ${currency}`;
+      return "复盘提醒";
+    }
+
+    function executionWasNoticedText(record) {
+      const decision = record?.userDecision || {};
+      if (decision.wasNoticed === false) return "⚠ 你可能没看到这条提醒";
+      if (decision.wasNoticed === true && decision.executed === false) return "你看到了，但没有执行";
+      return "";
+    }
+
+    function executionHandled(record) {
+      const status = String(record?.status || "pending");
+      return ["executed", "skipped", "expired", "review_only"].includes(status);
+    }
+
+    function executionExecuted(record) {
+      return String(record?.status || "") === "executed" || record?.userDecision?.executed === true;
+    }
+
+    function recentExecutionRecords(records, days = 30) {
+      const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+      return records.filter((record) => {
+        const date = parseExecutionDate(record.createdAt);
+        return date && date.getTime() >= cutoff;
+      });
+    }
+
+    function renderExecutionStats(records) {
+      const recent = recentExecutionRecords(records, 30);
+      const handled = recent.filter(executionHandled);
+      const pending = recent.filter((record) => !executionHandled(record));
+      const executed = handled.filter(executionExecuted);
+      const rate = handled.length ? Math.round(executed.length / handled.length * 100) : 0;
+      const stats = [
+        ["最近30天提醒", `${recent.length}次`],
+        ["已处理", `${handled.length}次`],
+        ["未处理", `${pending.length}次`],
+        ["执行率", `${rate}%`]
+      ];
+      return `<div class="execution-log-summary">${stats.map(([label, value]) => `
+        <div class="execution-stat">
+          <div class="stat-label">${label}</div>
+          <div class="stat-value">${value}</div>
+        </div>
+      `).join("")}</div>`;
+    }
+
+    function renderExecutionLog(log) {
+      const box = document.getElementById("executionLogBox");
+      if (!box) return;
+      if (!log || !Array.isArray(log.records)) {
+        box.innerHTML = `<div class="execution-empty"><strong>暂时无法读取执行纪律日志。</strong><br>这不会影响资产统计和健康评分；稍后刷新页面或检查仓库里的执行日志文件即可。</div>`;
+        return;
+      }
+      const records = [...log.records].sort((a, b) => {
+        const da = parseExecutionDate(a.createdAt)?.getTime() || 0;
+        const db = parseExecutionDate(b.createdAt)?.getTime() || 0;
+        return db - da;
+      });
+      if (!records.length) {
+        box.innerHTML = `
+          <div class="execution-empty">
+            <strong>系统还没有记录到任何买入机会。</strong><br>
+            当AI主攻仓标的出现急跌时，提醒会自动出现在这里。<br>
+            <span class="muted">现在没有需要你处理的执行提醒。</span>
+          </div>
+        `;
+        return;
+      }
+      box.innerHTML = `${renderExecutionStats(records)}
+        <div class="execution-log-list">
+          ${records.map((record) => {
+            const meta = executionStatusMeta(record);
+            const noticedText = executionWasNoticedText(record);
+            const symbols = Array.isArray(record.symbols) ? record.symbols : [];
+            const reason = record.triggerReason || "系统记录了一条提醒，等待你复盘。";
+            const action = record.suggestedAction || "请根据当时的系统提醒和账户现金情况复盘是否应该执行。";
+            return `
+              <article class="execution-card ${meta.cardClass}">
+                <div class="execution-top">
+                  <span class="pill ${meta.className}">${meta.label}</span>
+                  ${noticedText ? `<span class="execution-notice">${escapeHtml(noticedText)}</span>` : ""}
+                </div>
+                <h3 class="execution-title">${escapeHtml(executionTitle(record))}</h3>
+                <div class="execution-time">${escapeHtml(formatExecutionTime(record.createdAt))}</div>
+                <p class="execution-reason">${escapeHtml(reason)}</p>
+                <div class="execution-suggestion">
+                  <div>
+                    <div class="execution-amount-label">建议金额</div>
+                    <div class="execution-amount">${escapeHtml(executionAmountText(record))}</div>
+                  </div>
+                  <div>
+                    <div class="execution-amount-label">系统建议</div>
+                    <div class="execution-action-text">${escapeHtml(action)}</div>
+                  </div>
+                </div>
+                <div class="execution-symbols">
+                  ${symbols.length ? symbols.map((symbol) => `<span class="execution-symbol-tag">${escapeHtml(symbol)}</span>`).join("") : `<span class="muted">未指定具体标的</span>`}
+                </div>
+                <div class="execution-next-step">
+                  <strong>你接下来要做：</strong>打开 GitHub 仓库里的执行日志文件，找到这条提醒，把结果标记为“已买入”或“未买入”，并写一句复盘备注。
+                  <div class="execution-help-actions">
+                    <span class="execution-help-button">我已经买入</span>
+                    <span class="execution-help-button secondary">我没有买入</span>
+                  </div>
+                </div>
+              </article>
+            `;
+          }).join("")}
+        </div>`;
+    }
+
     function renderEditor(holdings) {
       document.getElementById("editor").innerHTML = allAssets(holdings).map((asset) => `
         <div class="editor-item" data-symbol="${asset.symbol}" data-type="${asset.type}">
@@ -1850,12 +2194,14 @@
         snapshot = remoteSnapshot;
       }
       const alerts = await safeFetchJson("data/alerts.json", { alerts: [] });
+      const executionLog = await safeFetchJson("data/execution_log.json", { schemaVersion: "1.0", updatedAt: null, records: [] });
       renderV4Dashboard(snapshot, rules);
       renderSummary(snapshot);
       renderTargetRules(snapshot, rules);
       renderCapRules(snapshot, rules);
       renderPositions(snapshot, rules);
       renderAlerts(alerts, snapshot);
+      renderExecutionLog(executionLog);
     }
 
     /* holdings-json-only: front-end manual trade/edit/cloud sync removed. */
