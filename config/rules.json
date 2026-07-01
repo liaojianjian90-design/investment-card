@@ -1514,7 +1514,7 @@
       "sameSymbolBuyHours": 48,
       "postBuyNoDipBuyHours": 24
     },
-    "versionName": "投资健康卡 5.3.5：CRCL独立卫星仓 + 核心总量优先判断版",
+    "versionName": "5.4 仓位体检版",
     "effectivePositionRules": {
       "enabled": true,
       "mainAttackMinBuyUSDT": 500,
@@ -1707,7 +1707,7 @@
       }
     },
     "aiIntradayDropOpportunityRules": {
-      "enabled": true,
+      "enabled": false,
       "version": "5.3.5",
       "name": "AI主攻仓盘中急跌机会捕捉",
       "description": "5.3.5 当前阶段新增资金优先给 AI 主攻仓；CRCL 独立做加密金融基础设施卫星仓，不参与 AI A/S 级急跌规则。现金≥45%、AI主攻仓低于25%时，主攻标的急跌可触发有效买入。",
@@ -1755,30 +1755,12 @@
       "maxLeveragedEtfBuy": 500,
       "minMainAttackBuy": 500,
       "emailTitlePrefix": "【AI主攻仓急跌机会】",
-      "discipline": "AI 主升阶段，现金高且 AI 主攻仓不足时，A/S级急跌必须买有效仓位；BTC/XAUT 只保留底仓，不机械补仓。单日AI主攻买入不得超过总资产12%，AI总仓35%后停止新增，40%为硬上限。"
+      "discipline": "AI 主升阶段，现金高且 AI 主攻仓不足时，A/S级急跌必须买有效仓位；BTC/XAUT 只保留底仓，不机械补仓。单日AI主攻买入不得超过总资产12%，AI总仓35%后停止新增，40%为硬上限。",
+      "note": "5.4仓位体检版关闭自动急跌买入日志；操作前人工沟通。"
     },
     "lowFrequencyExecutionPolicy": {
-      "enabled": true,
-      "version": "5.3.5",
-      "dailySummary": true,
-      "weeklyReview": true,
-      "weeklyReviewWeekdayUtc": 0,
-      "principle": "少动；上涨不追；AI急跌敢买；CRCL 独立做加密金融基础设施卫星仓；BTC/XAUT 只保留底仓；新增资金优先主升方向；单笔有效。",
-      "checkWindows": [
-        "现金≥65%视为高现金，可在S级AI急跌时使用更高买入上限",
-        "开盘后15-60分钟只看AI A/S急跌",
-        "收盘后只更新holdings.json"
-      ],
-      "disableMicroTradeAlertsBelowUSDT": 300,
-      "mainAttackMinimumUSDT": 500,
-      "aLevelOpportunityUSDT": [
-        1000,
-        1500
-      ],
-      "sLevelOpportunityUSDT": [
-        1500,
-        2500
-      ]
+      "enabled": false,
+      "note": "5.4仓位体检版关闭每日执行摘要。"
     },
     "trendPriorityPolicy": {
       "enabled": true,
@@ -1825,12 +1807,17 @@
       "stopAdd": 0.045,
       "hardMax": 0.05,
       "note": "Circle等加密金融基础设施标的，只允许小仓卫星观察，不与AI主攻仓争资金，不与DOGE/BGB合并计算投机仓上限。"
+    },
+    "positionDashboardOnly": {
+      "enabled": true,
+      "name": "仓位体检模式",
+      "note": "网站只统计仓位结构、风险上限和数据状态；不自动给加仓/减仓指令。任何操作前先人工复核。"
     }
   },
-  "systemVersion": "5.3.5",
-  "systemName": "投资健康卡 5.3.5：CRCL独立卫星仓 + 核心总量优先判断版",
+  "systemVersion": "5.4",
+  "systemName": "投资健康卡 5.4 仓位体检版",
   "aiIntradayDropOpportunityRules": {
-    "enabled": true,
+    "enabled": false,
     "version": "5.3.5",
     "name": "AI主攻仓盘中急跌机会捕捉",
     "description": "5.3.5 当前阶段新增资金优先给 AI 主攻仓；CRCL 独立做加密金融基础设施卫星仓，不参与 AI A/S 级急跌规则。现金≥45%、AI主攻仓低于25%时，主攻标的急跌可触发有效买入。",
@@ -1878,30 +1865,12 @@
     "maxLeveragedEtfBuy": 500,
     "minMainAttackBuy": 500,
     "emailTitlePrefix": "【AI主攻仓急跌机会】",
-    "discipline": "AI 主升阶段，现金高且 AI 主攻仓不足时，A/S级急跌必须买有效仓位；BTC/XAUT 只保留底仓，不机械补仓。单日AI主攻买入不得超过总资产12%，AI总仓35%后停止新增，40%为硬上限。"
+    "discipline": "AI 主升阶段，现金高且 AI 主攻仓不足时，A/S级急跌必须买有效仓位；BTC/XAUT 只保留底仓，不机械补仓。单日AI主攻买入不得超过总资产12%，AI总仓35%后停止新增，40%为硬上限。",
+    "note": "5.4仓位体检版关闭自动急跌买入日志；操作前人工沟通。"
   },
   "lowFrequencyExecutionPolicy": {
-    "enabled": true,
-    "version": "5.3.5",
-    "dailySummary": true,
-    "weeklyReview": true,
-    "weeklyReviewWeekdayUtc": 0,
-    "principle": "少动；上涨不追；AI急跌敢买；CRCL 独立做加密金融基础设施卫星仓；BTC/XAUT 只保留底仓；新增资金优先主升方向；单笔有效。",
-    "checkWindows": [
-      "美股开盘前只看计划",
-      "开盘后15-60分钟只看AI A/S急跌",
-      "收盘后只更新holdings.json"
-    ],
-    "disableMicroTradeAlertsBelowUSDT": 300,
-    "mainAttackMinimumUSDT": 500,
-    "aLevelOpportunityUSDT": [
-      1000,
-      1500
-    ],
-    "sLevelOpportunityUSDT": [
-      1500,
-      2500
-    ]
+    "enabled": false,
+    "note": "5.4仓位体检版关闭每日执行摘要。"
   },
   "trendPriorityPolicy": {
     "enabled": true,
@@ -1931,5 +1900,6 @@
       "DOGE 仅 BTC 企稳后小仓"
     ],
     "principle": "BTC/ETH 合计达标后，单项偏低只显示核心偏科；CRCL 独立做加密金融基础设施卫星仓；BTC/XAUT 保留底仓，不因目标不足机械占用新增资金；AI 主攻仓未到 25% 前，新增资金默认优先 AI。"
-  }
+  },
+  "positionDashboardOnly": true
 }

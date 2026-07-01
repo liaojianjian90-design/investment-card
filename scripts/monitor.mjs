@@ -1310,7 +1310,7 @@ function buildEmailContent(alerts, snapshot) {
         ? "【投资结构提醒】"
         : "【投资监控提醒】";
   const subjectSymbols = symbols.slice(0, 4).join("、") || "组合";
-  const subject = `${subjectPrefix}${subjectSymbols} ${alerts.length}条信号`;
+  const subject = `${subjectPrefix}${subjectSymbols} ${alerts.length}条仓位提醒`;
 
   const header = [
     subjectPrefix.replace(/[【】]/g, ""),
@@ -1532,10 +1532,103 @@ function addAiIntradayOpportunityAlerts(alerts, alertState, rules, snapshot, exe
   return false;
 }
 
+
+function addPositionDashboardOnlyAlerts(alerts, alertState, rules, snapshot) {
+  const v5 = getV4Rules(rules);
+  const cashPct = Number(snapshot.cashPct || 0);
+  const themeSymbols = v5.themeLayer?.symbols || [];
+  const themeWeight = combinedWeight(snapshot, themeSymbols);
+  const specSymbols = v5.speculativeLayer?.symbols || ["DOGE", "BGB"];
+  const specWeight = combinedWeight(snapshot, specSymbols);
+  const cryptoFinanceSymbols = v5.cryptoFinanceLayer?.symbols || ["CRCL"];
+  const cryptoFinanceWeight = combinedWeight(snapshot, cryptoFinanceSymbols);
+  const specStopPct = Number(v5.speculativeLayer?.noNewBuyAbove ?? 0.045) * 100;
+  const specHardPct = Number(v5.speculativeLayer?.hardWarningAbove ?? 0.06) * 100;
+  const crclStopPct = Number(v5.cryptoFinanceLayer?.stopAdd ?? 0.045) * 100;
+  const crclHardPct = Number(v5.cryptoFinanceLayer?.hardMax ?? 0.05) * 100;
+  const themeStopPct = Number(v5.themeLayer?.targetMax ?? 0.35) * 100;
+  const themeHardPct = Number(v5.themeLayer?.hardMax ?? 0.40) * 100;
+
+  if (snapshot.isDataBlocked) {
+    addAlert(alerts, alertState, rules, {
+      id: "position-dashboard-data-blocked",
+      symbol: "DATA",
+      type: "data-risk",
+      severity: "high",
+      title: "价格数据不可用于判断",
+      conclusion: "当前价格数据过期或缺失，页面只适合看仓位结构，不适合做操作依据。",
+      reason: `数据年龄约 ${Math.round(Number(snapshot.dataAgeMinutes || 0))} 分钟。`,
+      action: "先刷新数据或用 Bitget 截图复核，再讨论是否需要操作。",
+      discipline: "5.4 仓位体检版不自动给买卖指令。"
+    });
+  }
+
+  if (cashPct < 35) {
+    addAlert(alerts, alertState, rules, {
+      id: "position-dashboard-cash-low",
+      symbol: "CASH",
+      type: "cash-risk",
+      severity: "high",
+      title: "现金比例低于保护线",
+      conclusion: "现金比例偏低，组合抗波动能力下降。",
+      reason: `当前现金比例 ${formatPct(cashPct)}，低于 35% 保护线。`,
+      action: "任何新增操作都需要先人工复核，优先恢复现金安全垫。",
+      discipline: "现金是二次进攻权，不要被情绪交易打薄。"
+    });
+  }
+
+  if (themeWeight >= themeStopPct) {
+    addAlert(alerts, alertState, rules, {
+      id: "position-dashboard-ai-high",
+      symbol: "AI",
+      type: "theme-risk",
+      severity: themeWeight >= themeHardPct ? "high" : "medium",
+      title: "AI相关仓位偏高",
+      conclusion: themeWeight >= themeHardPct ? "AI相关仓位已超过硬上限。" : "AI相关仓位已进入停止新增观察区。",
+      reason: `AI相关仓位约 ${formatPct(themeWeight)}；目标上限 ${formatPct(themeStopPct)}，硬上限 ${formatPct(themeHardPct)}。`,
+      action: "不自动加仓；如需操作，先发最新仓位和 Bitget 截图人工确认。",
+      discipline: "AI 是主线，但高相关资产不能当成真正分散。"
+    });
+  }
+
+  if (specWeight >= specStopPct) {
+    addAlert(alerts, alertState, rules, {
+      id: "position-dashboard-spec-high",
+      symbol: specSymbols.join("+"),
+      type: "spec-risk",
+      severity: specWeight >= specHardPct ? "high" : "medium",
+      title: "DOGE/BGB 投机层偏高",
+      conclusion: "投机层已接近或超过纪律上限。",
+      reason: `${specSymbols.join(" + ")} 当前合计约 ${formatPct(specWeight)}；CRCL 不纳入本层统计。`,
+      action: "投机层后续只做人工复核，不自动提示补仓。",
+      discipline: "小仓可以观察，不能摊成核心仓。"
+    });
+  }
+
+  if (cryptoFinanceWeight >= crclStopPct) {
+    addAlert(alerts, alertState, rules, {
+      id: "position-dashboard-crcl-high",
+      symbol: cryptoFinanceSymbols.join("+"),
+      type: "crypto-finance-risk",
+      severity: cryptoFinanceWeight >= crclHardPct ? "high" : "medium",
+      title: "CRCL 卫星仓偏高",
+      conclusion: cryptoFinanceWeight >= crclHardPct ? "CRCL 已超过硬上限。" : "CRCL 已达到停止新增区。",
+      reason: `CRCL 当前约 ${formatPct(cryptoFinanceWeight)}；4.5% 停止新增，5% 硬上限。`,
+      action: "CRCL 只做加密金融基础设施卫星仓观察，任何补仓先人工复核。",
+      discipline: "CRCL 不与 DOGE/BGB 合并，也不抢 AI 主攻资金。"
+    });
+  }
+}
+
 function evaluateRules(snapshot, rules, alertState, executionLog, signalState) {
   const alerts = [];
   updateRiskState(snapshot, rules, alertState);
   resetLevels(alertState, rules, snapshot);
+
+  if (process.env.POSITION_DASHBOARD_ONLY === "true" || rules.positionDashboardOnly === true || rules.v5Rules?.positionDashboardOnly?.enabled === true) {
+    addPositionDashboardOnlyAlerts(alerts, alertState, rules, snapshot);
+    return alerts;
+  }
 
   const btc = position(snapshot, "BTC");
   const eth = position(snapshot, "ETH");
