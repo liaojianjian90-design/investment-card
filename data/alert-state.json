@@ -3,5 +3,10 @@
   "lastAlerts": {},
   "lastActiveTradeDate": null,
   "triggeredLevels": {},
-  "riskState": {}
+  "riskState": {},
+  "highWatermark": 15779.889916524335,
+  "weeklyReference": {
+    "week": "2026-27",
+    "btcPrice": 58878.22
+  }
 }
