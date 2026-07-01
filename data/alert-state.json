@@ -1,14 +1,89 @@
 {
-  "highWatermark": 16013.100124236382,
+  "highWatermark": 15889.2330587204,
   "weeklyReference": {
     "week": "2026-27",
     "btcPrice": 59000
   },
   "triggeredLevels": {
+    "watch-asx-38": {
+      "triggeredAt": "2026-06-30T07:16:58.233Z",
+      "triggerPrice": 38,
+      "resetAbove": 40
+    },
     "watch-dram-72": {
       "triggeredAt": "2026-06-30T07:17:05.496Z",
       "triggerPrice": 70,
       "resetAbove": 76
+    },
+    "watch-aaoi-125": {
+      "triggeredAt": "2026-06-30T07:17:05.496Z",
+      "triggerPrice": 120,
+      "resetAbove": 135
+    },
+    "watch-anet-150": {
+      "triggeredAt": "2026-06-30T07:17:05.500Z",
+      "triggerPrice": 150,
+      "resetAbove": 160
+    },
+    "watch-mrvl-250": {
+      "triggeredAt": "2026-06-30T07:17:05.500Z",
+      "triggerPrice": 250,
+      "resetAbove": 265
+    },
+    "watch-avgo-350": {
+      "triggeredAt": "2026-06-30T07:17:05.500Z",
+      "triggerPrice": 350,
+      "resetAbove": 367
+    },
+    "watch-tsm-410": {
+      "triggeredAt": "2026-06-30T07:17:05.502Z",
+      "triggerPrice": 260,
+      "resetAbove": 430
+    },
+    "watch-fn-500": {
+      "triggeredAt": "2026-06-30T07:17:05.502Z",
+      "triggerPrice": 500,
+      "resetAbove": 525
+    },
+    "watch-asml-1700": {
+      "triggeredAt": "2026-06-30T07:17:05.502Z",
+      "triggerPrice": 1050,
+      "resetAbove": 1800
+    },
+    "watch-sndk-2000": {
+      "triggeredAt": "2026-06-30T07:17:05.503Z",
+      "triggerPrice": 1950,
+      "resetAbove": 2100
+    },
+    "watch-anet-140": {
+      "triggeredAt": "2026-07-01T01:36:42.051Z",
+      "triggerPrice": 1,
+      "resetAbove": 150
+    },
+    "watch-avgo-325": {
+      "triggeredAt": "2026-07-01T01:37:23.775Z",
+      "triggerPrice": 1,
+      "resetAbove": 350
+    },
+    "watch-fn-470": {
+      "triggeredAt": "2026-07-01T01:37:23.783Z",
+      "triggerPrice": 1,
+      "resetAbove": 500
+    },
+    "watch-smh-570": {
+      "triggeredAt": "2026-07-01T01:37:23.784Z",
+      "triggerPrice": 1,
+      "resetAbove": 600
+    },
+    "watch-soxx-570": {
+      "triggeredAt": "2026-07-01T01:37:23.785Z",
+      "triggerPrice": 1,
+      "resetAbove": 595
+    },
+    "watch-smh-600": {
+      "triggeredAt": "2026-07-01T01:37:23.786Z",
+      "triggerPrice": 1,
+      "resetAbove": 625
     }
   },
   "lastAlerts": {
@@ -16,11 +91,14 @@
     "trend-ai-priority-2026-27": "2026-06-30T07:16:58.218Z",
     "daily-exec-summary-2026-06-30": "2026-06-30T07:16:58.232Z",
     "watch-asx-38": "2026-06-30T07:16:58.233Z",
-    "v5-core-skew-2026-27": "2026-06-30T10:20:18.231Z",
-    "ai-dip-review-2026-06-30": "2026-06-30T10:20:18.244Z",
-    "sndk-stop-add": "2026-06-30T14:09:11.299Z",
-    "sndk-weight-3": "2026-06-30T14:09:11.323Z",
-    "daily-exec-summary-2026-07-01": "2026-06-30T16:00:15.675Z"
+    "cap-crcl-3": "2026-07-01T01:36:42.014Z",
+    "crcl-stop-add": "2026-07-01T01:36:42.014Z",
+    "v5-core-skew-2026-27": "2026-07-01T01:36:42.016Z",
+    "v5-spec-no-new-buy": "2026-07-01T01:36:42.016Z",
+    "daily-exec-summary-2026-07-01": "2026-07-01T01:36:42.045Z",
+    "watch-anet-140": "2026-07-01T01:36:42.055Z",
+    "crcl-weight-2": "2026-07-01T01:36:42.056Z",
+    "crcl-weight-3": "2026-07-01T01:36:42.056Z"
   },
-  "lastActiveTradeDate": "2026-06-30"
+  "lastActiveTradeDate": "2026-07-01"
 }

@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 6500.57,
+      "quantity": 7985.71781844,
       "cost": 1,
       "type": "cash"
     },
@@ -17,8 +17,8 @@
   "positions": [
     {
       "symbol": "BTC",
-      "quantity": 0.02570715,
-      "cost": 59456.98,
+      "quantity": 0.02152615,
+      "cost": 59652.38,
       "type": "crypto"
     },
     {
@@ -29,8 +29,8 @@
     },
     {
       "symbol": "DOGE",
-      "quantity": 7933.1942142,
-      "cost": 0.07309,
+      "quantity": 5073.6003142,
+      "cost": 0.07489,
       "type": "crypto"
     },
     {
@@ -38,6 +38,12 @@
       "quantity": 25.91259087,
       "cost": 1.978,
       "type": "crypto"
+    },
+    {
+      "symbol": "CRCL",
+      "quantity": 7.60903998,
+      "cost": 65.7,
+      "type": "watch"
     },
     {
       "symbol": "VOO",
@@ -65,19 +71,19 @@
     },
     {
       "symbol": "MU",
-      "quantity": 0.94527129,
-      "cost": 1125.24,
+      "quantity": 0.51167157,
+      "cost": 1102.51,
       "type": "watch"
     },
     {
       "symbol": "SNDK",
-      "quantity": 0.39720275,
-      "cost": 2075.05,
+      "quantity": 0.16168057,
+      "cost": 1969.15,
       "type": "watch"
     },
     {
       "symbol": "DRAM",
-      "quantity": 12.35126412,
+      "quantity": 5.5535032,
       "cost": 69.52,
       "type": "watch"
     },
@@ -101,8 +107,8 @@
     },
     {
       "symbol": "GLW",
-      "quantity": 2.74265644,
-      "cost": 261.12,
+      "quantity": 4.65759003,
+      "cost": 261.08,
       "type": "watch"
     },
     {
@@ -131,8 +137,8 @@
     },
     {
       "symbol": "SMH",
-      "quantity": 0.77387993,
-      "cost": 650.85,
+      "quantity": 0,
+      "cost": 0,
       "type": "watch"
     },
     {

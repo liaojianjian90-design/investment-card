@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
-  <title>投资健康卡 5.3.3</title>
+  <title>投资健康卡 5.3.4</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <style>
     :root {
@@ -404,10 +404,10 @@
 <body>
   <main class="shell">
     <section class="hero">
-      <div class="eyebrow">Investment Health Card 5.3.3</div>
-      <h1>投资健康卡 5.3.3</h1>
+      <div class="eyebrow">Investment Health Card 5.3.4</div>
+      <h1>投资健康卡 5.3.4</h1>
       <p class="subtitle">
-        趋势优先 + AI新增资金优先执行版。以 config/holdings.json 为唯一仓位来源；现金目标 40%-50%，BTC/ETH/VOO/XAUT 做底盘，MU / DRAM / GLW / SMH 做有效主攻仓。平时少动，上涨不追；只有 A/S 级 AI 急跌、风控、再平衡或预设价位触发时才打断你。
+        趋势优先 + AI新增资金优先执行版。以 config/holdings.json 为唯一仓位来源；现金目标 40%-50%，BTC/ETH/VOO/XAUT 做底盘，MU / DRAM / GLW / SMH 做有效主攻仓。CRCL 加入加密金融基础设施卫星仓，只允许小仓观察，不与 AI 主攻仓争资金。平时少动，上涨不追；只有 A/S 级 AI 急跌、风控、再平衡或预设价位触发时才打断你。
       </p>
     </section>
 
@@ -421,7 +421,7 @@
 
     <section class="card">
       <h2>投资健康评分</h2>
-      <p class="section-note">5.3.3 评分重点是“趋势优先 + 核心总量优先判断”：BTC/ETH 合计达标后，不再因为单项偏低显示核心不足；单项偏低只显示核心偏科，不影响 AI 主攻仓优先级。</p>
+      <p class="section-note">5.3.4 评分重点是“趋势优先 + 核心总量优先判断 + CRCL卫星仓”：BTC/ETH 合计达标后，不再因为单项偏低显示核心不足；CRCL 只做加密金融基础设施卫星仓，不影响 AI 主攻仓优先级。</p>
       <div id="v4Health"></div>
       <div class="notice" id="v4Judgement"></div>
     </section>
@@ -487,7 +487,7 @@
     </section>
 
     <section class="card">
-      <h2>投资纪律系统 5.3.3</h2>
+      <h2>投资纪律系统 5.3.4</h2>
       <p class="section-note">优先级：数据有效性 → 现金安全 → 回撤状态 → 投机仓限制 → AI主攻仓A/S急跌机会 → 核心/稳定层预设价位 → 主题仓上限 → 止盈与再平衡。上涨不追，低价值提醒降频。</p>
 
       <div class="grid rule-grid">
@@ -524,10 +524,10 @@
           <table>
             <thead><tr><th>从高点回撤</th><th>系统动作</th></tr></thead>
             <tbody>
-              <tr><td>-10%</td><td>停止 DOGE/BGB/AAOI 等高波动新增买入</td></tr>
+              <tr><td>-10%</td><td>停止 DOGE/BGB/CRCL/AAOI 等高波动新增买入</td></tr>
               <tr><td>-15%</td><td>只允许 BTC/ETH 半额定投和 VOO/XAUT 小额防守买入</td></tr>
               <tr><td>-20%</td><td>暂停所有主动买入 7 天</td></tr>
-              <tr><td>-30%</td><td>优先降低 DOGE/BGB/AAOI 和超限主题仓风险</td></tr>
+              <tr><td>-30%</td><td>优先降低 DOGE/BGB/CRCL/AAOI 和超限主题仓风险</td></tr>
             </tbody>
           </table>
         </div>
@@ -544,7 +544,7 @@
               <tr><td>≤ 52000</td><td>暂停主动买入</td><td>站上 54000</td></tr>
             </tbody>
           </table>
-          <p class="muted">5.3.3 不再用 BTC/ETH 单项偏低打断你；BTC/ETH 合计达标即视为核心总量达标，单项偏低只作为“核心偏科”提示。新增资金仍优先 AI 主攻仓。</p>
+          <p class="muted">5.3.4 不再用 BTC/ETH 单项偏低打断你；BTC/ETH 合计达标即视为核心总量达标，单项偏低只作为“核心偏科”提示。新增资金仍优先 AI 主攻仓。</p>
         </div>
 
         <div class="rule-box">
@@ -596,6 +596,7 @@
           <h3>九、止盈与再平衡</h3>
           <ul class="rule-list">
             <li>DOGE ≥ 0.085 提醒卖 30%；DOGE ≥ 0.095 提醒卖 50%。</li>
+            <li>CRCL 是加密金融基础设施卫星仓：60以下才允许 100-200U 小补，单仓 4% 停止新增，5% 硬上限。</li>
             <li>BTC 超过 25%、ETH 超过 12%、VOO 超过 25%、XAUT 超过 12% 提醒再平衡。</li>
             <li>AI 主攻仓超过 30% 停止新增，超过 35% 做再平衡；单项超过 8% 停止新增，超过 10% 卖出 15% 回现金。</li>
             <li>止盈不是看空，是把过热仓位换回现金，保留下次进攻权。</li>
@@ -613,14 +614,14 @@
 
   <script type="module">
     import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs";
-    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v519";
+    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v520";
 
     const DEFAULT_HOLDINGS = {
       "baseCurrency": "USDT",
       "cash": [
             {
                   "symbol": "USDT",
-                  "quantity": 9485.61733194,
+                  "quantity": 7985.71781844,
                   "cost": 1,
                   "type": "cash"
             },
@@ -655,6 +656,12 @@
                   "quantity": 25.91259087,
                   "cost": 1.978,
                   "type": "crypto"
+            },
+            {
+                  "symbol": "CRCL",
+                  "quantity": 7.60903998,
+                  "cost": 65.7,
+                  "type": "watch"
             },
             {
                   "symbol": "VOO",
@@ -718,8 +725,8 @@
             },
             {
                   "symbol": "GLW",
-                  "quantity": 0.88859736,
-                  "cost": 243.1,
+                  "quantity": 4.65759003,
+                  "cost": 261.08,
                   "type": "watch"
             },
             {
@@ -771,6 +778,7 @@
         ETH: { minPct: 4, targetMaxPct: 6, stopAddPct: 10, trimPct: 12 },
         DOGE: { minPct: 0, targetMaxPct: 4, stopAddPct: 4.5, trimPct: 5.5 },
         BGB: { minPct: 0, targetMaxPct: 1, stopAddPct: 1, trimPct: 2 },
+        CRCL: { minPct: 0, targetMaxPct: 3.5, stopAddPct: 4, trimPct: 5 },
         VOO: { minPct: 6, targetMaxPct: 8, stopAddPct: 15, trimPct: 25 },
         XAUT: { minPct: 4, targetMaxPct: 6, stopAddPct: 10, trimPct: 12 },
         MRVL: { minPct: 0, targetMaxPct: 1.5, stopAddPct: 1.5, trimPct: 2 },
@@ -781,8 +789,10 @@
         SOXX: { minPct: 0, targetMaxPct: 6, stopAddPct: 8, trimPct: 10 }
       },
       portfolioCaps: [
-        { symbols: ["BTC", "ETH", "DOGE", "BGB"], maxPct: 40 },
+        { symbols: ["BTC", "ETH", "DOGE", "BGB", "CRCL"], maxPct: 35 },
         { symbols: ["DOGE", "BGB"], maxPct: 6 },
+        { symbols: ["CRCL"], maxPct: 5 },
+        { symbols: ["DOGE", "BGB", "CRCL"], maxPct: 8 },
         { symbols: ["AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"], maxPct: 35 }
       ]
     };
@@ -800,6 +810,7 @@
       ETH: "Ethereum",
       DOGE: "Dogecoin",
       BGB: "Bitget Token",
+      CRCL: "Circle Internet Group",
       VOO: "Vanguard S&P 500 ETF",
       XAUT: "Tether Gold",
       AVGO: "Broadcom",
@@ -824,6 +835,7 @@
       ETH: ["ETHUSDT"],
       DOGE: ["DOGEUSDT"],
       BGB: ["BGBUSDT"],
+      CRCL: ["RCRCLUSDT", "CRCLUSDT"],
       XAUT: ["XAUTUSDT"],
       VOO: ["RVOOUSDT", "VOOUSDT"],
       AVGO: ["RAVGOUSDT", "AVGOUSDT"],
@@ -844,6 +856,7 @@
     };
 
     const yahooSymbols = {
+      CRCL: "CRCL",
       VOO: "VOO",
       AVGO: "AVGO",
       MRVL: "MRVL",
@@ -866,7 +879,7 @@
     const allowedSymbols = new Set(allAssets(DEFAULT_HOLDINGS).map((asset) => asset.symbol));
 
     function activePriceSymbols(rules) {
-      const symbols = new Set(["BTC", "ETH", "DOGE", "BGB", "XAUT"]);
+      const symbols = new Set(["BTC", "ETH", "DOGE", "BGB", "CRCL", "XAUT"]);
       (rules.watchBuyRules || []).forEach((rule) => rule.symbol && symbols.add(rule.symbol));
       (rules.trendWatchRules || []).forEach((rule) => rule.symbol && symbols.add(rule.symbol));
       (rules.trendFollowRules || []).forEach((rule) => rule.symbol && symbols.add(rule.symbol));
@@ -1392,7 +1405,7 @@
 
     function renderManualTradeControls() {
       const symbolSelect = document.getElementById("tradeSymbol");
-      const order = ["BTC", "ETH", "VOO", "XAUT", "MRVL", "AVGO", "ANET", "MU", "WDC", "DOGE", "BGB", "TSM", "ASML", "SMH", "SOXX", "DRAM", "SNDK", "FN", "AAOI", "GLW", "ASX"];
+      const order = ["BTC", "ETH", "VOO", "XAUT", "CRCL", "MRVL", "AVGO", "ANET", "MU", "WDC", "DOGE", "BGB", "TSM", "ASML", "SMH", "SOXX", "DRAM", "SNDK", "FN", "AAOI", "GLW", "ASX"];
       const symbols = order.filter((symbol) => allowedSymbols.has(symbol));
       symbolSelect.innerHTML = symbols.map((symbol) => `<option value="${symbol}">${symbol} · ${names[symbol] || ""}</option>`).join("");
       const settings = cloudSyncSettings();
@@ -1495,6 +1508,8 @@
       const key = (cap.id || cap.symbols.join("-")).toLowerCase();
       if (key.includes("crypto")) return "加密总仓";
       if (key.includes("doge-bgb")) return "DOGE + BGB 高投机仓";
+      if (key.includes("crcl")) return "CRCL 加密金融卫星仓";
+      if (key.includes("crypto-satellite")) return "高弹性卫星仓";
       if (key.includes("ai-watch")) return "AI/存储/光通信观察池";
       if (key.includes("storage")) return "存储周期篮子";
       if (key.includes("optical")) return "高波动光通信";
@@ -1523,10 +1538,11 @@
       if (snapshot.cashPct < Number(rules.cashMinPct || 35)) return { label: "现金低于底线", level: "risk" };
       if (row.symbol === "DOGE") return { label: "只止盈，不补仓", level: "warn" };
       if (row.symbol === "BGB") return { label: "不补仓，反弹可清", level: "warn" };
+      if (row.symbol === "CRCL") return { label: "卫星仓，小仓持有", level: row.weightPct >= 4 ? "warn" : "info" };
       const target = rules.targets?.[row.symbol];
       if (target?.trimPct && row.weightPct >= Number(target.trimPct)) return { label: "达到减仓线", level: "risk" };
       if (target?.stopAddPct && row.weightPct >= Number(target.stopAddPct)) return { label: "暂停加仓", level: "warn" };
-      const cryptoWeight = combinedWeight(snapshot, ["BTC", "ETH", "DOGE", "BGB"]);
+      const cryptoWeight = combinedWeight(snapshot, ["BTC", "ETH", "DOGE", "BGB", "CRCL"]);
       if (cryptoWeight > 40) return { label: "加密总仓过高", level: "risk" };
       return { label: snapshot.isStale ? "数据偏旧，仅观察" : "持有观察", level: snapshot.isStale ? "warn" : "" };
     }
@@ -1640,7 +1656,7 @@
 
       const notice = document.getElementById("dataNotice");
       notice.innerHTML = `
-        <strong>价格源：</strong>优先 Bitget（已配置 MRVL/RANET/RTSM/RASML/RSMH/RSOXX 等候选映射，部分标的会自动尝试 R 前缀和无 R 前缀两种交易对）；Bitget 无可用价格时再尝试 Yahoo Finance / Stooq。当前数据状态：
+        <strong>价格源：</strong>优先 Bitget（已配置 CRCL/RCRCL、MRVL/RANET/RTSM/RASML/RSMH/RSOXX 等候选映射，部分标的会自动尝试 R 前缀和无 R 前缀两种交易对）；Bitget 无可用价格时再尝试 Yahoo Finance / Stooq。当前数据状态：
         <span class="pill ${fresh.level}">${fresh.label}</span>
         ${snapshot.isDataBlocked ? " 数据已超过 30 分钟，禁止按信号买入。" : " 邮件提醒和网页展示均不会自动下单；邮件只在结构、风控、买点、止盈或再平衡触发时发送。"}
       `;
@@ -1648,7 +1664,7 @@
 
     function renderTargetRules(snapshot, rules) {
       const targets = rules.targets || {};
-      const order = ["BTC", "ETH", "DOGE", "BGB", "VOO", "XAUT", "AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"];
+      const order = ["BTC", "ETH", "DOGE", "BGB", "CRCL", "VOO", "XAUT", "AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"];
       const symbols = [...order.filter((symbol) => targets[symbol]), ...Object.keys(targets).filter((symbol) => !order.includes(symbol))];
       document.getElementById("targetRows").innerHTML = symbols.map((symbol) => {
         const row = snapshot.positions.find((item) => item.symbol === symbol);

@@ -1,8 +1,8 @@
-# 投资健康卡 5.3.3
+# 投资健康卡 5.3.4
 
 **趋势优先 + AI新增资金优先执行版**
 
-5.3.3 的核心变化：核心增长层改为“总量优先判断”。BTC/ETH 合计达到 8%-13% 区间后，不再因为 BTC 或 ETH 单项偏低显示“核心不足”，而是显示“核心偏科”；该提示不影响 AI 主攻仓新增资金优先级。
+5.3.4 的核心变化：CRCL 加入加密金融基础设施卫星仓，同时核心增长层继续采用“总量优先判断”。BTC/ETH 合计达到 8%-13% 区间后，不再因为 BTC 或 ETH 单项偏低显示“核心不足”，而是显示“核心偏科”；该提示不影响 AI 主攻仓新增资金优先级。
 
 ## 一句话原则
 
@@ -27,7 +27,7 @@ config/holdings.json
 → 手动修改 config/holdings.json
 → 提交 GitHub
 → GitHub Actions 生成 snapshot / alerts
-→ 网页和邮件按 5.3.3 规则更新
+→ 网页和邮件按 5.3.4 规则更新
 ```
 
 ## 当前阶段仓位目标
@@ -176,7 +176,7 @@ BTC/XAUT 结构不足不再作为高优先级买入邮件。
 手动运行：
 
 ```text
-Actions → Investment Health Card 5.3.3 Monitor → Run workflow
+Actions → Investment Health Card 5.3.4 Monitor → Run workflow
 ```
 
 ## 部署后访问

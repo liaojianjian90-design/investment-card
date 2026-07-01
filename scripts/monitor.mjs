@@ -34,6 +34,7 @@ const names = {
   ETH: "Ethereum",
   DOGE: "Dogecoin",
   BGB: "Bitget Token",
+  CRCL: "Circle Internet Group",
   VOO: "Vanguard S&P 500 ETF",
   XAUT: "Tether Gold",
   AVGO: "Broadcom",
@@ -58,6 +59,7 @@ const bitgetSymbols = {
   ETH: ["ETHUSDT"],
   DOGE: ["DOGEUSDT"],
   BGB: ["BGBUSDT"],
+  CRCL: ["RCRCLUSDT", "CRCLUSDT"],
   XAUT: ["XAUTUSDT"],
   VOO: ["RVOOUSDT", "VOOUSDT"],
   AVGO: ["RAVGOUSDT", "AVGOUSDT"],
@@ -78,6 +80,7 @@ const bitgetSymbols = {
 };
 
 const yahooSymbols = {
+  CRCL: "CRCL",
   VOO: "VOO",
   AVGO: "AVGO",
   MRVL: "MRVL",
@@ -442,7 +445,7 @@ async function fetchJson(url) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(url, {
-      headers: { "user-agent": "investment-monitor-card/5.3.3" },
+      headers: { "user-agent": "investment-monitor-card/5.3.4" },
       signal: controller.signal
     });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${url}`);
@@ -539,7 +542,7 @@ async function stooqQuote(symbol) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(`https://stooq.com/q/l/?s=${encodeURIComponent(ticker)}&f=sd2t2ohlcv&h&e=csv`, {
-      headers: { "user-agent": "investment-monitor-card/5.3.3" },
+      headers: { "user-agent": "investment-monitor-card/5.3.4" },
       signal: controller.signal
     });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
@@ -673,7 +676,7 @@ function mockNumber(...keys) {
 }
 
 function activePriceSymbols(rules) {
-  const symbols = new Set(["BTC", "ETH", "DOGE", "BGB", "XAUT"]);
+  const symbols = new Set(["BTC", "ETH", "DOGE", "BGB", "CRCL", "XAUT"]);
   const aiDip = rules.aiIntradayDropOpportunityRules || rules.v5Rules?.aiIntradayDropOpportunityRules || {};
   for (const symbol of [...(aiDip.primarySymbols || []), ...(aiDip.secondarySymbols || []), ...(aiDip.supplementalSymbols || [])]) symbols.add(symbol);
   for (const rule of rules.watchBuyRules || []) if (rule.symbol) symbols.add(rule.symbol);
@@ -860,7 +863,7 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
   const ethWeight = position(snapshot, "ETH")?.weightPct || 0;
   const vooWeight = position(snapshot, "VOO")?.weightPct || 0;
   const xautWeight = position(snapshot, "XAUT")?.weightPct || 0;
-  const specSymbols = v5.speculativeLayer?.symbols || ["DOGE", "BGB"];
+  const specSymbols = v5.speculativeLayer?.symbols || ["DOGE", "BGB", "CRCL"];
   const themeSymbols = v5.themeLayer?.symbols || [];
   const specWeight = combinedWeight(snapshot, specSymbols);
   const themeWeight = combinedWeight(snapshot, themeSymbols);
@@ -931,11 +934,11 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       symbol: specSymbols.join("+"),
       type: "spec-risk",
       severity: specWeight >= reduceOnlySpecPct ? "medium" : "medium",
-      title: "DOGE/BGB 高弹性卫星仓达到上限",
+      title: "高弹性卫星仓达到上限",
       conclusion: specWeight >= reduceOnlySpecPct ? "已进入只减不补区。" : "已达到禁止新增区。",
       reason: `${specSymbols.join(" + ")} 当前合计仓位 ${formatPct(specWeight)}。`,
-      action: "DOGE 只在 BTC 趋势确认且仓位未超上限时考虑；BGB 不放大。达到上限后以趋势止盈或反弹减仓为主。",
-      discipline: "DOGE 可以做 BTC 放大器，但不能用下跌摊低成本的方式变成核心仓。"
+      action: "DOGE 只在 BTC 趋势确认且仓位未超上限时考虑；CRCL 只做加密金融卫星仓；BGB 不放大。达到上限后以趋势止盈或反弹减仓为主。",
+      discipline: "DOGE 可以做 BTC 放大器，CRCL 可以小仓观察加密金融基础设施，但二者都不能用下跌摊低成本的方式变成核心仓。"
     });
   }
 
@@ -1328,7 +1331,7 @@ function buildEmailContent(alerts, snapshot) {
     "3. 现金低于 35% 时，任何新增买入提醒都不执行；现金低于 40% 时暂停普通加仓。",
     "4. 当天已经执行过主动交易时，不再新增第二笔主动买入。",
     "5. AI抽水机仓只买 MU/DRAM/GLW/SMH 等主攻层，MRVL/ANET/AVGO 不替代核心配置。",
-    "6. 5.3.3 低频执行原则：平时少动；上涨不追；急跌敢买；单笔有效；仓位达标就停。",
+    "6. 5.3.4 低频执行原则：平时少动；上涨不追；急跌敢买；单笔有效；仓位达标就停。",
     "7. 如果只是因为情绪上头，默认不买，等下一次监控刷新。"
   ];
 

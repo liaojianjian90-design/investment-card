@@ -41,11 +41,14 @@ export const DEFAULT_V4_RULES = {
     noNewBuyAbove: 0.045,
     reduceOnlyAbove: 0.05,
     hardWarningAbove: 0.06,
-    symbols: ["DOGE", "BGB"],
+    symbols: ["DOGE", "BGB", "CRCL"],
     dogeTargetMax: 0.04,
     dogeHardMax: 0.055,
     bgbTargetMax: 0.01,
-    bgbHardMax: 0.015
+    bgbHardMax: 0.015,
+    crclTargetMax: 0.035,
+    crclStopAdd: 0.04,
+    crclHardMax: 0.05
   },
   dataFreshness: {
     maxAgeMinutes: 30,
@@ -440,19 +443,19 @@ export function calculateHealthScore(snapshot, rules = {}) {
 
   if (specWeight > pct(v4.speculativeLayer.targetMax)) {
     components.speculativeControl.score -= 3;
-    components.speculativeControl.reasons.push("DOGE + BGB 超过 4%，高弹性卫星仓偏高。");
+    components.speculativeControl.reasons.push("高弹性卫星仓超过 4.5%，DOGE/BGB/CRCL 合计偏高。");
   }
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) {
     components.speculativeControl.score -= 3;
-    components.speculativeControl.reasons.push("DOGE + BGB 达到 4.5%，禁止新增投机仓。");
+    components.speculativeControl.reasons.push("高弹性卫星仓达到 4.5%，禁止新增 DOGE/BGB/CRCL。");
   }
   if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove)) {
     components.speculativeControl.score -= 4;
-    components.speculativeControl.reasons.push("DOGE + BGB 达到 5%，只允许趋势止盈或反弹减仓。");
+    components.speculativeControl.reasons.push("高弹性卫星仓达到 5%，只允许趋势止盈或反弹减仓。");
   }
   if (specWeight >= pct(v4.speculativeLayer.hardWarningAbove)) {
     components.speculativeControl.score -= 5;
-    components.speculativeControl.reasons.push("DOGE + BGB 超过 6%，进入高风险警戒。");
+    components.speculativeControl.reasons.push("高弹性卫星仓超过 6%，进入高风险警戒。");
   }
 
   if (themeWeight > pct(v4.themeLayer.targetMax)) {
@@ -525,7 +528,7 @@ function generateTopAdvice(snapshot, rules, layers, freshness) {
   if (!coreDetails.isTotalEnough) advice.push("BTC/ETH 总量低于底仓线，但当前只做观察，不抢 AI 主攻资金。 ");
   else if (coreDetails.isSkewed) advice.push(`BTC/ETH 总量达标但 ${coreDetails.missing.join("/")} 偏低，这是结构偏科，不是核心不足。 `);
   if (stableDetails.total <= 0) advice.push("VOO/XAUT 稳定层完全缺位，但当前优先级仍低于 AI 主攻仓。 ");
-  if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) advice.push("DOGE/BGB 高弹性卫星仓达到上限，禁止新增，以趋势止盈或反弹减仓为主。 ");
+  if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) advice.push("DOGE/BGB/CRCL 高弹性卫星仓达到上限，禁止新增，以趋势止盈或反弹减仓为主。 ");
   if (!advice.length) advice.push("结构基本健康，继续按月复盘和再平衡。 ");
   return [...new Set(advice.map((item) => item.trim()))];
 }
@@ -576,7 +579,7 @@ export function generateAllowedActions(snapshot, rules = {}) {
   if (cashPct >= 45 && coreDetails.isSkewed) actions.push(`BTC/ETH 总量达标但 ${coreDetails.missing.join("/")} 偏低；这是结构偏科，只提示不强制买。 `);
   if (cashPct >= 45 && xautWeight < 3) actions.push("XAUT 已降级为保险底仓；3900 上方不补，3850 以下才考虑 500 USDT 级别补仓。 ");
   if (themeWeight >= 25 && themeWeight < 35) actions.push("AI 主攻仓进入健康进攻区，后续只在急跌或深回调时继续加，不追涨。 ");
-  actions.push("允许做月度复盘、更新持仓成本和检查价格源。 ");
+  actions.push("CRCL 只做加密金融卫星仓，55-60 区间才允许 100-200 USDT 小补，不能抢 AI 主攻资金。 允许做月度复盘、更新持仓成本和检查价格源。 ");
   return [...new Set(actions.map((item) => item.trim()))];
 }
 
@@ -601,7 +604,7 @@ export function generateForbiddenActions(snapshot, rules = {}) {
     forbidden.push("DOGE 不再是绝对禁止，但只有 BTC 趋势确认、DOGE+BGB 合计低于 4.5% 时才允许小额；不要把 DOGE 当核心仓。 ");
     forbidden.push("不要补 BGB。 ");
   }
-  if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove)) forbidden.push("DOGE/BGB 已进入只减不补区，不要摊低成本；DOGE 放大器逻辑只适用于上涨趋势，不适用于下跌补亏。 ");
+  if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove)) forbidden.push("DOGE/BGB/CRCL 已进入只减不补区，不要摊低成本；CRCL 只适合作为小仓卫星，不适合作为主攻仓。 ");
   if (themeWeight < 25 && cashPct >= 45) {
     forbidden.push("不要把新增资金继续分散到 BTC/XAUT 或杂票；AI 主攻仓未达 25% 前，优先等 MU/DRAM/GLW/SMH 的有效买点。 ");
   }
@@ -656,7 +659,8 @@ export function generateRebalanceAlerts(snapshot, rules = {}) {
     if (weightPct(snapshot, symbol) > limit) alerts.push(message);
   }
   if (groupWeightPct(snapshot, v4.themeLayer.symbols) > pct(v4.themeLayer.hardMax)) alerts.push("AI抽水机主攻仓超过 40%，超过硬上限，必须复盘是否降仓。 ");
-  if (groupWeightPct(snapshot, v4.speculativeLayer.symbols) > pct(v4.speculativeLayer.reduceOnlyAbove)) alerts.push("DOGE + BGB 超过 5%，只允许趋势止盈或反弹减仓。 ");
+  if (groupWeightPct(snapshot, v4.speculativeLayer.symbols) > pct(v4.speculativeLayer.reduceOnlyAbove)) alerts.push("DOGE/BGB/CRCL 高弹性卫星仓超过 5%，只允许趋势止盈或反弹减仓。 ");
+  if (weightPct(snapshot, "CRCL") > 5) alerts.push("CRCL 超过 5%，超过加密金融卫星仓硬上限，必须停止新增并复盘是否减仓。 ");
   if (cashPct > 70) alerts.push("现金超过 70%，资金效率偏低，建议按有效仓位规则推进。 ");
   if (cashPct < 40) alerts.push("现金低于 40%，防守不足。 ");
   return [...new Set(alerts.map((item) => item.trim()))];
