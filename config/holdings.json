@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 7985.71781844,
+      "quantity": 5501.10553647,
       "cost": 1,
       "type": "cash"
     },
@@ -17,8 +17,8 @@
   "positions": [
     {
       "symbol": "BTC",
-      "quantity": 0.02152615,
-      "cost": 59652.38,
+      "quantity": 0.02570715,
+      "cost": 59456.98,
       "type": "crypto"
     },
     {
@@ -29,8 +29,8 @@
     },
     {
       "symbol": "DOGE",
-      "quantity": 5073.6003142,
-      "cost": 0.07489,
+      "quantity": 7933.1942142,
+      "cost": 0.07309,
       "type": "crypto"
     },
     {
@@ -71,20 +71,20 @@
     },
     {
       "symbol": "MU",
-      "quantity": 0.51167157,
-      "cost": 1102.51,
+      "quantity": 0.94527129,
+      "cost": 1125.24,
       "type": "watch"
     },
     {
       "symbol": "SNDK",
-      "quantity": 0.16168057,
-      "cost": 1969.15,
+      "quantity": 0.39720275,
+      "cost": 2075.09,
       "type": "watch"
     },
     {
       "symbol": "DRAM",
-      "quantity": 5.5535032,
-      "cost": 69.52,
+      "quantity": 12.35126412,
+      "cost": 71.75,
       "type": "watch"
     },
     {
@@ -137,8 +137,8 @@
     },
     {
       "symbol": "SMH",
-      "quantity": 0,
-      "cost": 0,
+      "quantity": 0.77387993,
+      "cost": 650.85,
       "type": "watch"
     },
     {
