@@ -1,4 +1,4 @@
-name: Investment Health Card 5.3.4 Monitor
+name: Investment Health Card 5.3.5 Monitor
 
 on:
   push:
@@ -15,7 +15,7 @@ on:
         type: boolean
         default: false
   schedule:
-    # 5.3.4：工作日美股盘中每5分钟检查AI A/S急跌。使用 2-57/5 避开每小时整点拥堵。
+    # 5.3.5：工作日美股盘中每5分钟检查AI A/S急跌。使用 2-57/5 避开每小时整点拥堵。
     - cron: "2-57/5 13-22 * * 1-5"
     - cron: "30 22 * * 1-5"
     - cron: "0 1 * * 0"
@@ -51,7 +51,7 @@ jobs:
       - name: Run local self-check
         run: npm test
 
-      - name: Run 5.3.4 monitor
+      - name: Run 5.3.5 monitor
         timeout-minutes: 3
         run: npm run monitor
         env:
