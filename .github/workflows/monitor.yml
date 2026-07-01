@@ -1,4 +1,4 @@
-name: Investment Health Card 5.3.5.1 Monitor
+name: Investment Health Card 5.4.1 Position Dashboard
 
 on:
   push:
@@ -15,8 +15,8 @@ on:
         type: boolean
         default: false
   schedule:
-    # 5.3.5.1：工作日美股盘中每5分钟检查AI A/S急跌。使用 2-57/5 避开每小时整点拥堵。
-    - cron: "2-57/5 13-22 * * 1-5"
+    # 5.3.6：工作日美股盘中每5分钟检查AI A/S急跌。使用 2-57/5 避开每小时整点拥堵。
+    - cron: "17,47 13-22 * * 1-5"
     - cron: "30 22 * * 1-5"
     - cron: "0 1 * * 0"
 
@@ -51,12 +51,13 @@ jobs:
       - name: Run local self-check
         run: npm test
 
-      - name: Run 5.3.5.1 monitor
+      - name: Run 5.4.1 position monitor
         timeout-minutes: 3
         run: npm run monitor
         env:
           PRICE_FETCH_TIMEOUT_MS: 10000
           TEST_EMAIL: ${{ github.event.inputs.test_email || 'false' }}
+          POSITION_DASHBOARD_ONLY: "true"
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
