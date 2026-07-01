@@ -1,4 +1,4 @@
-name: Investment Health Card 5.4.1 Position Dashboard
+name: Investment Health Card 5.4.2 Position Dashboard
 
 on:
   push:
@@ -51,7 +51,7 @@ jobs:
       - name: Run local self-check
         run: npm test
 
-      - name: Run 5.4.1 position monitor
+      - name: Run 5.4.2 position monitor
         timeout-minutes: 3
         run: npm run monitor
         env:
