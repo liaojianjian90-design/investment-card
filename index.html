@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
-  <title>投资健康卡 5.3.5</title>
+  <title>投资健康卡 5.3.5.1</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <style>
     :root {
@@ -289,7 +289,7 @@
     }
     .bar > i { display: block; height: 100%; background: var(--green); border-radius: inherit; }
 
-    .layers-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .layers-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
     .layer-card { min-height: 176px; display: flex; flex-direction: column; gap: 8px; }
     .layer-head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
     .layer-symbols { color: var(--muted); font-size: 12px; word-break: break-word; }
@@ -404,8 +404,8 @@
 <body>
   <main class="shell">
     <section class="hero">
-      <div class="eyebrow">Investment Health Card 5.3.5</div>
-      <h1>投资健康卡 5.3.5</h1>
+      <div class="eyebrow">Investment Health Card 5.3.5.1</div>
+      <h1>投资健康卡 5.3.5.1</h1>
       <p class="subtitle">
         趋势优先 + AI新增资金优先执行版。以 config/holdings.json 为唯一仓位来源；现金目标 40%-50%，BTC/ETH/VOO/XAUT 做底盘，MU / DRAM / GLW / SMH 做有效主攻仓。CRCL 独立归属加密金融基础设施卫星仓，只允许小仓观察，不与 DOGE/BGB 合并计算投机仓上限，也不与 AI 主攻仓争资金。平时少动，上涨不追；只有 A/S 级 AI 急跌、风控、再平衡或预设价位触发时才打断你。
       </p>
@@ -421,7 +421,7 @@
 
     <section class="card">
       <h2>投资健康评分</h2>
-      <p class="section-note">5.3.5 评分重点是“趋势优先 + 核心总量优先判断 + CRCL卫星仓”：BTC/ETH 合计达标后，不再因为单项偏低显示核心不足；CRCL 独立归属加密金融基础设施卫星仓，不纳入 DOGE/BGB 投机仓合计，不影响 AI 主攻仓优先级。</p>
+      <p class="section-note">5.3.5.1 评分重点是“趋势优先 + 核心总量优先判断 + CRCL卫星仓”：BTC/ETH 合计达标后，不再因为单项偏低显示核心不足；CRCL 独立归属加密金融基础设施卫星仓，不纳入 DOGE/BGB 投机仓合计，不影响 AI 主攻仓优先级。</p>
       <div id="v4Health"></div>
       <div class="notice" id="v4Judgement"></div>
     </section>
@@ -487,7 +487,7 @@
     </section>
 
     <section class="card">
-      <h2>投资纪律系统 5.3.5</h2>
+      <h2>投资纪律系统 5.3.5.1</h2>
       <p class="section-note">优先级：数据有效性 → 现金安全 → 回撤状态 → DOGE/BGB投机仓限制 → CRCL独立卫星仓限制 → AI主攻仓A/S急跌机会 → 核心/稳定层预设价位 → 主题仓上限 → 止盈与再平衡。上涨不追，低价值提醒降频。</p>
 
       <div class="grid rule-grid">
@@ -544,7 +544,7 @@
               <tr><td>≤ 52000</td><td>暂停主动买入</td><td>站上 54000</td></tr>
             </tbody>
           </table>
-          <p class="muted">5.3.5 不再用 BTC/ETH 单项偏低打断你；BTC/ETH 合计达标即视为核心总量达标，单项偏低只作为“核心偏科”提示。新增资金仍优先 AI 主攻仓。</p>
+          <p class="muted">5.3.5.1 不再用 BTC/ETH 单项偏低打断你；BTC/ETH 合计达标即视为核心总量达标，单项偏低只作为“核心偏科”提示。新增资金仍优先 AI 主攻仓。</p>
         </div>
 
         <div class="rule-box">
@@ -613,8 +613,8 @@
   </main>
 
   <script type="module">
-    import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs";
-    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v521";
+    import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs?v=522";
+    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v522";
 
     const DEFAULT_HOLDINGS = {
       "baseCurrency": "USDT",
@@ -1570,8 +1570,42 @@
       return "";
     }
 
+    function ensureCryptoFinanceLayer(layers, snapshot, rules) {
+      const result = Array.isArray(layers) ? [...layers] : [];
+      if (result.some((layer) => layer.id === "cryptoFinance" || layer.name === "加密金融基础设施卫星仓")) return result;
+      const crclRow = (snapshot.positions || []).find((row) => row.symbol === "CRCL");
+      const weight = Number(crclRow?.weightPct || 0);
+      const value = Number(crclRow?.value || 0);
+      const cfg = rules?.v5Rules?.cryptoFinanceLayer || rules?.v4Rules?.cryptoFinanceLayer || FALLBACK_RULES.v5Rules?.cryptoFinanceLayer || {};
+      if (!crclRow && !cfg.symbols?.includes("CRCL")) return result;
+      const stop = Number(cfg.stopAdd || 0.045) * 100;
+      const hard = Number(cfg.hardMax || 0.05) * 100;
+      const target = Number(cfg.targetMax || 0.04) * 100;
+      const status = weight >= hard
+        ? { label: "高风险", level: "risk" }
+        : weight >= stop
+          ? { label: "禁止新增", level: "warn" }
+          : weight > target
+            ? { label: "轻度偏高", level: "warn" }
+            : weight > 0
+              ? { label: "小仓观察", level: "info" }
+              : { label: "未建仓", level: "info" };
+      result.push({
+        id: "cryptoFinance",
+        name: cfg.name || "加密金融基础设施卫星仓",
+        symbols: ["CRCL"],
+        value,
+        weightPct: weight,
+        targetText: "CRCL 目标上限 4%，4.5% 禁止新增，5% 硬上限；不与 DOGE/BGB 合并计算投机仓上限",
+        status,
+        advice: weight >= stop ? "CRCL 已接近或达到加密金融卫星仓上限，后续不再新增，只做持有、复盘或减仓。" : "CRCL 只做加密金融基础设施小仓观察，不抢 AI 主攻资金，也不纳入 DOGE/BGB 投机仓合计。"
+      });
+      return result;
+    }
+
     function renderV4Dashboard(snapshot, rules) {
       const summary = calculateHealthSummary(snapshot, rules);
+      const displayLayers = ensureCryptoFinanceLayer(summary.layers, snapshot, rules);
       const score = summary.score;
       const scorePct = Math.max(0, Math.min(100, score.total));
       document.getElementById("v4Health").innerHTML = `
@@ -1603,7 +1637,7 @@
         <ul class="judgement-list">${summary.judgement.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
       `;
 
-      document.getElementById("v4Layers").innerHTML = summary.layers.map((layer) => `
+      document.getElementById("v4Layers").innerHTML = displayLayers.map((layer) => `
         <article class="layer-card">
           <div class="layer-head">
             <strong>${escapeHtml(layer.name)}</strong>
