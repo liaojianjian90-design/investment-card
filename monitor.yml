@@ -1,0 +1,71 @@
+name: Investment Health Card 5.3.6 Monitor
+
+on:
+  push:
+    paths:
+      - "config/holdings.json"
+      - "config/rules.json"
+      - "scripts/monitor.mjs"
+      - "src/lib/investmentHealth.mjs"
+  workflow_dispatch:
+    inputs:
+      test_email:
+        description: "Send a test email"
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    # 5.3.6：工作日美股盘中每5分钟检查AI A/S急跌。使用 2-57/5 避开每小时整点拥堵。
+    - cron: "2-57/5 13-22 * * 1-5"
+    - cron: "30 22 * * 1-5"
+    - cron: "0 1 * * 0"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: investment-health-card-monitor
+  cancel-in-progress: true
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        timeout-minutes: 2
+        run: |
+          npm config set registry https://registry.npmjs.org/
+          npm ci --no-audit --no-fund --progress=false --fetch-timeout=60000 --fetch-retries=2
+
+      - name: Run local self-check
+        run: npm test
+
+      - name: Run 5.3.6 monitor
+        timeout-minutes: 3
+        run: npm run monitor
+        env:
+          PRICE_FETCH_TIMEOUT_MS: 10000
+          TEST_EMAIL: ${{ github.event.inputs.test_email || 'false' }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
+          ALERT_EMAIL_FROM: ${{ secrets.ALERT_EMAIL_FROM }}
+
+      - name: Commit generated data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update investment health card data"
+          file_pattern: "data/*.json"
