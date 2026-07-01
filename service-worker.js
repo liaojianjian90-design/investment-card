@@ -1,4 +1,4 @@
-const CACHE_NAME = "investment-card-github-pages-v520";
+const CACHE_NAME = "investment-card-github-pages-v521";
 const FILES = [
   "./",
   "./index.html",

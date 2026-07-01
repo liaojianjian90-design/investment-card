@@ -445,7 +445,7 @@ async function fetchJson(url) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(url, {
-      headers: { "user-agent": "investment-monitor-card/5.3.4" },
+      headers: { "user-agent": "investment-monitor-card/5.3.5" },
       signal: controller.signal
     });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${url}`);
@@ -542,7 +542,7 @@ async function stooqQuote(symbol) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(`https://stooq.com/q/l/?s=${encodeURIComponent(ticker)}&f=sd2t2ohlcv&h&e=csv`, {
-      headers: { "user-agent": "investment-monitor-card/5.3.4" },
+      headers: { "user-agent": "investment-monitor-card/5.3.5" },
       signal: controller.signal
     });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
@@ -863,16 +863,20 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
   const ethWeight = position(snapshot, "ETH")?.weightPct || 0;
   const vooWeight = position(snapshot, "VOO")?.weightPct || 0;
   const xautWeight = position(snapshot, "XAUT")?.weightPct || 0;
-  const specSymbols = v5.speculativeLayer?.symbols || ["DOGE", "BGB", "CRCL"];
+  const specSymbols = v5.speculativeLayer?.symbols || ["DOGE", "BGB"];
   const themeSymbols = v5.themeLayer?.symbols || [];
   const specWeight = combinedWeight(snapshot, specSymbols);
+  const cryptoFinanceSymbols = v5.cryptoFinanceLayer?.symbols || ["CRCL"];
+  const cryptoFinanceWeight = combinedWeight(snapshot, cryptoFinanceSymbols);
   const themeWeight = combinedWeight(snapshot, themeSymbols);
   const corePlusStable = btcWeight + ethWeight + vooWeight + xautWeight;
   const cashStructurePct = Number(emailPolicy.sendStructureWhenCashAbovePct ?? 0.80) * 100;
   const coreCashPct = Number(emailPolicy.sendCoreMissingWhenCashAbovePct ?? 0.75) * 100;
   const stableCashPct = Number(emailPolicy.sendStableMissingWhenCashAbovePct ?? 0.75) * 100;
-  const noNewSpecPct = Number(emailPolicy.sendSpeculativeNoNewBuyAbove ?? v5.speculativeLayer?.noNewBuyAbove ?? 0.025) * 100;
-  const reduceOnlySpecPct = Number(emailPolicy.sendSpeculativeReduceOnlyAbove ?? v5.speculativeLayer?.reduceOnlyAbove ?? 0.03) * 100;
+  const noNewSpecPct = Number(emailPolicy.sendSpeculativeNoNewBuyAbove ?? v5.speculativeLayer?.noNewBuyAbove ?? 0.045) * 100;
+  const reduceOnlySpecPct = Number(emailPolicy.sendSpeculativeReduceOnlyAbove ?? v5.speculativeLayer?.reduceOnlyAbove ?? 0.05) * 100;
+  const crclStopAddPct = Number(v5.cryptoFinanceLayer?.stopAdd ?? 0.045) * 100;
+  const crclHardMaxPct = Number(v5.cryptoFinanceLayer?.hardMax ?? 0.05) * 100;
 
   if (cashPct > cashStructurePct) {
     addWeeklyAlert(alerts, alertState, rules, "v5-cash-high-structure", {
@@ -934,11 +938,25 @@ function addV5StructuralAlerts(alerts, alertState, rules, snapshot) {
       symbol: specSymbols.join("+"),
       type: "spec-risk",
       severity: specWeight >= reduceOnlySpecPct ? "medium" : "medium",
-      title: "高弹性卫星仓达到上限",
+      title: "DOGE/BGB 投机仓达到上限",
       conclusion: specWeight >= reduceOnlySpecPct ? "已进入只减不补区。" : "已达到禁止新增区。",
-      reason: `${specSymbols.join(" + ")} 当前合计仓位 ${formatPct(specWeight)}。`,
-      action: "DOGE 只在 BTC 趋势确认且仓位未超上限时考虑；CRCL 只做加密金融卫星仓；BGB 不放大。达到上限后以趋势止盈或反弹减仓为主。",
-      discipline: "DOGE 可以做 BTC 放大器，CRCL 可以小仓观察加密金融基础设施，但二者都不能用下跌摊低成本的方式变成核心仓。"
+      reason: `${specSymbols.join(" + ")} 当前合计仓位 ${formatPct(specWeight)}。CRCL 已独立归属加密金融基础设施卫星仓，不纳入本上限。`,
+      action: "DOGE 只在 BTC 趋势确认且仓位未超上限时考虑；BGB 不放大。达到上限后以趋势止盈或反弹减仓为主。",
+      discipline: "DOGE 可以做 BTC 放大器，但不能用下跌摊低成本的方式变成核心仓；CRCL 独立按加密金融基础设施卫星仓管理。"
+    });
+  }
+
+  if (cryptoFinanceWeight >= crclStopAddPct) {
+    addAlert(alerts, alertState, rules, {
+      id: "v5-crcl-crypto-finance-stop-add",
+      symbol: cryptoFinanceSymbols.join("+"),
+      type: "crypto-finance-risk",
+      severity: cryptoFinanceWeight >= crclHardMaxPct ? "high" : "medium",
+      title: "CRCL 加密金融卫星仓达到上限",
+      conclusion: cryptoFinanceWeight >= crclHardMaxPct ? "CRCL 已超过硬上限，只允许持有、减仓或复盘。" : "CRCL 已达到禁止新增区。",
+      reason: `CRCL 当前仓位 ${formatPct(cryptoFinanceWeight)}；4.5% 禁止新增，5% 为硬上限。`,
+      action: "CRCL 不与 DOGE/BGB 合并计算投机仓上限；后续只在显著回调、仓位回落且没有基本面利空时小额复盘，不抢 AI 主攻资金。",
+      discipline: "CRCL 是加密金融基础设施卫星仓，不是 AI 主攻仓，也不是 DOGE/BGB 投机仓。"
     });
   }
 
@@ -1331,7 +1349,7 @@ function buildEmailContent(alerts, snapshot) {
     "3. 现金低于 35% 时，任何新增买入提醒都不执行；现金低于 40% 时暂停普通加仓。",
     "4. 当天已经执行过主动交易时，不再新增第二笔主动买入。",
     "5. AI抽水机仓只买 MU/DRAM/GLW/SMH 等主攻层，MRVL/ANET/AVGO 不替代核心配置。",
-    "6. 5.3.4 低频执行原则：平时少动；上涨不追；急跌敢买；单笔有效；仓位达标就停。",
+    "6. 5.3.5 低频执行原则：平时少动；上涨不追；急跌敢买；单笔有效；仓位达标就停。",
     "7. 如果只是因为情绪上头，默认不买，等下一次监控刷新。"
   ];
 

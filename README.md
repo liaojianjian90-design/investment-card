@@ -1,8 +1,8 @@
-# 投资健康卡 5.3.4
+# 投资健康卡 5.3.5
 
 **趋势优先 + AI新增资金优先执行版**
 
-5.3.4 的核心变化：CRCL 加入加密金融基础设施卫星仓，同时核心增长层继续采用“总量优先判断”。BTC/ETH 合计达到 8%-13% 区间后，不再因为 BTC 或 ETH 单项偏低显示“核心不足”，而是显示“核心偏科”；该提示不影响 AI 主攻仓新增资金优先级。
+5.3.5 的核心变化：CRCL 独立归属加密金融基础设施卫星仓，不再与 DOGE/BGB 合并计算投机仓上限；核心增长层继续采用“总量优先判断”。BTC/ETH 合计达到 8%-13% 区间后，不再因为 BTC 或 ETH 单项偏低显示“核心不足”，而是显示“核心偏科”；该提示不影响 AI 主攻仓新增资金优先级。
 
 ## 一句话原则
 
@@ -27,7 +27,7 @@ config/holdings.json
 → 手动修改 config/holdings.json
 → 提交 GitHub
 → GitHub Actions 生成 snapshot / alerts
-→ 网页和邮件按 5.3.4 规则更新
+→ 网页和邮件按 5.3.5 规则更新
 ```
 
 ## 当前阶段仓位目标
@@ -41,6 +41,7 @@ config/holdings.json
 | VOO | 5%-7% | 长期稳定底仓，优先级低于 AI A/S 机会 |
 | XAUT | 3%-4% | 保险底仓，3900 上方不补，3850 以下才补 |
 | DOGE | 3%-4% | BTC 企稳后的高弹性卫星仓，硬上限 5.5% |
+| CRCL | 0%-4% | 加密金融基础设施卫星仓，4.5% 禁止新增，5% 硬上限；不与 DOGE/BGB 合并 |
 
 ## 新增资金优先级
 
@@ -176,7 +177,7 @@ BTC/XAUT 结构不足不再作为高优先级买入邮件。
 手动运行：
 
 ```text
-Actions → Investment Health Card 5.3.4 Monitor → Run workflow
+Actions → Investment Health Card 5.3.5 Monitor → Run workflow
 ```
 
 ## 部署后访问
