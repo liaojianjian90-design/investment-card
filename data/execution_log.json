@@ -1,5 +1,57 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": null,
-  "records": []
+  "updatedAt": "2026-07-01T09:50:14+08:00",
+  "records": [
+    {
+      "id": "20260701T095014+0800-ai_dip_opportunity-A-DRAM",
+      "dedupeKey": "2026-07-01|ai_dip_opportunity|A|DRAM|episode=20260701T095014+0800",
+      "createdAt": "2026-07-01T09:50:14+08:00",
+      "tradingDate": "2026-07-01",
+      "type": "ai_dip_opportunity",
+      "level": "A",
+      "actionSide": "buy",
+      "symbols": [
+        "DRAM"
+      ],
+      "triggerReason": "DRAM 当前跌幅 5.0%；现金 59.7%，AI主攻仓 18.5%。",
+      "triggerMetrics": {
+        "cashPct": 59.73790860528967,
+        "aiPrimaryPct": 18.525990008322573,
+        "totalAssetValue": 15885.113595656965,
+        "symbolMoves": [
+          {
+            "symbol": "DRAM",
+            "price": 70.42,
+            "changePct": 0,
+            "intradayDropPct": -5.04314994606256,
+            "dayLowDropPct": -5.177993527508096,
+            "priceQuality": "realtime"
+          }
+        ]
+      },
+      "suggestedAction": "买入 AI主攻仓 500-700 USDT，优先执行 DRAM 有效仓位，不低于 500 USDT；若同时有 SMH 也回调，可改为半导体篮子买入。",
+      "suggestedAmountMin": 500,
+      "suggestedAmountMax": 700,
+      "suggestedCurrency": "USDT",
+      "suggestedAllocation": [
+        {
+          "symbol": "DRAM",
+          "amount": 500
+        }
+      ],
+      "status": "pending",
+      "userDecision": {
+        "wasNoticed": null,
+        "executed": null,
+        "executedAt": null,
+        "actualAmount": null,
+        "actualCurrency": "USDT",
+        "actualSymbols": [],
+        "skipReason": "",
+        "reviewNote": "",
+        "updatedAt": null
+      },
+      "systemNote": "系统自动生成：AI主攻仓急跌机会。当天主动交易提醒频率限制生效，邮件未再次发出，但该信号仍已写入执行日志。"
+    }
+  ]
 }
