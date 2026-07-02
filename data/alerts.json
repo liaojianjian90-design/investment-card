@@ -1,21 +1,8 @@
 {
-  "updatedAt": "2026-07-02T06:24:25.101Z",
+  "updatedAt": "2026-07-02T06:25:12.937Z",
   "email": {
-    "sent": true,
+    "sent": false,
     "missing": []
   },
-  "alerts": [
-    {
-      "id": "position-dashboard-cash-low",
-      "symbol": "CASH",
-      "type": "cash-risk",
-      "severity": "high",
-      "title": "现金比例低于保护线",
-      "conclusion": "现金比例偏低，组合抗波动能力下降。",
-      "reason": "当前现金比例 30.5%，低于 35% 保护线。",
-      "action": "任何新增操作都需要先人工复核，优先恢复现金安全垫。",
-      "discipline": "现金是二次进攻权，不要被情绪交易打薄。",
-      "createdAt": "2026-07-02T06:24:25.284Z"
-    }
-  ]
+  "alerts": []
 }
