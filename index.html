@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
-  <title>投资健康卡 5.2</title>
+  <title>投资健康卡 5.4.2</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <style>
     :root {
@@ -170,6 +170,89 @@
     .positive { color: var(--green); font-weight: 900; }
     .negative { color: var(--red); font-weight: 900; }
 
+    .performance-panel {
+      border: 2px solid rgba(15, 118, 110, 0.35);
+      background: linear-gradient(135deg, #fffdf7 0%, #e7f4ef 100%);
+      box-shadow: 0 18px 42px rgba(15, 118, 110, 0.14);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .performance-panel.performance-negative {
+      border-color: rgba(180, 35, 24, 0.35);
+      background: linear-gradient(135deg, #fffdf7 0%, #fff1f0 100%);
+      box-shadow: 0 18px 42px rgba(180, 35, 24, 0.12);
+    }
+
+    .performance-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .performance-kicker {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .performance-title {
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: 950;
+      line-height: 1.15;
+      margin-top: 4px;
+    }
+
+    .performance-note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .performance-main-value {
+      font-size: clamp(30px, 8vw, 56px);
+      font-weight: 950;
+      line-height: 1;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .performance-main-label {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+      margin-top: 7px;
+    }
+
+    .performance-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .performance-item {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(226, 221, 210, 0.85);
+      border-radius: 16px;
+      padding: 14px;
+      min-height: 86px;
+    }
+
+    .performance-item .label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .performance-item .value {
+      font-size: 20px;
+      font-weight: 950;
+      margin-top: 4px;
+    }
+
     .position-cards { display: none; }
     .asset-card {
       border: 1px solid var(--line);
@@ -207,6 +290,173 @@
     .alert-item.high { border-color: #ffb4ab; background: var(--red-soft); }
     .alert-item.medium { border-color: #f4c27a; background: var(--amber-soft); }
     .alerts { display: grid; gap: 10px; }
+
+
+    .execution-log-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0 14px;
+    }
+
+    .execution-stat {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: var(--soft);
+    }
+
+    .execution-stat .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .execution-stat .stat-value {
+      margin-top: 4px;
+      font-size: 22px;
+      font-weight: 1000;
+      line-height: 1.15;
+    }
+
+    .execution-log-list { display: grid; gap: 12px; }
+
+    .execution-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      background: #fffefa;
+      box-shadow: 0 8px 20px rgba(28, 23, 15, 0.045);
+    }
+
+    .execution-card.pending { border-color: #f4c27a; background: linear-gradient(180deg, var(--amber-soft), #fffefa 58%); }
+    .execution-card.executed { border-color: #9bd7c0; background: linear-gradient(180deg, var(--green-soft), #fffefa 58%); }
+    .execution-card.skipped { border-color: #d9d2c4; background: #fffefa; }
+    .execution-card.expired { border-color: #ffb4ab; background: linear-gradient(180deg, var(--red-soft), #fffefa 58%); }
+    .execution-card.review_only { border-color: #b7c7ef; background: linear-gradient(180deg, var(--blue-soft), #fffefa 58%); }
+
+    .execution-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .execution-notice {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 900;
+      background: var(--red-soft);
+      border-radius: 999px;
+      padding: 4px 9px;
+    }
+
+    .execution-title {
+      font-size: 19px;
+      font-weight: 1000;
+      margin: 0 0 4px;
+    }
+
+    .execution-time {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .execution-reason {
+      margin: 0 0 12px;
+      font-size: 14px;
+    }
+
+    .execution-suggestion {
+      display: grid;
+      grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
+      gap: 12px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.58);
+      margin: 12px 0;
+    }
+
+    .execution-amount-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .execution-amount {
+      margin-top: 4px;
+      font-size: 24px;
+      font-weight: 1000;
+      color: var(--green);
+      line-height: 1.1;
+    }
+
+    .execution-action-text {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .execution-symbols {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .execution-symbol-tag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      padding: 4px 9px;
+    }
+
+    .execution-next-step {
+      border-left: 4px solid var(--green);
+      background: var(--green-soft);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    .execution-help-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .execution-help-button {
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 900;
+      background: var(--green);
+      color: #fff;
+      cursor: default;
+    }
+
+    .execution-help-button.secondary { background: var(--amber-soft); color: var(--amber); }
+
+    .execution-empty {
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.5);
+      color: var(--muted);
+    }
 
     label {
       display: block;
@@ -289,7 +539,7 @@
     }
     .bar > i { display: block; height: 100%; background: var(--green); border-radius: inherit; }
 
-    .layers-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .layers-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
     .layer-card { min-height: 176px; display: flex; flex-direction: column; gap: 8px; }
     .layer-head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
     .layer-symbols { color: var(--muted); font-size: 12px; word-break: break-word; }
@@ -344,6 +594,15 @@
       .grid { gap: 8px; }
 
       .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .performance-head { flex-direction: column; gap: 10px; margin-bottom: 11px; }
+      .performance-main-value, .performance-main-label { text-align: left; }
+      .performance-main-value { white-space: normal; }
+      .performance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .performance-item { padding: 10px; border-radius: 12px; min-height: 66px; }
+      .performance-item .label { font-size: 11px; }
+      .performance-item .value { font-size: 16px; }
+      .performance-title { font-size: 20px; }
+      .performance-note { font-size: 12px; }
       .metric { padding: 9px 10px; border-radius: 11px; min-height: 64px; }
       .metric .label { font-size: 11px; }
       .metric .value { font-size: 17px; line-height: 1.25; }
@@ -391,6 +650,15 @@
 
       table { font-size: 12px; }
       th, td { padding: 8px 6px; }
+
+      .execution-log-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+      .execution-stat { padding: 9px 10px; border-radius: 11px; }
+      .execution-stat .stat-value { font-size: 18px; }
+      .execution-card { padding: 11px; border-radius: 13px; }
+      .execution-title { font-size: 16px; }
+      .execution-time, .execution-reason, .execution-action-text, .execution-next-step { font-size: 12px; }
+      .execution-suggestion { grid-template-columns: 1fr; gap: 7px; padding: 10px; }
+      .execution-amount { font-size: 20px; }
       .judgement-list { padding-left: 17px; }
       .judgement-list li { margin: 4px 0; }
     }
@@ -404,65 +672,28 @@
 <body>
   <main class="shell">
     <section class="hero">
-      <div class="eyebrow">Investment Health Card 5.2</div>
-      <h1>投资健康卡 5.2</h1>
+      <div class="eyebrow">Investment Health Card 5.4.2</div>
+      <h1>投资健康卡 5.4.2</h1>
       <p class="subtitle">
-        最新仓位 + RAM短线T仓版。以 config/holdings.json 为唯一仓位来源；BTC/ETH/VOO/XAUT 做底盘，GLW / MU / DRAM / SNDK / SMH 做 AI/存储主攻，RAM 只作为 2倍做多存储板块短线T仓，DOGE 已清仓。
+        仓位体检版。以 config/holdings.json 为唯一仓位来源，只负责统计总资产、总盈亏、现金比例、资产分层、单项仓位、AI相关仓、DOGE/BGB/RAM投机层和CRCL独立卫星仓风险。网站只做体检和预警，不再自动指挥加仓或减仓；任何实际操作前，先发最新仓位和 Bitget 截图人工复核。
       </p>
+    </section>
+
+    <section class="card performance-panel" id="performancePanel">
+      <div class="muted">正在读取账户总盈亏...</div>
     </section>
 
     <section class="card">
       <h2>账户快照</h2>
       <div class="grid summary-grid" id="summary"></div>
       <div class="notice" id="dataNotice">
-        <strong>数据边界：</strong>网页和邮件提醒统一读取 config/holdings.json；前端不提供手动买卖入口，也不会保存 GitHub Token、邮箱密码或交易所 API Key。
+        <strong>数据边界：</strong>网页和监控均以 GitHub 仓库里的 config/holdings.json 为唯一仓位来源。前端不保存仓位、不保存 GitHub Token、邮箱密码或交易所 API Key；页面只做仓位体检，不自动给交易指令。
       </div>
-    </section>
-
-    <section class="card">
-      <h2>投资健康评分</h2>
-      <p class="section-note">5.2 评分把现金、核心仓、稳定层、AI抽水机仓、投机仓、数据新鲜度、回撤和邮件风控放在同一个仪表盘里，不生成自动交易指令。</p>
-      <div id="v4Health"></div>
-      <div class="notice" id="v4Judgement"></div>
-    </section>
-
-    <section class="card">
-      <h2>资产五层结构</h2>
-      <p class="section-note">目标不是把现金一次性打光，而是按层级完成：安全现金层 → 核心增长层 → 长期稳定层 → AI抽水机主攻仓 → 投机清理层。</p>
-      <div class="grid layers-grid" id="v4Layers"></div>
-    </section>
-
-    <section class="card">
-      <h2>今日动作纪律</h2>
-      <div class="grid action-grid">
-        <div class="action-card">
-          <h3>今日允许动作</h3>
-          <div id="v4AllowedActions"></div>
-        </div>
-        <div class="action-card">
-          <h3>今日禁止动作</h3>
-          <div id="v4ForbiddenActions"></div>
-        </div>
-        <div class="action-card">
-          <h3>冷却机制</h3>
-          <div id="v4Cooldown"></div>
-        </div>
-        <div class="action-card">
-          <h3>再平衡提醒</h3>
-          <div id="v4Rebalance"></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>分阶段执行计划</h2>
-      <p class="section-note">计划金额按当前总资产和现金比例动态估算，只作为仓位结构路线图，不是一次性买入建议。</p>
-      <div class="grid phase-grid" id="v4PhasePlan"></div>
     </section>
 
     <section class="card">
       <h2>持仓与盈亏</h2>
-      <p class="section-note">手机端使用卡片显示：重点看市值、仓位、盈亏、价格源和数据状态；观察池数量为 0 时也会显示，方便看买点是否接近。</p>
+      <p class="section-note">默认按当前持仓市值 / 仓位占比从高到低排序，最大仓位排最上面；手机端使用卡片显示，重点看市值、仓位、盈亏、价格源和数据状态。</p>
       <div class="desktop-table">
         <table>
           <thead>
@@ -481,112 +712,98 @@
       <div class="position-cards" id="positionCards"></div>
     </section>
 
+
     <section class="card">
-      <h2>触发提醒</h2>
-      <div class="alerts" id="alerts"></div>
+      <h2>资产仓位结构 + CRCL卫星仓</h2>
+      <p class="section-note">这一栏只看仓位事实：安全现金层 → 核心增长层 → 长期稳定层 → AI相关主线仓 → DOGE/BGB/RAM投机清理层 → CRCL加密金融基础设施卫星仓。它只告诉你偏高、偏低或接近上限，不直接告诉你今天买什么。</p>
+      <div class="grid layers-grid" id="v4Layers"></div>
+    </section>
+
+
+    <section class="card">
+      <h2>投资健康评分</h2>
+      <p class="section-note">5.4 评分重点是“仓位体检 + 风险边界”：系统只统计现金、核心层、稳定层、AI相关仓、DOGE/BGB/RAM投机层和CRCL卫星仓的实际占比；不自动给买入或卖出指令。任何操作前，先用最新仓位和 Bitget 截图人工复核。</p>
+      <div id="v4Health"></div>
+      <div class="notice" id="v4Judgement"></div>
     </section>
 
     <section class="card">
-      <h2>投资纪律系统 5.2</h2>
-      <p class="section-note">优先级：数据有效性 → 现金安全 → 回撤状态 → 投机仓限制 → 核心仓缺口 → 稳定层底仓 → 主题仓上限 → 趋势跟随。</p>
+      <h2>仓位体检结论</h2>
+      <div class="grid action-grid">
+        <div class="action-card">
+          <h3>当前健康点</h3>
+          <div id="v4AllowedActions"></div>
+        </div>
+        <div class="action-card">
+          <h3>需要注意的风险</h3>
+          <div id="v4ForbiddenActions"></div>
+        </div>
+        <div class="action-card">
+          <h3>操作前复核</h3>
+          <div id="v4Cooldown"></div>
+        </div>
+        <div class="action-card">
+          <h3>再平衡提醒</h3>
+          <div id="v4Rebalance"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>仓位风险提示</h2>
+      <div class="alerts" id="alerts"></div>
+    </section>
+
+
+    <section class="card">
+      <h2>操作前人工复核流程</h2>
+      <p class="section-note">网站不再给自动买卖计划。真正下单前，先暂停、发最新仓位或截图、说明想操作什么，再人工判断是否属于情绪交易。</p>
+      <div class="grid phase-grid" id="v4PhasePlan"></div>
+    </section>
+
+    <section class="card">
+      <h2>仓位体检规则 5.4</h2>
+      <p class="section-note">5.4 的职责很简单：只统计仓位、只提示风险边界、只提醒你操作前人工复核。它不是自动买卖系统，不再因为价格触发就告诉你应该买多少。</p>
 
       <div class="grid rule-grid">
         <div class="rule-box">
-          <h3>一、硬性停止规则</h3>
+          <h3>一、仓位体检边界</h3>
           <ul class="rule-list">
-            <li><strong>价格源失败：</strong>失败标的不触发买入邮件，只显示“等待下次刷新”。</li>
-            <li><strong>数据超过 30 分钟：</strong>禁止按信号买入。</li>
-            <li><strong>现金低于 35%：</strong>停止所有新增买入。</li>
-            <li><strong>现金低于 40%：</strong>暂停普通加仓，只允许观察。</li>
-            <li><strong>一天最多一笔主动交易：</strong>BTC 急跌或核心买点触发后，当天不再触发 AI 抽水机仓买入。</li>
+            <li><strong>现金层：</strong>40%-50% 为舒适区，35% 以下进入现金保护提醒。</li>
+            <li><strong>核心层：</strong>BTC/ETH 看合计仓位，合计达标后，单项偏低只显示“核心偏科”。</li>
+            <li><strong>稳定层：</strong>VOO/XAUT 只作为长期稳定仓，不抢 AI 主线资金。</li>
+            <li><strong>AI相关仓：</strong>MU/DRAM/GLW/SMH 是第一主攻层，SNDK/WDC/MRVL/AVGO/ANET/TSM/ASML/SMH/SOXX/FN/AAOI/ASX 属于 AI 相关观察或第二梯队。</li>
+            <li><strong>DOGE/BGB/RAM：</strong>只算投机清理层，不与 CRCL 合并。</li>
+            <li><strong>CRCL：</strong>单独作为加密金融基础设施卫星仓，4.5% 停止新增，5% 硬上限。</li>
           </ul>
         </div>
 
         <div class="rule-box">
-          <h3>二、目标仓位与上限</h3>
+          <h3>二、单项目标与上限</h3>
           <table>
             <thead><tr><th>标的</th><th>当前/目标/上限</th><th>状态</th></tr></thead>
             <tbody id="targetRows"></tbody>
           </table>
-          <p class="muted">观察池标的即使当前为 0 仓位，也会显示目标和上限，方便建仓前先看纪律边界。</p>
+          <p class="muted">这里是仓位边界，不是下单建议。接近上限表示后续必须先人工复核。</p>
         </div>
 
         <div class="rule-box">
-          <h3>三、组合相关性限制</h3>
+          <h3>三、组合集中度</h3>
           <table>
             <thead><tr><th>组合</th><th>当前/上限</th><th>状态</th></tr></thead>
             <tbody id="capRows"></tbody>
           </table>
+          <p class="muted">重点看 AI 相关总仓、DOGE/BGB/RAM投机层、CRCL独立卫星仓是否过高。</p>
         </div>
 
         <div class="rule-box">
-          <h3>四、账户回撤风险</h3>
-          <table>
-            <thead><tr><th>从高点回撤</th><th>系统动作</th></tr></thead>
-            <tbody>
-              <tr><td>-10%</td><td>停止 DOGE/BGB/AAOI 等高波动新增买入</td></tr>
-              <tr><td>-15%</td><td>只允许 BTC/ETH 半额定投和 VOO/XAUT 小额防守买入</td></tr>
-              <tr><td>-20%</td><td>暂停所有主动买入 7 天</td></tr>
-              <tr><td>-30%</td><td>优先降低 DOGE/BGB/AAOI 和超限主题仓风险</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="rule-box">
-          <h3>五、BTC/ETH 分批规则</h3>
-          <table>
-            <thead><tr><th>BTC 价位</th><th>提醒方案</th><th>重置</th></tr></thead>
-            <tbody>
-              <tr><td>≤ 58000</td><td>BTC 250 + ETH 80</td><td>站上 59200</td></tr>
-              <tr><td>≤ 57000</td><td>BTC 350 + ETH 100</td><td>站上 58200</td></tr>
-              <tr><td>≤ 56000</td><td>BTC 450 + ETH 120</td><td>站上 57200</td></tr>
-              <tr><td>≤ 55000</td><td>BTC 600 + ETH 180</td><td>站上 56500</td></tr>
-              <tr><td>≤ 52000</td><td>暂停主动买入</td><td>站上 54000</td></tr>
-            </tbody>
-          </table>
-          <p class="muted">若 BTC 5 分钟急跌 ≥ 1.5%，普通买点暂停；急跌 ≥ 2.5% 且现金 ≥ 45% 时，只提醒小额试探。</p>
-        </div>
-
-        <div class="rule-box">
-          <h3>六、VOO / XAUT</h3>
-          <table>
-            <thead><tr><th>标的</th><th>下跌买点</th><th>上涨追随</th></tr></thead>
-            <tbody>
-              <tr><td>VOO</td><td>≤655 买 200；≤625 买 300</td><td>≥685 小额 100</td></tr>
-              <tr><td>XAUT</td><td>≤4000 买 200；≤3850 买 300</td><td>≥4200 小额 100</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="rule-box">
-          <h3>七、AI 抽水机主攻仓规则</h3>
-          <table>
-            <thead><tr><th>标的</th><th>下跌买点</th><th>上涨追随</th></tr></thead>
-            <tbody>
-              <tr><td>AVGO</td><td>AI ASIC / 网络芯片观察</td><td>单项上限 2%-4%，不替代核心仓</td></tr>
-              <tr><td>MRVL</td><td>AI互联 / 定制芯片 / 数据中心网络观察</td><td>核心仓未达标前只观察；试仓 0.5%-1%，硬上限 2%</td></tr>
-              <tr><td>ANET</td><td>AI 网络设备观察</td><td>小仓观察，不追高</td></tr>
-              <tr><td>MU</td><td>AI存储主攻；≤1080 买120；≤1020 买180</td><td>与 DRAM / GLW 同等重视，单项硬上限 8%</td></tr>
-              <tr><td>SNDK</td><td>≤2000 买80；≤1850 买120</td><td>≥2250 买80</td></tr>
-              <tr><td>DRAM</td><td>存储 ETF 主攻；≤72 买120；≤66 买180</td><td>与 MU / GLW 同等重视，普通 DRAM 可阶段持有</td></tr>
-              <tr><td>RAM</td><td>2倍做多存储板块 ETF；只做短线T仓</td><td>22.5 减半，23.5 卖大部分，24.5 清仓；跌破 20 减半，跌破 19.5 清仓</td></tr>
-              <tr><td>WDC</td><td>≤560 买80；≤520 买120</td><td>≥620 买80</td></tr>
-              <tr><td>ASX</td><td>≤38 买80；≤35 买120</td><td>≥42 买60</td></tr>
-              <tr><td>AAOI</td><td>≤125 买60；≤110 买100</td><td>≥145 买50</td></tr>
-              <tr><td>GLW</td><td>康宁：光纤/玻璃基板主攻；≤205 买120；≤190 买180</td><td>提升到与 MU / DRAM 同一重视层级，单项硬上限 8%</td></tr>
-              <tr><td>TSM / ASML</td><td>半导体制造 / 设备长期观察</td><td>适合观察，不做短线重仓</td></tr>
-              <tr><td>SMH / SOXX</td><td>半导体 ETF 篮子替代</td><td>可替代过多单一 AI 个股</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="rule-box">
-          <h3>八、止盈与再平衡</h3>
+          <h3>四、操作前沟通原则</h3>
           <ul class="rule-list">
-            <li>DOGE ≥ 0.085 提醒卖 30%；DOGE ≥ 0.095 提醒卖 50%。</li>
-            <li>BTC 超过 25%、ETH 超过 12%、VOO 超过 30%、XAUT 超过 12% 提醒再平衡。</li>
-            <li>AI 抽水机仓单项超过上限时，只提醒减仓或暂停加仓，不提醒追买。</li>
-            <li>止盈不是看空，是把过热仓位换回现金，保留下次进攻权。</li>
+            <li><strong>先不下单：</strong>任何想加仓、减仓、止盈、抄底、追涨之前，先暂停。</li>
+            <li><strong>先发数据：</strong>发最新 holdings.json 或 Bitget 截图，至少包含数量、现价、成本、浮盈亏和现金。</li>
+            <li><strong>先判断性质：</strong>区分是真正仓位调整，还是亏损补仓、上涨追涨、情绪交易。</li>
+            <li><strong>先看上限：</strong>如果某个标的或层级已接近上限，默认不新增。</li>
+            <li><strong>执行后更新：</strong>真正成交后，再更新 config/holdings.json，让网站重新体检。</li>
           </ul>
         </div>
       </div>
@@ -594,21 +811,21 @@
 
     <section class="card" id="holdingsSourceCard">
       <h2>仓位来源</h2>
-      <p class="section-note">当前版本已关闭浏览器端交易录入、本地仓位编辑和第三方同步面板。网页、监控和邮件均以 GitHub 仓库中的 <code>config/holdings.json</code> 为唯一仓位来源。</p>
-      <div class="notice"><strong>更新方式：</strong>修改 <code>config/holdings.json</code> 后提交到 GitHub，再运行 GitHub Actions，系统会重新生成 <code>data/snapshot.json</code>、健康评分和邮件提醒。</div>
+      <p class="section-note">当前版本已关闭浏览器端交易录入、本地仓位编辑、第三方同步面板、自动执行日志和自动买卖建议。网页只读取 GitHub 仓库中的 <code>config/holdings.json</code> 做仓位体检。</p>
+      <div class="notice"><strong>更新方式：</strong>修改 <code>config/holdings.json</code> 后提交到 GitHub，再运行 GitHub Actions，系统会重新生成 <code>data/snapshot.json</code> 和健康评分。真正操作前，请先发最新仓位或截图进行人工复核。</div>
     </section>
   </main>
 
   <script type="module">
-    import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs";
-    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v515";
+    import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs?v=526";
+    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v526";
 
     const DEFAULT_HOLDINGS = {
       "baseCurrency": "USDT",
       "cash": [
             {
                   "symbol": "USDT",
-                  "quantity": 5299.07022215,
+                  "quantity": 5501.10553647,
                   "cost": 1,
                   "type": "cash"
             },
@@ -634,15 +851,27 @@
             },
             {
                   "symbol": "DOGE",
-                  "quantity": 0,
-                  "cost": 0,
+                  "quantity": 7933.1942142,
+                  "cost": 0.07309,
                   "type": "crypto"
             },
             {
                   "symbol": "BGB",
-                  "quantity": 22.99973804,
-                  "cost": 2.015,
+                  "quantity": 25.91259087,
+                  "cost": 1.978,
                   "type": "crypto"
+            },
+            {
+                  "symbol": "RAM",
+                  "quantity": 0,
+                  "cost": 0,
+                  "type": "watch"
+            },
+            {
+                  "symbol": "CRCL",
+                  "quantity": 7.60903998,
+                  "cost": 65.7,
+                  "type": "watch"
             },
             {
                   "symbol": "VOO",
@@ -670,8 +899,8 @@
             },
             {
                   "symbol": "MU",
-                  "quantity": 1.08737129,
-                  "cost": 1116.13598319,
+                  "quantity": 0.94527129,
+                  "cost": 1125.24,
                   "type": "watch"
             },
             {
@@ -682,26 +911,14 @@
             },
             {
                   "symbol": "DRAM",
-                  "quantity": 15.33276412,
-                  "cost": 70.83010729,
-                  "type": "watch"
-            },
-            {
-                  "symbol": "RAM",
-                  "quantity": 13,
-                  "cost": 21.09769231,
+                  "quantity": 12.35126412,
+                  "cost": 71.75,
                   "type": "watch"
             },
             {
                   "symbol": "WDC",
                   "quantity": 0.3305247,
                   "cost": 604.3,
-                  "type": "watch"
-            },
-            {
-                  "symbol": "CRCL",
-                  "quantity": 3.00903998,
-                  "cost": 69.1,
                   "type": "watch"
             },
             {
@@ -718,14 +935,14 @@
             },
             {
                   "symbol": "GLW",
-                  "quantity": 8.64538446,
-                  "cost": 245.55776544,
+                  "quantity": 4.65759003,
+                  "cost": 261.08,
                   "type": "watch"
             },
             {
                   "symbol": "MRVL",
-                  "quantity": 0.39587648,
-                  "cost": 222.01,
+                  "quantity": 0.79587648,
+                  "cost": 251.95,
                   "type": "watch"
             },
             {
@@ -766,24 +983,29 @@
       ordinaryBuyCashMinPct: 40,
       dataStaleWarnMinutes: 10,
       dataStaleBlockMinutes: 30,
+      performanceBaseline: { amount: 16000, currency: "USDT", label: "总盈亏基准本金" },
       targets: {
-        BTC: { minPct: 8, targetMaxPct: 18, stopAddPct: 22, trimPct: 25 },
-        ETH: { minPct: 3, targetMaxPct: 8, stopAddPct: 10, trimPct: 12 },
-        DOGE: { minPct: 0, targetMaxPct: 2, stopAddPct: 2, trimPct: 3 },
+        BTC: { minPct: 8, targetMaxPct: 10, stopAddPct: 18, trimPct: 25 },
+        ETH: { minPct: 4, targetMaxPct: 6, stopAddPct: 10, trimPct: 12 },
+        DOGE: { minPct: 0, targetMaxPct: 4, stopAddPct: 4.5, trimPct: 5.5 },
         BGB: { minPct: 0, targetMaxPct: 1, stopAddPct: 1, trimPct: 2 },
-        VOO: { minPct: 10, targetMaxPct: 20, stopAddPct: 20, trimPct: 30 },
-        XAUT: { minPct: 5, targetMaxPct: 8, stopAddPct: 8, trimPct: 12 },
+        RAM: { minPct: 0, targetMaxPct: 1, stopAddPct: 1.5, trimPct: 2 },
+        CRCL: { minPct: 0, targetMaxPct: 4, stopAddPct: 4.5, trimPct: 5 },
+        VOO: { minPct: 6, targetMaxPct: 8, stopAddPct: 15, trimPct: 25 },
+        XAUT: { minPct: 4, targetMaxPct: 6, stopAddPct: 10, trimPct: 12 },
         MRVL: { minPct: 0, targetMaxPct: 1.5, stopAddPct: 1.5, trimPct: 2 },
         ANET: { minPct: 0, targetMaxPct: 1.5, stopAddPct: 1.5, trimPct: 2 },
         TSM: { minPct: 0, targetMaxPct: 2, stopAddPct: 2, trimPct: 3 },
         ASML: { minPct: 0, targetMaxPct: 1.5, stopAddPct: 1.5, trimPct: 2 },
-        SMH: { minPct: 0, targetMaxPct: 3, stopAddPct: 3, trimPct: 5 },
-        SOXX: { minPct: 0, targetMaxPct: 3, stopAddPct: 3, trimPct: 5 }
+        SMH: { minPct: 0, targetMaxPct: 6, stopAddPct: 8, trimPct: 10 },
+        SOXX: { minPct: 0, targetMaxPct: 6, stopAddPct: 8, trimPct: 10 }
       },
       portfolioCaps: [
-        { symbols: ["BTC", "ETH", "DOGE", "BGB"], maxPct: 40 },
-        { symbols: ["DOGE", "BGB"], maxPct: 4 },
-        { symbols: ["AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "RAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"], maxPct: 15 }
+        { symbols: ["BTC", "ETH", "DOGE", "BGB", "CRCL"], maxPct: 35 },
+        { symbols: ["DOGE", "BGB", "RAM"], maxPct: 6 },
+        { symbols: ["CRCL"], maxPct: 5 },
+        { symbols: ["DOGE", "BGB", "RAM"], maxPct: 6 },
+        { symbols: ["AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"], maxPct: 35 }
       ]
     };
 
@@ -800,6 +1022,7 @@
       ETH: "Ethereum",
       DOGE: "Dogecoin",
       BGB: "Bitget Token",
+      CRCL: "Circle Internet Group",
       VOO: "Vanguard S&P 500 ETF",
       XAUT: "Tether Gold",
       AVGO: "Broadcom",
@@ -817,8 +1040,7 @@
       ASX: "ASE Technology",
       AAOI: "Applied Optoelectronics",
       GLW: "Corning",
-      RAM: "Roundhill 2x Long Memory ETF",
-      CRCL: "Circle Internet Group"
+      RAM: "T-REX 2X Long DRAM Daily Target ETF"
     };
 
     const bitgetSymbols = {
@@ -826,6 +1048,7 @@
       ETH: ["ETHUSDT"],
       DOGE: ["DOGEUSDT"],
       BGB: ["BGBUSDT"],
+      CRCL: ["RCRCLUSDT", "CRCLUSDT"],
       XAUT: ["XAUTUSDT"],
       VOO: ["RVOOUSDT", "VOOUSDT"],
       AVGO: ["RAVGOUSDT", "AVGOUSDT"],
@@ -843,11 +1066,11 @@
       ASX: ["RASXUSDT", "ASXUSDT"],
       AAOI: ["RAAOIUSDT", "AAOIUSDT"],
       GLW: ["RGLWUSDT", "GLWUSDT"],
-      RAM: ["RRAMUSDT", "RAMUSDT"],
-      CRCL: ["RCRCLUSDT", "CRCLUSDT"]
+      RAM: ["RRAMUSDT", "RAMUSDT"]
     };
 
     const yahooSymbols = {
+      CRCL: "CRCL",
       VOO: "VOO",
       AVGO: "AVGO",
       MRVL: "MRVL",
@@ -864,15 +1087,14 @@
       ASX: "ASX",
       AAOI: "AAOI",
       GLW: "GLW",
-      RAM: "RAM",
-      CRCL: "CRCL"
+      RAM: "RAM"
     };
     const stooqSymbols = Object.fromEntries(Object.entries(yahooSymbols).map(([symbol, ticker]) => [symbol, `${ticker.toLowerCase()}.us`]));
     const coingeckoIds = { BTC: "bitcoin", ETH: "ethereum", DOGE: "dogecoin" };
     const allowedSymbols = new Set(allAssets(DEFAULT_HOLDINGS).map((asset) => asset.symbol));
 
     function activePriceSymbols(rules) {
-      const symbols = new Set(["BTC", "ETH", "DOGE", "BGB", "XAUT"]);
+      const symbols = new Set(["BTC", "ETH", "DOGE", "BGB", "RAM", "CRCL", "XAUT"]);
       (rules.watchBuyRules || []).forEach((rule) => rule.symbol && symbols.add(rule.symbol));
       (rules.trendWatchRules || []).forEach((rule) => rule.symbol && symbols.add(rule.symbol));
       (rules.trendFollowRules || []).forEach((rule) => rule.symbol && symbols.add(rule.symbol));
@@ -1398,7 +1620,7 @@
 
     function renderManualTradeControls() {
       const symbolSelect = document.getElementById("tradeSymbol");
-      const order = ["BTC", "ETH", "VOO", "XAUT", "MRVL", "AVGO", "ANET", "MU", "WDC", "DOGE", "BGB", "TSM", "ASML", "SMH", "SOXX", "DRAM", "RAM", "SNDK", "FN", "AAOI", "GLW", "ASX"];
+      const order = ["BTC", "ETH", "VOO", "XAUT", "CRCL", "MRVL", "AVGO", "ANET", "MU", "WDC", "DOGE", "BGB", "RAM", "TSM", "ASML", "SMH", "SOXX", "DRAM", "SNDK", "FN", "AAOI", "GLW", "ASX"];
       const symbols = order.filter((symbol) => allowedSymbols.has(symbol));
       symbolSelect.innerHTML = symbols.map((symbol) => `<option value="${symbol}">${symbol} · ${names[symbol] || ""}</option>`).join("");
       const settings = cloudSyncSettings();
@@ -1425,6 +1647,71 @@
 
     function formatMoney(value) {
       return `${Number(value || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT`;
+    }
+
+    function formatSignedMoney(value) {
+      const n = Number(value || 0);
+      const sign = n > 0 ? "+" : n < 0 ? "-" : "";
+      return `${sign}${formatMoney(Math.abs(n))}`;
+    }
+
+    function formatSignedPct(value) {
+      const n = Number(value || 0);
+      const sign = n > 0 ? "+" : n < 0 ? "-" : "";
+      return `${sign}${Math.abs(n).toFixed(2)}%`;
+    }
+
+    function resolvePerformanceBaseline(rules) {
+      const direct = rules?.performanceBaseline || rules?.v5Rules?.performanceBaseline || {};
+      const amount = Number(direct.amount || 16000);
+      return {
+        amount: Number.isFinite(amount) && amount > 0 ? amount : 16000,
+        currency: direct.currency || "USDT",
+        label: direct.label || "总盈亏基准本金"
+      };
+    }
+
+    function renderPerformance(snapshot, rules) {
+      const panel = document.getElementById("performancePanel");
+      if (!panel) return;
+      const baseline = resolvePerformanceBaseline(rules);
+      const currentValue = Number(snapshot?.totalValue || 0);
+      const pnl = currentValue - baseline.amount;
+      const pnlPct = baseline.amount > 0 ? pnl / baseline.amount * 100 : 0;
+      const cls = pnl >= 0 ? "performance-positive" : "performance-negative";
+      const statusText = pnl >= 0 ? "当前高于基准本金" : "当前低于基准本金";
+      panel.className = `card performance-panel ${cls}`;
+      panel.innerHTML = `
+        <div class="performance-head">
+          <div>
+            <div class="performance-kicker">账户总盈亏</div>
+            <div class="performance-title">以 16,000 USDT 为基准</div>
+            <div class="performance-note">这里只看当前总资产相对基准本金的结果；不自动给买卖指令。</div>
+          </div>
+          <div>
+            <div class="performance-main-value ${pnlClass(pnl)}">${formatSignedMoney(pnl)}</div>
+            <div class="performance-main-label">总盈亏金额 · ${statusText}</div>
+          </div>
+        </div>
+        <div class="performance-grid">
+          <div class="performance-item">
+            <div class="label">基准本金</div>
+            <div class="value">${formatMoney(baseline.amount)}</div>
+          </div>
+          <div class="performance-item">
+            <div class="label">当前总资产</div>
+            <div class="value">${formatMoney(currentValue)}</div>
+          </div>
+          <div class="performance-item">
+            <div class="label">总盈亏率</div>
+            <div class="value ${pnlClass(pnl)}">${formatSignedPct(pnlPct)}</div>
+          </div>
+          <div class="performance-item">
+            <div class="label">统计口径</div>
+            <div class="value">持仓市值</div>
+          </div>
+        </div>
+      `;
     }
 
     function formatPct(value) {
@@ -1499,8 +1786,10 @@
 
     function capName(cap) {
       const key = (cap.id || cap.symbols.join("-")).toLowerCase();
+      if (key.includes("crypto-satellite")) return "DOGE + BGB + RAM 高投机仓";
+      if (key.includes("doge-bgb")) return "DOGE + BGB + RAM 高投机仓";
+      if (key.includes("crcl")) return "CRCL 加密金融基础设施卫星仓";
       if (key.includes("crypto")) return "加密总仓";
-      if (key.includes("doge-bgb")) return "DOGE + BGB 高投机仓";
       if (key.includes("ai-watch")) return "AI/存储/光通信观察池";
       if (key.includes("storage")) return "存储周期篮子";
       if (key.includes("optical")) return "高波动光通信";
@@ -1523,16 +1812,18 @@
 
     function statusFor(row, snapshot, rules) {
       if (row.type === "watch" && Number(row.quantity || 0) <= 0) return { label: "观察池，未建仓", level: "info" };
-      if (snapshot.isDataBlocked) return { label: "数据过期，禁止买入", level: "risk" };
-      if (!row.priceOk) return { label: "价格源失败，等待刷新", level: "risk" };
+      if (snapshot.isDataBlocked) return { label: "数据过期，仅看仓位", level: "risk" };
+      if (!row.priceOk) return { label: "价格源失败，仅看数量", level: "risk" };
       if (row.type === "cash") return { label: "现金弹药仓", level: snapshot.cashPct < rules.cashMinPct ? "risk" : "" };
       if (snapshot.cashPct < Number(rules.cashMinPct || 35)) return { label: "现金低于底线", level: "risk" };
       if (row.symbol === "DOGE") return { label: "只止盈，不补仓", level: "warn" };
       if (row.symbol === "BGB") return { label: "不补仓，反弹可清", level: "warn" };
+      if (row.symbol === "RAM") return { label: "2x DRAM投机清理，不补仓", level: "warn" };
+      if (row.symbol === "CRCL") return { label: "加密金融卫星仓，独立管理", level: row.weightPct >= 4.5 ? "warn" : "info" };
       const target = rules.targets?.[row.symbol];
       if (target?.trimPct && row.weightPct >= Number(target.trimPct)) return { label: "达到减仓线", level: "risk" };
       if (target?.stopAddPct && row.weightPct >= Number(target.stopAddPct)) return { label: "暂停加仓", level: "warn" };
-      const cryptoWeight = combinedWeight(snapshot, ["BTC", "ETH", "DOGE", "BGB"]);
+      const cryptoWeight = combinedWeight(snapshot, ["BTC", "ETH", "DOGE", "BGB", "CRCL"]);
       if (cryptoWeight > 40) return { label: "加密总仓过高", level: "risk" };
       return { label: snapshot.isStale ? "数据偏旧，仅观察" : "持有观察", level: snapshot.isStale ? "warn" : "" };
     }
@@ -1560,8 +1851,113 @@
       return "";
     }
 
+    function ensureCryptoFinanceLayer(layers, snapshot, rules) {
+      const result = Array.isArray(layers) ? [...layers] : [];
+      if (result.some((layer) => layer.id === "cryptoFinance" || layer.name === "加密金融基础设施卫星仓")) return result;
+      const crclRow = (snapshot.positions || []).find((row) => row.symbol === "CRCL");
+      const weight = Number(crclRow?.weightPct || 0);
+      const value = Number(crclRow?.value || 0);
+      const cfg = rules?.v5Rules?.cryptoFinanceLayer || rules?.v4Rules?.cryptoFinanceLayer || FALLBACK_RULES.v5Rules?.cryptoFinanceLayer || {};
+      if (!crclRow && !cfg.symbols?.includes("CRCL")) return result;
+      const stop = Number(cfg.stopAdd || 0.045) * 100;
+      const hard = Number(cfg.hardMax || 0.05) * 100;
+      const target = Number(cfg.targetMax || 0.04) * 100;
+      const status = weight >= hard
+        ? { label: "高风险", level: "risk" }
+        : weight >= stop
+          ? { label: "禁止新增", level: "warn" }
+          : weight > target
+            ? { label: "轻度偏高", level: "warn" }
+            : weight > 0
+              ? { label: "小仓观察", level: "info" }
+              : { label: "未建仓", level: "info" };
+      result.push({
+        id: "cryptoFinance",
+        name: cfg.name || "加密金融基础设施卫星仓",
+        symbols: ["CRCL"],
+        value,
+        weightPct: weight,
+        targetText: "CRCL 目标上限 4%，4.5% 禁止新增，5% 硬上限；不与 DOGE/BGB/RAM 合并计算投机仓上限",
+        status,
+        advice: weight >= stop ? "CRCL 已接近或达到加密金融卫星仓上限，后续不再新增，只做持有、复盘或减仓。" : "CRCL 只做加密金融基础设施小仓观察，不抢 AI 主攻资金，也不纳入 DOGE/BGB/RAM 投机仓合计。"
+      });
+      return result;
+    }
+
+
+    function buildPositionDashboardInsights(snapshot, rules, layers) {
+      const v5 = rules?.v5Rules || rules?.v4Rules || {};
+      const cashPct = Number(snapshot.cashPct || 0);
+      const themeSymbols = v5.themeLayer?.symbols || FALLBACK_RULES.v5Rules.themeLayer.symbols;
+      const aiWeight = combinedWeight(snapshot, themeSymbols);
+      const mainAiWeight = combinedWeight(snapshot, ["MU", "DRAM", "GLW", "SMH"]);
+      const specSymbols = v5.speculativeLayer?.symbols || ["DOGE", "BGB", "RAM"];
+      const specWeight = combinedWeight(snapshot, specSymbols);
+      const crclWeight = combinedWeight(snapshot, v5.cryptoFinanceLayer?.symbols || ["CRCL"]);
+      const coreWeight = combinedWeight(snapshot, ["BTC", "ETH"]);
+      const stableWeight = combinedWeight(snapshot, ["VOO", "XAUT"]);
+      const healthy = [];
+      const risks = [];
+      const review = [];
+      const rebalance = [];
+
+      if (cashPct >= 40 && cashPct <= 55) healthy.push(`现金 ${formatPct(cashPct)}，处于 40%-55% 舒适区。`);
+      else if (cashPct < 35) risks.push(`现金 ${formatPct(cashPct)}，低于 35% 保护线，任何新增都要先人工复核。`);
+      else if (cashPct < 40) risks.push(`现金 ${formatPct(cashPct)}，略低于舒适区，优先保护现金。`);
+      else healthy.push(`现金 ${formatPct(cashPct)}，安全垫充足。`);
+
+      if (coreWeight >= 8 && coreWeight <= 13) healthy.push(`BTC/ETH 核心层 ${formatPct(coreWeight)}，总量基本达标。`);
+      else if (coreWeight < 8) risks.push(`BTC/ETH 核心层 ${formatPct(coreWeight)}，低于 8% 底仓线，但不自动触发买入。`);
+      else risks.push(`BTC/ETH 核心层 ${formatPct(coreWeight)}，超过 13%，注意加密资产集中度。`);
+
+      if (stableWeight >= 4 && stableWeight <= 10) healthy.push(`VOO/XAUT 稳定层 ${formatPct(stableWeight)}，用于降低组合波动。`);
+      else if (stableWeight < 4) risks.push(`VOO/XAUT 稳定层 ${formatPct(stableWeight)}，偏低但不机械补仓。`);
+
+      if (mainAiWeight >= 20 && mainAiWeight <= 30) healthy.push(`AI第一主攻仓 ${formatPct(mainAiWeight)}，已经是有效仓位。`);
+      if (aiWeight >= 35) risks.push(`AI相关总仓 ${formatPct(aiWeight)}，已接近或超过停止新增区。`);
+      else if (aiWeight >= 25) healthy.push(`AI相关总仓 ${formatPct(aiWeight)}，主线仓位已经不低。`);
+
+      if (specWeight >= 4.5) risks.push(`DOGE/BGB/RAM 投机层 ${formatPct(specWeight)}，达到停止新增区。`);
+      else healthy.push(`DOGE/BGB/RAM 投机层 ${formatPct(specWeight)}，未超过 4.5% 纪律线。`);
+
+      if (crclWeight >= 4.5) risks.push(`CRCL 卫星仓 ${formatPct(crclWeight)}，达到停止新增区。`);
+      else if (crclWeight > 0) healthy.push(`CRCL 卫星仓 ${formatPct(crclWeight)}，独立统计，不与 DOGE/BGB/RAM 合并。`);
+
+      for (const layer of layers || []) {
+        if (layer.status?.level === "risk") risks.push(`${layer.name}：${layer.status.label}。`);
+      }
+
+      const heavyPositions = (snapshot.positions || [])
+        .filter((row) => row.type !== "cash" && Number(row.weightPct || 0) >= 7.5)
+        .sort((a, b) => Number(b.weightPct || 0) - Number(a.weightPct || 0));
+      for (const row of heavyPositions.slice(0, 5)) {
+        risks.push(`${row.symbol} 单项仓位 ${formatPct(row.weightPct)}，已接近单项上限，后续操作前必须复核。`);
+      }
+
+      review.push("操作前先不下单，先发最新 holdings.json 或 Bitget 截图。 ");
+      review.push("说明你想加仓、减仓还是止盈，以及想操作的标的和金额。 ");
+      review.push("先判断这笔操作是仓位优化，还是追涨、抄底、亏损摊低。 ");
+      review.push("确认现金比例、单项上限、AI总仓、DOGE/BGB/RAM和CRCL上限后，再决定是否执行。 ");
+
+      rebalance.push(...(summarySafeRebalance(snapshot, rules)));
+      return { healthy, risks, review, rebalance };
+    }
+
+    function summarySafeRebalance(snapshot, rules) {
+      const out = [];
+      const aiWeight = combinedWeight(snapshot, (rules?.v5Rules?.themeLayer?.symbols || FALLBACK_RULES.v5Rules.themeLayer.symbols));
+      const crclWeight = combinedWeight(snapshot, ["CRCL"]);
+      const specWeight = combinedWeight(snapshot, ["DOGE", "BGB", "RAM"]);
+      if (aiWeight >= 35) out.push("AI相关仓位进入高位区，后续只做复核，不自动新增。 ");
+      if (crclWeight >= 4.5) out.push("CRCL 已达到停止新增区，后续只做卫星仓管理。 ");
+      if (specWeight >= 4.5) out.push("DOGE/BGB/RAM 投机层达到停止新增区，不能继续放大。 ");
+      if (!out.length) out.push("当前没有触发明显再平衡边界；维持观察即可。 ");
+      return out;
+    }
+
     function renderV4Dashboard(snapshot, rules) {
       const summary = calculateHealthSummary(snapshot, rules);
+      const displayLayers = ensureCryptoFinanceLayer(summary.layers, snapshot, rules);
       const score = summary.score;
       const scorePct = Math.max(0, Math.min(100, score.total));
       document.getElementById("v4Health").innerHTML = `
@@ -1593,7 +1989,7 @@
         <ul class="judgement-list">${summary.judgement.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
       `;
 
-      document.getElementById("v4Layers").innerHTML = summary.layers.map((layer) => `
+      document.getElementById("v4Layers").innerHTML = displayLayers.map((layer) => `
         <article class="layer-card">
           <div class="layer-head">
             <strong>${escapeHtml(layer.name)}</strong>
@@ -1607,24 +2003,33 @@
         </article>
       `).join("");
 
-      document.getElementById("v4AllowedActions").innerHTML = listHtml(summary.allowedActions, "暂无允许动作。 ");
-      document.getElementById("v4ForbiddenActions").innerHTML = listHtml(summary.forbiddenActions, "暂无禁止动作。 ");
-      document.getElementById("v4Cooldown").innerHTML = `
-        <span class="pill ${summary.cooldown.status === "冷却中" ? "warn" : summary.cooldown.configured ? "" : "info"}">${escapeHtml(summary.cooldown.status)}</span>
-        ${listHtml(summary.cooldown.messages, "冷却机制暂未配置。")}
-      `;
-      document.getElementById("v4Rebalance").innerHTML = listHtml(summary.rebalanceAlerts, "当前没有触发再平衡提醒。 ");
-      document.getElementById("v4PhasePlan").innerHTML = summary.phasePlan.map((phase) => `
+      const insights = buildPositionDashboardInsights(snapshot, rules, displayLayers);
+      document.getElementById("v4AllowedActions").innerHTML = listHtml(insights.healthy, "暂无明显健康项，请先检查价格数据是否正常。 ");
+      document.getElementById("v4ForbiddenActions").innerHTML = listHtml(insights.risks, "当前没有明显仓位风险边界。 ");
+      document.getElementById("v4Cooldown").innerHTML = listHtml(insights.review, "任何操作前都先人工复核。 ");
+      document.getElementById("v4Rebalance").innerHTML = listHtml(insights.rebalance, "当前没有触发再平衡边界。 ");
+      document.getElementById("v4PhasePlan").innerHTML = `
         <article class="phase-card">
-          <h3>${escapeHtml(phase.name)}</h3>
-          <div class="metric">
-            <div class="label">按当前仓位估算可动用</div>
-            <div class="value">${formatMoney(phase.deployAmount)}</div>
-          </div>
-          <p class="muted">${escapeHtml(phase.target)}</p>
-          ${listHtml(phase.steps)}
+          <h3>第一步：先暂停</h3>
+          <p class="muted">看到上涨、下跌或想补仓时，先不要立刻下单。</p>
+          ${listHtml(["确认这不是追涨、亏损摊低或情绪交易。", "先看现金比例和单项仓位是否接近上限。"])}
         </article>
-      `).join("");
+        <article class="phase-card">
+          <h3>第二步：发最新数据</h3>
+          <p class="muted">把最新 holdings.json 或 Bitget 截图发出来。</p>
+          ${listHtml(["截图最好包含数量、现价、成本、浮盈亏和现金。", "说明你想操作哪个标的、方向和金额。"])}
+        </article>
+        <article class="phase-card">
+          <h3>第三步：人工复核</h3>
+          <p class="muted">先判断仓位结构，再判断是否值得操作。</p>
+          ${listHtml(["先确认层级是否偏高。", "再确认是否违反现金保护线或单项上限。"])}
+        </article>
+        <article class="phase-card">
+          <h3>第四步：执行后更新</h3>
+          <p class="muted">真正成交后再更新仓位文件。</p>
+          ${listHtml(["把成交后的数量和成本写入 config/holdings.json。", "提交 GitHub 后重新运行 Actions，让网站重新体检。"])}
+        </article>
+      `;
     }
 
     function renderSummary(snapshot) {
@@ -1646,15 +2051,15 @@
 
       const notice = document.getElementById("dataNotice");
       notice.innerHTML = `
-        <strong>价格源：</strong>优先 Bitget（已配置 MRVL/RANET/RTSM/RASML/RSMH/RSOXX 等候选映射，部分标的会自动尝试 R 前缀和无 R 前缀两种交易对）；Bitget 无可用价格时再尝试 Yahoo Finance / Stooq。当前数据状态：
+        <strong>价格源：</strong>优先 Bitget（已配置 CRCL/RCRCL、MRVL/RANET/RTSM/RASML/RSMH/RSOXX 等候选映射，部分标的会自动尝试 R 前缀和无 R 前缀两种交易对）；Bitget 无可用价格时再尝试 Yahoo Finance / Stooq。当前数据状态：
         <span class="pill ${fresh.level}">${fresh.label}</span>
-        ${snapshot.isDataBlocked ? " 数据已超过 30 分钟，禁止按信号买入。" : " 邮件提醒和网页展示均不会自动下单；邮件只在结构、风控、买点、止盈或再平衡触发时发送。"}
+        ${snapshot.isDataBlocked ? " 数据已超过 30 分钟，只适合看仓位结构，不适合作为操作依据。" : " 网页只做仓位体检和风险提示，不自动给买卖指令。操作前请先人工复核。"}
       `;
     }
 
     function renderTargetRules(snapshot, rules) {
       const targets = rules.targets || {};
-      const order = ["BTC", "ETH", "DOGE", "BGB", "VOO", "XAUT", "AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "RAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"];
+      const order = ["BTC", "ETH", "DOGE", "BGB", "RAM", "CRCL", "VOO", "XAUT", "AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"];
       const symbols = [...order.filter((symbol) => targets[symbol]), ...Object.keys(targets).filter((symbol) => !order.includes(symbol))];
       document.getElementById("targetRows").innerHTML = symbols.map((symbol) => {
         const row = snapshot.positions.find((item) => item.symbol === symbol);
@@ -1686,7 +2091,15 @@
     }
 
     function renderPositions(snapshot, rules) {
-      document.getElementById("positionRows").innerHTML = snapshot.positions.map((row) => {
+      const sortedPositions = [...(snapshot.positions || [])].sort((a, b) => {
+        const weightDiff = Number(b.weightPct || 0) - Number(a.weightPct || 0);
+        if (Math.abs(weightDiff) > 1e-9) return weightDiff;
+        const valueDiff = Number(b.value || 0) - Number(a.value || 0);
+        if (Math.abs(valueDiff) > 1e-9) return valueDiff;
+        return String(a.symbol || "").localeCompare(String(b.symbol || ""));
+      });
+
+      document.getElementById("positionRows").innerHTML = sortedPositions.map((row) => {
         const status = statusFor(row, snapshot, rules);
         return `
           <tr>
@@ -1703,7 +2116,7 @@
         `;
       }).join("");
 
-      document.getElementById("positionCards").innerHTML = snapshot.positions.map((row) => {
+      document.getElementById("positionCards").innerHTML = sortedPositions.map((row) => {
         const status = statusFor(row, snapshot, rules);
         return `
           <article class="asset-card">
@@ -1727,15 +2140,33 @@
       }).join("");
     }
 
+    function alertTypeText(type) {
+      const map = {
+        "data-risk": "数据风险",
+        "cash-risk": "现金风险",
+        "theme-risk": "AI仓位风险",
+        "theme-gate": "AI仓位风险",
+        "spec-risk": "投机层风险",
+        "crypto-finance-risk": "CRCL卫星仓风险",
+        "structure": "结构提醒",
+        "drawdown": "回撤风险",
+        "risk-pause": "风险暂停"
+      };
+      return map[String(type || "")] || "仓位提醒";
+    }
+
     function renderAlerts(alertData, snapshot) {
       const rowBySymbol = new Map((snapshot.positions || []).map((row) => [row.symbol, row]));
       const priceErrors = Object.keys(snapshot.priceErrors || {}).filter((symbol) => {
         const row = rowBySymbol.get(symbol);
         return !(row?.type === "watch" && Number(row.quantity || 0) <= 0);
       });
+      const riskTypes = new Set(["data-risk", "cash-risk", "theme-risk", "theme-gate", "spec-risk", "crypto-finance-risk", "structure", "drawdown", "risk-pause"]);
       const alerts = [...(alertData?.alerts || [])].filter((item) => {
         const symbols = String(item.symbol || "").split(/[+/]/).filter(Boolean);
-        return !symbols.length || symbols.every((symbol) => symbol === "DATA" || symbol === "CASH" || symbol === "PORTFOLIO" || symbol === "TEST" || allowedSymbols.has(symbol));
+        const symbolOk = !symbols.length || symbols.every((symbol) => symbol === "DATA" || symbol === "CASH" || symbol === "PORTFOLIO" || symbol === "TEST" || allowedSymbols.has(symbol));
+        const isRisk = riskTypes.has(item.type) || item.severity === "high";
+        return symbolOk && isRisk;
       });
       if (priceErrors.length && !alerts.some((item) => item.type === "data-risk")) {
         alerts.unshift({
@@ -1743,23 +2174,27 @@
           type: "data-risk",
           severity: "high",
           conclusion: `价格源失败：${priceErrors.join("、")}`,
-          action: "失败标的不触发买入邮件，等待下一次刷新。"
+          action: "失败标的不用于操作判断，等待下一次刷新。"
         });
       }
       const box = document.getElementById("alerts");
       if (!alerts.length) {
-        box.innerHTML = `<div class="alert-item"><strong>暂无触发提醒。</strong><div class="muted">这通常是好事：说明当前没有必须立刻处理的交易信号。</div></div>`;
+        box.innerHTML = `<div class="alert-item"><strong>暂无仓位风险提示。</strong><div class="muted">这通常是好事：说明当前仓位没有触发明显风险边界。</div></div>`;
         return;
       }
       box.innerHTML = alerts.map((alert) => `
         <div class="alert-item ${alert.severity || ""}">
-          <span class="pill ${alert.severity === "high" ? "risk" : alert.severity === "medium" ? "warn" : "info"}">${alert.symbol || "提醒"} · ${alert.type || "rule"}</span>
+          <span class="pill ${alert.severity === "high" ? "risk" : alert.severity === "medium" ? "warn" : "info"}">${alert.symbol || "提醒"} · ${alertTypeText(alert.type)}</span>
           <h3>${alert.title || alert.conclusion || alert.message || "规则提醒"}</h3>
           <div>${alert.conclusion || alert.message || ""}</div>
           <div class="muted">${alert.action || ""}</div>
         </div>
       `).join("");
     }
+
+
+
+    /* 5.4 仓位体检版：前端不再展示执行日志。 */
 
     function renderEditor(holdings) {
       document.getElementById("editor").innerHTML = allAssets(holdings).map((asset) => `
@@ -1807,6 +2242,7 @@
       }
       const alerts = await safeFetchJson("data/alerts.json", { alerts: [] });
       renderV4Dashboard(snapshot, rules);
+      renderPerformance(snapshot, rules);
       renderSummary(snapshot);
       renderTargetRules(snapshot, rules);
       renderCapRules(snapshot, rules);

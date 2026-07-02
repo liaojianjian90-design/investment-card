@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 4953.23370038,
+      "quantity": 5501.10553647,
       "cost": 1,
       "type": "cash"
     },
@@ -29,15 +29,27 @@
     },
     {
       "symbol": "DOGE",
-      "quantity": 0,
-      "cost": 0,
+      "quantity": 7933.1942142,
+      "cost": 0.07309,
       "type": "crypto"
     },
     {
       "symbol": "BGB",
-      "quantity": 22.99973804,
-      "cost": 2.015,
+      "quantity": 25.91259087,
+      "cost": 1.978,
       "type": "crypto"
+    },
+    {
+      "symbol": "RAM",
+      "quantity": 0,
+      "cost": 0,
+      "type": "watch"
+    },
+    {
+      "symbol": "CRCL",
+      "quantity": 7.60903998,
+      "cost": 65.7,
+      "type": "watch"
     },
     {
       "symbol": "VOO",
@@ -65,8 +77,8 @@
     },
     {
       "symbol": "MU",
-      "quantity": 1.08737129,
-      "cost": 1116.13598319,
+      "quantity": 0.94527129,
+      "cost": 1125.24,
       "type": "watch"
     },
     {
@@ -77,26 +89,14 @@
     },
     {
       "symbol": "DRAM",
-      "quantity": 15.33276412,
-      "cost": 70.83010729,
-      "type": "watch"
-    },
-    {
-      "symbol": "RAM",
-      "quantity": 13,
-      "cost": 21.09769231,
+      "quantity": 12.35126412,
+      "cost": 71.75,
       "type": "watch"
     },
     {
       "symbol": "WDC",
       "quantity": 0.3305247,
       "cost": 604.3,
-      "type": "watch"
-    },
-    {
-      "symbol": "CRCL",
-      "quantity": 3.00903998,
-      "cost": 69.1,
       "type": "watch"
     },
     {
@@ -113,14 +113,14 @@
     },
     {
       "symbol": "GLW",
-      "quantity": 8.64538446,
-      "cost": 245.55776544,
+      "quantity": 4.65759003,
+      "cost": 261.08,
       "type": "watch"
     },
     {
       "symbol": "MRVL",
-      "quantity": 0.39587648,
-      "cost": 222.01,
+      "quantity": 0.79587648,
+      "cost": 251.95,
       "type": "watch"
     },
     {

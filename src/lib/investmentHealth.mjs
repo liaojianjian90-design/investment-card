@@ -1,47 +1,61 @@
 export const DEFAULT_V4_RULES = {
   cashLayer: {
-    targetMatureMin: 0.40,
-    targetMatureMax: 0.50,
-    phase1Target: 0.70,
-    phase2Target: 0.60,
-    pauseNormalBuyBelow: 0.40,
-    stopNewBuyBelow: 0.35,
-    defenseModeBelow: 0.30
+    targetMatureMin: 0.35,
+    targetMatureMax: 0.45,
+    phase1Target: 0.65,
+    phase2Target: 0.50,
+    pauseNormalBuyBelow: 0.35,
+    stopNewBuyBelow: 0.30,
+    defenseModeBelow: 0.28
   },
   coreGrowthLayer: {
-    btcFirstTargetMin: 0.08,
-    btcMatureTargetMin: 0.10,
-    btcMatureTargetMax: 0.12,
+    btcFirstTargetMin: 0.05,
+    btcMatureTargetMin: 0.05,
+    btcMatureTargetMax: 0.08,
     ethFirstTargetMin: 0.03,
-    ethMatureTargetMin: 0.04,
-    ethMatureTargetMax: 0.06,
-    btcEthTotalTargetMin: 0.15,
-    btcEthTotalTargetMax: 0.18,
-    weeklyCoreBuyLimitPct: 0.02
+    ethMatureTargetMin: 0.03,
+    ethMatureTargetMax: 0.05,
+    btcEthTotalTargetMin: 0.08,
+    btcEthTotalTargetMax: 0.13,
+    weeklyCoreBuyLimitPct: 0.03
   },
   stableLayer: {
-    vooFirstTargetMin: 0.04,
-    vooFirstTargetMax: 0.06,
-    vooMatureTargetMin: 0.10,
-    vooMatureTargetMax: 0.12,
+    vooFirstTargetMin: 0.03,
+    vooFirstTargetMax: 0.05,
+    vooMatureTargetMin: 0.05,
+    vooMatureTargetMax: 0.07,
     xautFirstTargetMin: 0.02,
     xautFirstTargetMax: 0.03,
-    xautMatureTargetMin: 0.05,
-    xautMatureTargetMax: 0.07
+    xautMatureTargetMin: 0.03,
+    xautMatureTargetMax: 0.04
   },
   themeLayer: {
-    targetMin: 0.05,
-    targetMax: 0.10,
-    hardMax: 0.15,
-    maxBeforeCoreComplete: 0.05,
-    symbols: ["AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "RAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"]
+    targetMin: 0.25,
+    targetMax: 0.35,
+    hardMax: 0.40,
+    maxBeforeCoreComplete: 0.30,
+    symbols: ["AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"]
   },
   speculativeLayer: {
-    targetMax: 0.02,
-    noNewBuyAbove: 0.025,
-    reduceOnlyAbove: 0.03,
-    hardWarningAbove: 0.04,
-    symbols: ["DOGE", "BGB"]
+    targetMax: 0.045,
+    noNewBuyAbove: 0.045,
+    reduceOnlyAbove: 0.05,
+    hardWarningAbove: 0.06,
+    symbols: ["DOGE", "BGB", "RAM"],
+    dogeTargetMax: 0.04,
+    dogeHardMax: 0.055,
+    bgbTargetMax: 0.01,
+    bgbHardMax: 0.015,
+    ramTargetMax: 0.01,
+    ramHardMax: 0.02
+  },
+  cryptoFinanceLayer: {
+    name: "加密金融基础设施卫星仓",
+    symbols: ["CRCL"],
+    targetMax: 0.04,
+    stopAdd: 0.045,
+    hardMax: 0.05,
+    note: "Circle等加密金融基础设施标的，只允许小仓卫星观察，不与AI主攻仓争资金，不与DOGE/BGB/RAM合并计算投机仓上限。"
   },
   dataFreshness: {
     maxAgeMinutes: 30,
@@ -180,6 +194,100 @@ function layerStatus({ weight, low, high, hardHigh, zeroMeansMissing = false, cu
   return { label: "健康", level: "" };
 }
 
+function coreLayerDetails({ btcWeight, ethWeight, rules }) {
+  const total = btcWeight + ethWeight;
+  const totalMin = pct(rules.coreGrowthLayer.btcEthTotalTargetMin);
+  const totalMax = pct(rules.coreGrowthLayer.btcEthTotalTargetMax);
+  const btcMin = pct(rules.coreGrowthLayer.btcFirstTargetMin);
+  const ethMin = pct(rules.coreGrowthLayer.ethFirstTargetMin);
+  const missing = [];
+  if (btcWeight < btcMin) missing.push("BTC");
+  if (ethWeight < ethMin) missing.push("ETH");
+
+  if (total < totalMin) {
+    return {
+      total,
+      missing,
+      isTotalEnough: false,
+      isSkewed: false,
+      status: { label: "核心不足", level: "info" },
+      advice: `BTC/ETH 合计低于 ${formatLayerPct(totalMin)} 底仓线；但当前 AI 主升优先，不因为核心不足机械补仓。`
+    };
+  }
+  if (total > totalMax) {
+    return {
+      total,
+      missing,
+      isTotalEnough: true,
+      isSkewed: false,
+      status: { label: "偏高", level: "warn" },
+      advice: "BTC/ETH 合计已经偏高，后续不要继续挤占 AI 主攻仓弹药。"
+    };
+  }
+  if (missing.length) {
+    return {
+      total,
+      missing,
+      isTotalEnough: true,
+      isSkewed: true,
+      status: { label: "核心偏科", level: "info" },
+      advice: `BTC/ETH 合计已达标，但 ${missing.join("/")} 低于单项底仓线；这只是结构提示，不影响 AI 主攻仓优先级。`
+    };
+  }
+  return {
+    total,
+    missing,
+    isTotalEnough: true,
+    isSkewed: false,
+    status: { label: "健康", level: "" },
+    advice: "加密底仓总量和结构都已具备基础，后续只在深跌或趋势确认后补。"
+  };
+}
+
+function stableLayerDetails({ vooWeight, xautWeight, rules }) {
+  const total = vooWeight + xautWeight;
+  const totalMin = pct(rules.stableLayer.vooFirstTargetMin + rules.stableLayer.xautFirstTargetMin);
+  const totalMax = pct(rules.stableLayer.vooMatureTargetMax + rules.stableLayer.xautMatureTargetMax);
+  const missing = [];
+  if (vooWeight <= 0) missing.push("VOO");
+  if (xautWeight <= 0) missing.push("XAUT");
+
+  if (total < totalMin) {
+    return {
+      total,
+      missing,
+      status: { label: "稳定不足", level: "info" },
+      advice: "稳定层只做保险底仓；新增资金仍优先 AI，VOO/XAUT 只在深跌价位补。"
+    };
+  }
+  if (total > totalMax) {
+    return {
+      total,
+      missing,
+      status: { label: "偏高", level: "warn" },
+      advice: "稳定层已经偏高，暂停快速加仓，避免降低 AI 主升方向收益效率。"
+    };
+  }
+  if (missing.length) {
+    return {
+      total,
+      missing,
+      status: { label: "稳定偏科", level: "info" },
+      advice: `${missing.join("/")} 缺位只是保险层结构提示；不因此抢 AI 主攻资金。`
+    };
+  }
+  return {
+    total,
+    missing,
+    status: { label: "健康", level: "" },
+    advice: "稳定层已建立，当前不继续抢 AI 主攻资金。"
+  };
+}
+
+function formatLayerPct(value) {
+  return `${Number(value).toFixed(1).replace(/\.0$/, "")}%`;
+}
+
 export function calculateAssetLayers(snapshot, rules = {}) {
   const v4 = getV4Rules(rules);
   const totalValue = safeNumber(snapshot?.totalValue, 0);
@@ -193,8 +301,10 @@ export function calculateAssetLayers(snapshot, rules = {}) {
   const stableWeight = vooWeight + xautWeight;
   const themeSymbols = v4.themeLayer.symbols || [];
   const specSymbols = v4.speculativeLayer.symbols || [];
+  const cryptoFinanceSymbols = v4.cryptoFinanceLayer?.symbols || [];
   const themeWeight = groupWeightPct(snapshot, themeSymbols);
   const specWeight = groupWeightPct(snapshot, specSymbols);
+  const cryptoFinanceWeight = groupWeightPct(snapshot, cryptoFinanceSymbols);
   const corePlusStableWeight = coreWeight + stableWeight;
 
   const cashStatus = cashPct < pct(v4.cashLayer.defenseModeBelow)
@@ -203,41 +313,25 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       ? { label: "停止新增", level: "risk" }
       : cashPct < pct(v4.cashLayer.pauseNormalBuyBelow)
         ? { label: "防守不足", level: "warn" }
-        : cashPct > 80
+        : cashPct > 70
           ? { label: "偏保守", level: "info" }
           : cashPct >= pct(v4.cashLayer.targetMatureMin) && cashPct <= 75
             ? { label: "健康", level: "" }
             : { label: "正常", level: "" };
 
-  const coreStatus = layerStatus({
-    weight: coreWeight,
-    low: pct(v4.coreGrowthLayer.btcEthTotalTargetMin),
-    high: pct(v4.coreGrowthLayer.btcEthTotalTargetMax),
-    hardHigh: 40
-  });
-  if (btcWeight < pct(v4.coreGrowthLayer.btcFirstTargetMin) || ethWeight < pct(v4.coreGrowthLayer.ethFirstTargetMin)) {
-    coreStatus.label = "核心不足";
-    coreStatus.level = "warn";
-  }
+  const coreDetails = coreLayerDetails({ btcWeight, ethWeight, rules: v4 });
+  const coreStatus = coreDetails.status;
 
-  const stableStatus = layerStatus({
-    weight: stableWeight,
-    low: pct(v4.stableLayer.vooFirstTargetMin + v4.stableLayer.xautFirstTargetMin),
-    high: pct(v4.stableLayer.vooMatureTargetMax + v4.stableLayer.xautMatureTargetMax),
-    hardHigh: 30,
-    zeroMeansMissing: true,
-    currentZero: vooWeight === 0 || xautWeight === 0
-  });
+  const stableDetails = stableLayerDetails({ vooWeight, xautWeight, rules: v4 });
+  const stableStatus = stableDetails.status;
 
   let themeStatus = layerStatus({
     weight: themeWeight,
-    low: 0,
+    low: pct(v4.themeLayer.targetMin),
     high: pct(v4.themeLayer.targetMax),
     hardHigh: pct(v4.themeLayer.hardMax)
   });
-  if (corePlusStableWeight < 25 && themeWeight > pct(v4.themeLayer.maxBeforeCoreComplete)) {
-    themeStatus = { label: "核心未稳，主题偏高", level: "warn" };
-  }
+  if (themeWeight > 0 && themeWeight < pct(v4.themeLayer.targetMin)) themeStatus = { label: "待推进", level: "info" };
   if (themeWeight === 0) themeStatus = { label: "未建仓", level: "info" };
 
   const specStatus = specWeight >= pct(v4.speculativeLayer.hardWarningAbove)
@@ -250,6 +344,16 @@ export function calculateAssetLayers(snapshot, rules = {}) {
           ? { label: "轻度偏高", level: "warn" }
           : { label: "健康", level: "" };
 
+  const cryptoFinanceStatus = cryptoFinanceWeight >= pct(v4.cryptoFinanceLayer?.hardMax)
+    ? { label: "高风险", level: "risk" }
+    : cryptoFinanceWeight >= pct(v4.cryptoFinanceLayer?.stopAdd)
+      ? { label: "禁止新增", level: "warn" }
+      : cryptoFinanceWeight > pct(v4.cryptoFinanceLayer?.targetMax)
+        ? { label: "轻度偏高", level: "warn" }
+        : cryptoFinanceWeight > 0
+          ? { label: "小仓观察", level: "info" }
+          : { label: "未建仓", level: "info" };
+
   return [
     {
       id: "cash",
@@ -257,9 +361,9 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: ["USDT", "USDGO"],
       value: cashValue,
       weightPct: cashPct,
-      targetText: "成熟目标 55%-60%，阶段目标 75% / 65%",
+      targetText: "成熟目标 35%-45%，阶段目标 65% / 50%",
       status: cashStatus,
-      advice: cashPct > 80 ? "账户安全但资金效率偏低，可分批补核心仓和稳定层。" : cashPct < 40 ? "现金防守不足，暂停普通加仓。" : "现金处于可执行区间，继续按规则分批。"
+      advice: cashPct > 65 ? "现金安全但资金效率偏低，新增资金优先给 AI 主攻仓。" : cashPct < 35 ? "现金防守不足，暂停普通加仓。" : "现金处于可执行区间，继续按 AI 优先规则分批。"
     },
     {
       id: "core",
@@ -267,9 +371,9 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: ["BTC", "ETH"],
       value: groupValue(snapshot, ["BTC", "ETH"]),
       weightPct: coreWeight,
-      targetText: "BTC 10%-12%，ETH 4%-6%，合计 25%-18%",
+      targetText: "BTC 5%-8%，ETH 3%-5%；当前阶段只做底仓，不抢 AI 主攻资金",
       status: coreStatus,
-      advice: btcWeight < 8 || ethWeight < 3 ? "BTC/ETH 未达到第一阶段核心仓，现金充足时优先小额补。" : "核心仓已具备基础，后续只慢慢补到成熟目标。"
+      advice: coreDetails.advice
     },
     {
       id: "stable",
@@ -277,9 +381,9 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: ["VOO", "XAUT"],
       value: groupValue(snapshot, ["VOO", "XAUT"]),
       weightPct: stableWeight,
-      targetText: "VOO 10%-12%，XAUT 5%-7%；第一阶段先建底仓",
+      targetText: "VOO 5%-7%，XAUT 3%-4%；保险底仓，不做当前主攻",
       status: stableStatus,
-      advice: vooWeight === 0 || xautWeight === 0 ? "VOO/XAUT 长期稳定资产缺位，建议分批建立底仓。" : "稳定层已建立，后续按月再平衡。"
+      advice: stableDetails.advice
     },
     {
       id: "theme",
@@ -287,9 +391,9 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: themeSymbols,
       value: groupValue(snapshot, themeSymbols),
       weightPct: themeWeight,
-      targetText: "目标 5%-10%，硬上限 25%；核心未稳前不超过 5%",
+      targetText: "目标 25%-35%，35% 停止新增，40% 硬上限；MU/DRAM/GLW/SMH 单笔 500 USDT 起",
       status: themeStatus,
-      advice: corePlusStableWeight < 25 ? "核心仓和稳定层未完成前，AI抽水机/半导体/存储/光通信不要抢跑。" : "AI抽水机仓可作为收益增强，但不能超过硬上限。"
+      advice: themeWeight < 25 ? "当前阶段 AI 主攻仓优先推进到 25% 以上，BTC/XAUT 不抢新增资金。" : "AI 抽水机仓是收益主攻层，35% 后停止新增，40% 为硬上限。"
     },
     {
       id: "speculative",
@@ -297,9 +401,19 @@ export function calculateAssetLayers(snapshot, rules = {}) {
       symbols: specSymbols,
       value: groupValue(snapshot, specSymbols),
       weightPct: specWeight,
-      targetText: "目标 0%-2%，2.5% 禁止新增，3% 只减不补",
+      targetText: "DOGE/BGB/RAM 合计目标 0%-4.5%，4.5% 禁止新增，5% 只减不补，6% 高风险警戒；RAM 属于2x DRAM投机清理标的",
       status: specStatus,
-      advice: specWeight >= pct(v4.speculativeLayer.noNewBuyAbove) ? "DOGE/BGB 禁止新增，后续以反弹减仓为主。" : "投机仓保持小仓位，不做摊低成本。"
+      advice: specWeight >= pct(v4.speculativeLayer.noNewBuyAbove) ? "DOGE/BGB/RAM 已到投机清理层上限，后续只等趋势或反弹减仓。" : "DOGE 可适度作为 BTC 放大器；RAM 只作为高波动投机清理标的，不能摊低成本或替代核心仓。"
+    },
+    {
+      id: "cryptoFinance",
+      name: v4.cryptoFinanceLayer?.name || "加密金融基础设施卫星仓",
+      symbols: cryptoFinanceSymbols,
+      value: groupValue(snapshot, cryptoFinanceSymbols),
+      weightPct: cryptoFinanceWeight,
+      targetText: "CRCL 目标上限 4%，4.5% 禁止新增，5% 硬上限；不与 DOGE/BGB/RAM 合并计算投机仓上限",
+      status: cryptoFinanceStatus,
+      advice: cryptoFinanceWeight >= pct(v4.cryptoFinanceLayer?.stopAdd) ? "CRCL 已接近或达到加密金融卫星仓上限，后续不再新增，只做持有、复盘或减仓。" : "CRCL 只做加密金融基础设施小仓观察，不抢 AI 主攻资金，也不纳入 DOGE/BGB/RAM 投机仓合计。"
     }
   ];
 }
@@ -315,6 +429,7 @@ export function calculateHealthScore(snapshot, rules = {}) {
   const vooWeight = weightPct(snapshot, "VOO");
   const xautWeight = weightPct(snapshot, "XAUT");
   const specWeight = groupWeightPct(snapshot, v4.speculativeLayer.symbols);
+  const cryptoFinanceWeight = groupWeightPct(snapshot, v4.cryptoFinanceLayer?.symbols || []);
   const themeWeight = groupWeightPct(snapshot, v4.themeLayer.symbols);
 
   const components = {
@@ -326,9 +441,9 @@ export function calculateHealthScore(snapshot, rules = {}) {
     drawdownState: { label: "回撤状态", max: 10, score: 10, reasons: [] }
   };
 
-  if (cashPct > 80) {
+  if (cashPct > 70) {
     components.cashSafety.score -= 4;
-    components.cashSafety.reasons.push("现金超过 80%，账户安全但收益效率偏低。");
+    components.cashSafety.reasons.push("现金超过 70%，账户安全但有效仓位不足，可能浪费行情。");
   }
   if (cashPct < 40) {
     components.cashSafety.score -= 8;
@@ -339,47 +454,55 @@ export function calculateHealthScore(snapshot, rules = {}) {
     components.cashSafety.reasons.push("现金低于 35%，停止新增买入。");
   }
 
-  if (btcWeight < pct(v4.coreGrowthLayer.btcFirstTargetMin)) {
+  const coreDetails = coreLayerDetails({ btcWeight, ethWeight, rules: v4 });
+  const stableDetails = stableLayerDetails({ vooWeight, xautWeight, rules: v4 });
+  if (!coreDetails.isTotalEnough) {
     components.coreCompleteness.score -= 5;
-    components.coreCompleteness.reasons.push("BTC 低于第一阶段 8% 目标。");
+    components.coreCompleteness.reasons.push("BTC/ETH 合计低于 8% 底仓线，但当前不因核心不足机械占用 AI 弹药。");
+  } else if (coreDetails.isSkewed) {
+    components.coreCompleteness.score -= 1;
+    components.coreCompleteness.reasons.push(`BTC/ETH 合计达标，但 ${coreDetails.missing.join("/")} 偏低，仅作为结构提示。`);
   }
-  if (ethWeight < pct(v4.coreGrowthLayer.ethFirstTargetMin)) {
-    components.coreCompleteness.score -= 5;
-    components.coreCompleteness.reasons.push("ETH 低于第一阶段 3% 目标。");
-  }
-  if (vooWeight <= 0) {
-    components.coreCompleteness.score -= 6;
-    components.coreCompleteness.reasons.push("VOO 为 0，长期稳定资产缺位。");
-  }
-  if (xautWeight <= 0) {
-    components.coreCompleteness.score -= 6;
-    components.coreCompleteness.reasons.push("XAUT 为 0，黄金稳定层缺位。");
+  if (stableDetails.total <= 0) {
+    components.coreCompleteness.score -= 3;
+    components.coreCompleteness.reasons.push("VOO/XAUT 稳定层完全缺位；仍不因此抢 AI 主攻资金。 ");
+  } else if (stableDetails.missing.length) {
+    components.coreCompleteness.score -= 1;
+    components.coreCompleteness.reasons.push(`稳定层已有底仓，但 ${stableDetails.missing.join("/")} 缺位，仅作保险层提示。`);
   }
 
   if (specWeight > pct(v4.speculativeLayer.targetMax)) {
     components.speculativeControl.score -= 3;
-    components.speculativeControl.reasons.push("DOGE + BGB 超过 2%，投机仓轻度偏高。");
+    components.speculativeControl.reasons.push("DOGE/BGB/RAM 投机清理层超过 4.5%，投机仓偏高。");
   }
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) {
     components.speculativeControl.score -= 3;
-    components.speculativeControl.reasons.push("DOGE + BGB 达到 2.5%，禁止新增投机仓。");
+    components.speculativeControl.reasons.push("DOGE/BGB/RAM 投机清理层达到 4.5%，禁止新增 DOGE/BGB/RAM。");
   }
   if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove)) {
     components.speculativeControl.score -= 4;
-    components.speculativeControl.reasons.push("DOGE + BGB 达到 3%，只允许反弹减仓。");
+    components.speculativeControl.reasons.push("DOGE/BGB/RAM 投机清理层达到 5%，只允许趋势止盈或反弹减仓。");
   }
   if (specWeight >= pct(v4.speculativeLayer.hardWarningAbove)) {
     components.speculativeControl.score -= 5;
-    components.speculativeControl.reasons.push("DOGE + BGB 超过 4%，进入高风险警戒。");
+    components.speculativeControl.reasons.push("DOGE/BGB/RAM 投机清理层超过 6%，进入高风险警戒。");
+  }
+  if (cryptoFinanceWeight >= pct(v4.cryptoFinanceLayer?.stopAdd)) {
+    components.speculativeControl.score -= 3;
+    components.speculativeControl.reasons.push("CRCL 超过 4.5%，达到加密金融基础设施卫星仓禁止新增线。");
+  }
+  if (cryptoFinanceWeight >= pct(v4.cryptoFinanceLayer?.hardMax)) {
+    components.speculativeControl.score -= 4;
+    components.speculativeControl.reasons.push("CRCL 超过 5%，超过加密金融基础设施卫星仓硬上限。");
   }
 
   if (themeWeight > pct(v4.themeLayer.targetMax)) {
     components.themeControl.score -= 5;
-    components.themeControl.reasons.push("AI抽水机主攻仓超过 10%，谨慎加仓。");
+    components.themeControl.reasons.push("AI抽水机主攻仓超过 35%，停止新增并复盘。");
   }
   if (themeWeight > pct(v4.themeLayer.hardMax)) {
     components.themeControl.score -= 8;
-    components.themeControl.reasons.push("AI抽水机主攻仓超过 25%，停止新增AI抽水机仓。");
+    components.themeControl.reasons.push("AI抽水机主攻仓超过 40%，超过硬上限，必须复盘是否降仓。");
   }
 
   if (freshness.isStale) {
@@ -413,8 +536,8 @@ export function calculateHealthScore(snapshot, rules = {}) {
   const reasons = Object.values(components).flatMap((item) => item.reasons.map((reason) => `${item.label}：${reason}`));
   const topAdvice = generateTopAdvice(snapshot, rules, layers, freshness).slice(0, 3);
   let grade = total >= 88 ? "优秀" : total >= 75 ? "健康" : total >= 65 ? "偏保守" : total >= 50 ? "偏激进" : "高风险";
-  if (cashPct > 80 && total >= 65) grade = "偏保守";
-  if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove) || themeWeight > pct(v4.themeLayer.hardMax) || cashPct < 40) grade = total < 60 ? "高风险" : "偏激进";
+  if (cashPct > 70 && total >= 65) grade = "偏保守";
+  if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove) || cryptoFinanceWeight >= pct(v4.cryptoFinanceLayer?.hardMax) || themeWeight > pct(v4.themeLayer.hardMax) || cashPct < 40) grade = total < 60 ? "高风险" : "偏激进";
 
   return {
     total,
@@ -435,11 +558,17 @@ function generateTopAdvice(snapshot, rules, layers, freshness) {
   const vooWeight = weightPct(snapshot, "VOO");
   const xautWeight = weightPct(snapshot, "XAUT");
   const specWeight = groupWeightPct(snapshot, v4.speculativeLayer.symbols);
+  const cryptoFinanceWeight = groupWeightPct(snapshot, v4.cryptoFinanceLayer?.symbols || []);
   if (freshness.isBlocked) advice.push("先等待数据刷新，不根据过期数据买入。");
-  if (cashPct > 80) advice.push("现金过高，优先用小额分批方式补核心仓和稳定层。 ");
-  if (btcWeight < 8 || ethWeight < 3) advice.push("BTC/ETH 未达到第一阶段核心仓，现金充足时优先补。 ");
-  if (vooWeight === 0 || xautWeight === 0) advice.push("VOO/XAUT 为 0，建议分批建立长期稳定底仓。 ");
-  if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) advice.push("DOGE/BGB 投机仓偏高，禁止新增，以反弹减仓为主。 ");
+  const themeWeight = groupWeightPct(snapshot, v4.themeLayer.symbols);
+  const coreDetails = coreLayerDetails({ btcWeight, ethWeight, rules: v4 });
+  const stableDetails = stableLayerDetails({ vooWeight, xautWeight, rules: v4 });
+  if (cashPct > 65 && themeWeight < 25) advice.push("现金偏高且 AI 主攻仓不足，新增资金优先 MU/DRAM/GLW/SMH；BTC/XAUT 暂不机械补仓。 ");
+  if (!coreDetails.isTotalEnough) advice.push("BTC/ETH 总量低于底仓线，但当前只做观察，不抢 AI 主攻资金。 ");
+  else if (coreDetails.isSkewed) advice.push(`BTC/ETH 总量达标但 ${coreDetails.missing.join("/")} 偏低，这是结构偏科，不是核心不足。 `);
+  if (stableDetails.total <= 0) advice.push("VOO/XAUT 稳定层完全缺位，但当前优先级仍低于 AI 主攻仓。 ");
+  if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) advice.push("DOGE/BGB/RAM 投机清理层达到上限，禁止新增，以趋势止盈或反弹减仓为主。 ");
+  if (cryptoFinanceWeight >= pct(v4.cryptoFinanceLayer?.stopAdd)) advice.push("CRCL 已达到加密金融基础设施卫星仓禁止新增线，后续只做持有、复盘或减仓。 ");
   if (!advice.length) advice.push("结构基本健康，继续按月复盘和再平衡。 ");
   return [...new Set(advice.map((item) => item.trim()))];
 }
@@ -453,14 +582,19 @@ export function generateSystemJudgement(snapshot, rules = {}) {
   const vooWeight = weightPct(snapshot, "VOO");
   const xautWeight = weightPct(snapshot, "XAUT");
   const specWeight = groupWeightPct(snapshot, v4.speculativeLayer.symbols);
+  const cryptoFinanceWeight = groupWeightPct(snapshot, v4.cryptoFinanceLayer?.symbols || []);
   const themeWeight = groupWeightPct(snapshot, v4.themeLayer.symbols);
   const messages = [];
   if (freshness.isBlocked) messages.push("当前数据已过期或关键价格缺失，只能做结构分析，不能做买入判断。");
-  if (cashPct > 80) messages.push("当前账户非常安全，但现金占比过高，长期资金效率偏低。建议优先补 BTC/ETH 核心仓，并建立 VOO/XAUT 底仓。");
-  if (btcWeight < 8 || ethWeight < 3) messages.push("核心增长层不足，BTC/ETH 应优先补到第一阶段目标，再考虑扩大AI抽水机仓。 ");
-  if (vooWeight === 0 || xautWeight === 0) messages.push("长期稳定层缺位，建议分批建立 VOO 与 XAUT 底仓。 ");
-  if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) messages.push("投机仓已偏高，不建议继续补 DOGE/BGB，后续应以反弹减仓为主。 ");
-  if (themeWeight > pct(v4.themeLayer.targetMax)) messages.push("AI抽水机仓偏高，AI抽水机/半导体/存储/光通信不应继续主动加仓。 ");
+  const coreDetails = coreLayerDetails({ btcWeight, ethWeight, rules: v4 });
+  const stableDetails = stableLayerDetails({ vooWeight, xautWeight, rules: v4 });
+  if (cashPct > 65 && themeWeight < 25) messages.push("当前现金仍偏高，AI 主攻仓未达 25%；新增资金优先给 MU/DRAM/GLW/SMH，BTC/XAUT 只保留底仓。 ");
+  if (!coreDetails.isTotalEnough) messages.push("BTC/ETH 合计低于底仓线，但不在弱势阶段机械补；只有深跌或趋势重新确认后才补。 ");
+  else if (coreDetails.isSkewed) messages.push(`BTC/ETH 合计已达标，但 ${coreDetails.missing.join("/")} 偏低，这是核心偏科，不是核心不足；不影响 AI 主攻仓优先。 `);
+  if (stableDetails.total <= 0) messages.push("VOO/XAUT 是保险底仓，当前不应继续抢占 AI 主攻资金。 ");
+  if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) messages.push("DOGE/BGB/RAM 已达到投机清理层上限，不建议继续补；DOGE 可以作为 BTC 放大器，但不能突破风控。 ");
+  if (cryptoFinanceWeight >= pct(v4.cryptoFinanceLayer?.stopAdd)) messages.push("CRCL 已接近或达到加密金融基础设施卫星仓上限，不再新增；CRCL 不和 DOGE/BGB/RAM 合并计算投机仓上限。 ");
+  if (themeWeight > 35) messages.push("AI抽水机仓超过 35% 后停止新增，40% 为硬上限。 ");
   if (!messages.length) messages.push("当前系统结构健康，可以继续按既定买点、现金底线和每月再平衡执行。 ");
   return messages.map((item) => item.trim());
 }
@@ -481,11 +615,13 @@ export function generateAllowedActions(snapshot, rules = {}) {
   const themeWeight = groupWeightPct(snapshot, v4.themeLayer.symbols);
   const corePlusStable = btcWeight + ethWeight + vooWeight + xautWeight;
 
-  if (cashPct >= 75 && (btcWeight < 8 || ethWeight < 3)) actions.push("允许小额补 BTC/ETH 核心仓，每周合计不超过账户 2%。");
-  if (cashPct >= 75 && vooWeight === 0) actions.push("允许分批建立 VOO 底仓，不必等待完美低点。 ");
-  if (cashPct >= 75 && xautWeight === 0) actions.push("允许分批建立 XAUT 底仓，用作稳定层。 ");
-  if (corePlusStable >= 25 && themeWeight < pct(v4.themeLayer.targetMax)) actions.push("AI抽水机主攻仓可小额观察，但必须低于 10% 并服从买点；MU/DRAM/GLW 为优先主攻，MRVL/ANET 小仓验证。 ");
-  actions.push("允许做月度复盘、更新持仓成本和检查价格源。 ");
+  const coreDetails = coreLayerDetails({ btcWeight, ethWeight, rules: v4 });
+  if (themeWeight < 25 && cashPct >= 45) actions.push("新增资金第一优先给 AI 主攻仓：MU/DRAM/GLW/SMH 或 SMH，单笔 500 USDT 起；A/S 急跌执行 1000-2500 USDT。 ");
+  if (cashPct >= 45 && !coreDetails.isTotalEnough) actions.push("BTC/ETH 总量低于底仓线，但仍只在 BTC 56k/55k 或重新站稳 62k 后小额补，不抢 AI 主攻资金。 ");
+  if (cashPct >= 45 && coreDetails.isSkewed) actions.push(`BTC/ETH 总量达标但 ${coreDetails.missing.join("/")} 偏低；这是结构偏科，只提示不强制买。 `);
+  if (cashPct >= 45 && xautWeight < 3) actions.push("XAUT 已降级为保险底仓；3900 上方不补，3850 以下才考虑 500 USDT 级别补仓。 ");
+  if (themeWeight >= 25 && themeWeight < 35) actions.push("AI 主攻仓进入健康进攻区，后续只在急跌或深回调时继续加，不追涨。 ");
+  actions.push("CRCL 独立归属加密金融基础设施卫星仓，55-60 区间才允许 100-200 USDT 小补；不抢 AI 主攻资金，也不与 DOGE/BGB/RAM 合并计算投机仓上限。 允许做月度复盘、更新持仓成本和检查价格源。 ");
   return [...new Set(actions.map((item) => item.trim()))];
 }
 
@@ -496,6 +632,7 @@ export function generateForbiddenActions(snapshot, rules = {}) {
   const forbidden = [];
   const cashPct = safeNumber(snapshot?.cashPct, 0);
   const specWeight = groupWeightPct(snapshot, v4.speculativeLayer.symbols);
+  const cryptoFinanceWeight = groupWeightPct(snapshot, v4.cryptoFinanceLayer?.symbols || []);
   const themeWeight = groupWeightPct(snapshot, v4.themeLayer.symbols);
   const btcWeight = weightPct(snapshot, "BTC");
   const ethWeight = weightPct(snapshot, "ETH");
@@ -504,17 +641,21 @@ export function generateForbiddenActions(snapshot, rules = {}) {
   const corePlusStable = btcWeight + ethWeight + vooWeight + xautWeight;
 
   if (freshness.isBlocked) forbidden.push("不要在数据过期或价格源失败时买入。 ");
-  if (cashPct < pct(v4.cashLayer.pauseNormalBuyBelow)) forbidden.push("不要在现金低于 40% 时普通加仓。 ");
-  if (cashPct > 80) forbidden.push("不要因为现金多就一次性打光现金。 ");
+  if (cashPct < pct(v4.cashLayer.pauseNormalBuyBelow)) forbidden.push("不要在现金低于 35% 时普通加仓。 ");
+  if (cashPct > 70) forbidden.push("不要因为现金多就一次性打光现金。 ");
   if (specWeight >= pct(v4.speculativeLayer.noNewBuyAbove)) {
-    forbidden.push("不要补 DOGE。 ");
+    forbidden.push("DOGE 不再是绝对禁止，但只有 BTC 趋势确认、DOGE+BGB+RAM 合计低于 4.5% 时才允许小额；不要把 DOGE 当核心仓。 ");
     forbidden.push("不要补 BGB。 ");
   }
-  if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove)) forbidden.push("DOGE/BGB 已进入只减不补区，不要摊低成本。 ");
-  if ((btcWeight < 8 || ethWeight < 3 || vooWeight === 0 || xautWeight === 0) && themeWeight >= pct(v4.themeLayer.maxBeforeCoreComplete)) {
-    forbidden.push("不要在核心仓不足时优先加主题股。 ");
+  if (specWeight >= pct(v4.speculativeLayer.reduceOnlyAbove)) forbidden.push("DOGE/BGB/RAM 已进入只减不补区，不要摊低成本；不要把 DOGE 当核心仓。 ");
+  if (cryptoFinanceWeight >= pct(v4.cryptoFinanceLayer?.stopAdd)) forbidden.push("CRCL 已达到加密金融基础设施卫星仓禁止新增线，不要继续补 CRCL；CRCL 只适合作为小仓卫星，不适合作为主攻仓。 ");
+  if (themeWeight < 25 && cashPct >= 45) {
+    forbidden.push("不要把新增资金继续分散到 BTC/XAUT 或杂票；AI 主攻仓未达 25% 前，优先等 MU/DRAM/GLW/SMH 的有效买点。 ");
   }
-  if (themeWeight >= pct(v4.themeLayer.hardMax)) forbidden.push("不要继续新增 AI抽水机/半导体/存储/光通信AI抽水机仓。 ");
+  if (themeWeight >= pct(v4.themeLayer.maxBeforeCoreComplete)) {
+    forbidden.push("不要在没有计划的情况下乱加主题股；AI 主攻只买 MU/DRAM/GLW/SMH 等高优先级，不买杂票。 ");
+  }
+  if (themeWeight >= 35) forbidden.push("AI抽水机仓超过 35% 后不要继续新增，40% 为硬上限。 ");
   forbidden.push("不要因为刚买就跌而立刻补同一个标的。 ");
   if (cooldown.blockedSymbols.length) forbidden.push(`冷却中标的不要补仓：${cooldown.blockedSymbols.join("、")}。`);
   return [...new Set(forbidden.map((item) => item.trim()))];
@@ -526,22 +667,22 @@ export function generatePhasePlan(snapshot, rules = {}) {
   const toTargetAmount = (targetPct) => Math.max(0, total * (cashPct / 100 - targetPct));
   return [
     {
-      name: "第一阶段：现金降到 75%",
-      deployAmount: toTargetAmount(0.75),
-      target: "先修复结构，不追求一次买满。",
-      steps: ["BTC 补到 8% 以上", "ETH 补到 3% 以上", "VOO 建立 4%-6% 底仓", "XAUT 建立 2%-3% 底仓", "DOGE/BGB 不新增"]
-    },
-    {
-      name: "第二阶段：现金降到 65%",
+      name: "第一阶段：现金降到 60%-65%",
       deployAmount: toTargetAmount(0.65),
-      target: "提高长期资产比例，同时保留防守现金。",
-      steps: ["VOO 增加到 8% 左右", "XAUT 增加到 4% 左右", "BTC/ETH 慢慢补", "AI抽水机仓可小幅增加但不超过 8%-10%"]
+      target: "新增资金优先 AI 主攻仓；BTC/XAUT 弱势阶段只保留底仓，不继续机械补仓。",
+      steps: ["MU/DRAM/GLW/SMH 建立有效主攻仓，单笔 500 USDT 起", "AI A/S 急跌机会执行 1000-2500 USDT", "BTC 只在 56k/55k 或趋势确认后小额补", "XAUT 3850 以下才补，3900 上方不补"]
     },
     {
-      name: "第三阶段：现金稳定 55%-60%",
-      deployAmount: toTargetAmount(0.60),
-      target: "形成成熟配置并进入再平衡模式。",
-      steps: ["形成长期目标配置", "每月复盘一次", "超过上限的资产做再平衡", "投机仓只减不补"]
+      name: "第二阶段：现金降到 45%-50%",
+      deployAmount: toTargetAmount(0.50),
+      target: "AI 主攻仓推进到 25%-35%，让账户真正吃到主升方向。",
+      steps: ["AI 抽水机仓推进到 25% 以上", "MU/DRAM/GLW/SMH 单项向 4%-8% 目标靠拢", "MRVL/ANET/AVGO 只做第二梯队", "不因 BTC/XAUT 目标不足而挤占 AI 弹药"]
+    },
+    {
+      name: "第三阶段：现金稳定 35%-45%",
+      deployAmount: toTargetAmount(0.45),
+      target: "形成趋势优先结构：现金有防守，AI 主攻仓能真正影响账户收益。",
+      steps: ["现金保留 35%-45%", "AI 抽水机仓 25%-35%", "AI 35% 后停止新增，40% 硬上限", "BTC/XAUT 只做保险底仓", "每月复盘再平衡"]
     }
   ];
 }
@@ -561,9 +702,10 @@ export function generateRebalanceAlerts(snapshot, rules = {}) {
   for (const [symbol, limit, message] of checks) {
     if (weightPct(snapshot, symbol) > limit) alerts.push(message);
   }
-  if (groupWeightPct(snapshot, v4.themeLayer.symbols) > pct(v4.themeLayer.hardMax)) alerts.push("AI抽水机/半导体/存储/光通信超过 25%，停止新增。 ");
-  if (groupWeightPct(snapshot, v4.speculativeLayer.symbols) > pct(v4.speculativeLayer.reduceOnlyAbove)) alerts.push("DOGE + BGB 超过 3%，反弹减仓。 ");
-  if (cashPct > 80) alerts.push("现金超过 80%，资金效率偏低。 ");
+  if (groupWeightPct(snapshot, v4.themeLayer.symbols) > pct(v4.themeLayer.hardMax)) alerts.push("AI抽水机主攻仓超过 40%，超过硬上限，必须复盘是否降仓。 ");
+  if (groupWeightPct(snapshot, v4.speculativeLayer.symbols) > pct(v4.speculativeLayer.reduceOnlyAbove)) alerts.push("DOGE/BGB/RAM 投机清理层超过 5%，只允许趋势止盈或反弹减仓。 ");
+  if (groupWeightPct(snapshot, v4.cryptoFinanceLayer?.symbols || []) > pct(v4.cryptoFinanceLayer?.hardMax)) alerts.push("CRCL 超过 5%，超过加密金融基础设施卫星仓硬上限，必须停止新增并复盘是否减仓。 ");
+  if (cashPct > 70) alerts.push("现金超过 70%，资金效率偏低，建议按有效仓位规则推进。 ");
   if (cashPct < 40) alerts.push("现金低于 40%，防守不足。 ");
   return [...new Set(alerts.map((item) => item.trim()))];
 }
