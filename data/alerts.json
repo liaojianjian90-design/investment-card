@@ -1,14 +1,8 @@
 {
-  "updatedAt": "2026-07-02T02:39:36.716Z",
+  "updatedAt": "2026-07-02T02:42:29.749Z",
   "email": {
     "sent": false,
-    "missing": [
-      "SMTP_HOST",
-      "SMTP_PORT",
-      "SMTP_USER",
-      "SMTP_PASS",
-      "ALERT_EMAIL_TO"
-    ]
+    "missing": []
   },
   "alerts": []
 }
