@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 3150.75591138,
+      "quantity": 2450.72834238,
       "cost": 1,
       "type": "cash"
     },
@@ -35,7 +35,7 @@
     },
     {
       "symbol": "BGB",
-      "quantity": 22.519711,
+      "quantity": 22.35143977,
       "cost": 2.015,
       "type": "crypto"
     },
@@ -77,8 +77,8 @@
     },
     {
       "symbol": "DRAM",
-      "quantity": 27.94346412,
-      "cost": 67.56647663,
+      "quantity": 31.13626412,
+      "cost": 67.05934759,
       "type": "watch"
     },
     {
@@ -89,8 +89,8 @@
     },
     {
       "symbol": "WDC",
-      "quantity": 0.3305247,
-      "cost": 604.3,
+      "quantity": 0.7683247,
+      "cost": 585.76688503,
       "type": "watch"
     },
     {
@@ -143,8 +143,8 @@
     },
     {
       "symbol": "SMH",
-      "quantity": 0.77387993,
-      "cost": 650.85,
+      "quantity": 1.18207993,
+      "cost": 637.39182886,
       "type": "watch"
     },
     {
