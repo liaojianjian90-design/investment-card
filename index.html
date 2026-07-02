@@ -407,7 +407,7 @@
       <div class="eyebrow">Investment Health Card 5.2</div>
       <h1>投资健康卡 5.2</h1>
       <p class="subtitle">
-        最新仓位 + RAM短线T仓版。以 config/holdings.json 为唯一仓位来源；BTC/ETH/VOO/XAUT 做底盘，MU / DRAM / GLW 作为 AI 抽水机主攻观察，RAM 只做短线T仓，DOGE 已清仓、BGB 只减不补。
+        最新仓位 + RAM短线T仓版。以 config/holdings.json 为唯一仓位来源；BTC/ETH/VOO/XAUT 做底盘，GLW / MU / DRAM / SNDK / SMH 做 AI/存储主攻，RAM 只作为 2倍做多存储板块短线T仓，DOGE 已清仓。
       </p>
     </section>
 
@@ -415,8 +415,7 @@
       <h2>账户快照</h2>
       <div class="grid summary-grid" id="summary"></div>
       <div class="notice" id="dataNotice">
-        <strong>数据边界：</strong>网页会优先使用你在本机保存的仓位；邮件提醒使用 GitHub 仓库里的默认仓位配置。
-        前端不会保存 GitHub Token、邮箱密码或交易所 API Key。
+        <strong>数据边界：</strong>网页和邮件提醒统一读取 config/holdings.json；前端不提供手动买卖入口，也不会保存 GitHub Token、邮箱密码或交易所 API Key。
       </div>
     </section>
 
@@ -569,8 +568,8 @@
               <tr><td>ANET</td><td>AI 网络设备观察</td><td>小仓观察，不追高</td></tr>
               <tr><td>MU</td><td>AI存储主攻；≤1080 买120；≤1020 买180</td><td>与 DRAM / GLW 同等重视，单项硬上限 8%</td></tr>
               <tr><td>SNDK</td><td>≤2000 买80；≤1850 买120</td><td>≥2250 买80</td></tr>
-              <tr><td>DRAM</td><td>存储 ETF 主攻；≤72 买120；≤66 买180</td><td>与 MU / GLW 同等重视，阶段持有但不无限补仓</td></tr>
-              <tr><td>RAM</td><td>2倍做多存储板块 ETF，只做短线T仓</td><td>反弹 22.5/23.5/24.5 分批卖；跌破 20 减半，跌破 19.5 清仓</td></tr>
+              <tr><td>DRAM</td><td>存储 ETF 主攻；≤72 买120；≤66 买180</td><td>与 MU / GLW 同等重视，普通 DRAM 可阶段持有</td></tr>
+              <tr><td>RAM</td><td>2倍做多存储板块 ETF；只做短线T仓</td><td>22.5 减半，23.5 卖大部分，24.5 清仓；跌破 20 减半，跌破 19.5 清仓</td></tr>
               <tr><td>WDC</td><td>≤560 买80；≤520 买120</td><td>≥620 买80</td></tr>
               <tr><td>ASX</td><td>≤38 买80；≤35 买120</td><td>≥42 买60</td></tr>
               <tr><td>AAOI</td><td>≤125 买60；≤110 买100</td><td>≥145 买50</td></tr>
@@ -584,7 +583,7 @@
         <div class="rule-box">
           <h3>八、止盈与再平衡</h3>
           <ul class="rule-list">
-            <li>DOGE 已清仓，不买回；RAM 是短线T仓，反弹分批卖，跌破风控线退出。</li>
+            <li>DOGE ≥ 0.085 提醒卖 30%；DOGE ≥ 0.095 提醒卖 50%。</li>
             <li>BTC 超过 25%、ETH 超过 12%、VOO 超过 30%、XAUT 超过 12% 提醒再平衡。</li>
             <li>AI 抽水机仓单项超过上限时，只提醒减仓或暂停加仓，不提醒追买。</li>
             <li>止盈不是看空，是把过热仓位换回现金，保留下次进攻权。</li>
@@ -602,7 +601,7 @@
 
   <script type="module">
     import { calculateHealthSummary } from "./src/lib/investmentHealth.mjs";
-    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v514";
+    const SERVICE_WORKER_CACHE_VERSION = "investment-card-github-pages-v515";
 
     const DEFAULT_HOLDINGS = {
       "baseCurrency": "USDT",
@@ -763,708 +762,30 @@
 };
 
     const FALLBACK_RULES = {
-      "cashMinPct": 35,
-      "ordinaryBuyCashMinPct": 40,
-      "dataStaleWarnMinutes": 10,
-      "dataStaleBlockMinutes": 30,
-      "targets": {
-            "BTC": {
-                  "minPct": 8,
-                  "targetMaxPct": 18,
-                  "stopAddPct": 22,
-                  "trimPct": 25
-            },
-            "ETH": {
-                  "minPct": 3,
-                  "targetMaxPct": 8,
-                  "stopAddPct": 10,
-                  "trimPct": 12
-            },
-            "DOGE": {
-                  "minPct": 0,
-                  "targetMaxPct": 2,
-                  "stopAddPct": 2,
-                  "trimPct": 3
-            },
-            "BGB": {
-                  "minPct": 0,
-                  "targetMaxPct": 1,
-                  "stopAddPct": 1,
-                  "trimPct": 2
-            },
-            "VOO": {
-                  "minPct": 10,
-                  "targetMaxPct": 20,
-                  "stopAddPct": 20,
-                  "trimPct": 30
-            },
-            "XAUT": {
-                  "minPct": 5,
-                  "targetMaxPct": 8,
-                  "stopAddPct": 8,
-                  "trimPct": 12
-            },
-            "AVGO": {
-                  "minPct": 0,
-                  "targetMaxPct": 4,
-                  "stopAddPct": 4,
-                  "trimPct": 5
-            },
-            "FN": {
-                  "minPct": 0,
-                  "targetMaxPct": 3,
-                  "stopAddPct": 3,
-                  "trimPct": 4
-            },
-            "MU": {
-                  "minPct": 0,
-                  "targetMaxPct": 5,
-                  "stopAddPct": 8,
-                  "trimPct": 10
-            },
-            "SNDK": {
-                  "minPct": 0,
-                  "targetMaxPct": 2,
-                  "stopAddPct": 2,
-                  "trimPct": 3
-            },
-            "DRAM": {
-                  "minPct": 0,
-                  "targetMaxPct": 5,
-                  "stopAddPct": 8,
-                  "trimPct": 10
-            },
-            "WDC": {
-                  "minPct": 0,
-                  "targetMaxPct": 2,
-                  "stopAddPct": 2,
-                  "trimPct": 3
-            },
-            "ASX": {
-                  "minPct": 0,
-                  "targetMaxPct": 2,
-                  "stopAddPct": 2,
-                  "trimPct": 3
-            },
-            "AAOI": {
-                  "minPct": 0,
-                  "targetMaxPct": 1,
-                  "stopAddPct": 1,
-                  "trimPct": 1.5
-            },
-            "GLW": {
-                  "minPct": 0,
-                  "targetMaxPct": 5,
-                  "stopAddPct": 8,
-                  "trimPct": 10
-            },
-            "MRVL": {
-                  "minPct": 0,
-                  "targetMaxPct": 1.5,
-                  "stopAddPct": 1.5,
-                  "trimPct": 2
-            },
-            "ANET": {
-                  "minPct": 0,
-                  "targetMaxPct": 1.5,
-                  "stopAddPct": 1.5,
-                  "trimPct": 2
-            },
-            "TSM": {
-                  "minPct": 0,
-                  "targetMaxPct": 2,
-                  "stopAddPct": 2,
-                  "trimPct": 3
-            },
-            "ASML": {
-                  "minPct": 0,
-                  "targetMaxPct": 1.5,
-                  "stopAddPct": 1.5,
-                  "trimPct": 2
-            },
-            "SMH": {
-                  "minPct": 0,
-                  "targetMaxPct": 3,
-                  "stopAddPct": 3,
-                  "trimPct": 5
-            },
-            "SOXX": {
-                  "minPct": 0,
-                  "targetMaxPct": 3,
-                  "stopAddPct": 3,
-                  "trimPct": 5
-            },
-            "RAM": {
-                  "minPct": 0,
-                  "targetMaxPct": 1,
-                  "stopAddPct": 1.5,
-                  "trimPct": 2
-            },
-            "CRCL": {
-                  "minPct": 0,
-                  "targetMaxPct": 1,
-                  "stopAddPct": 2,
-                  "trimPct": 3
-            }
+      cashMinPct: 35,
+      ordinaryBuyCashMinPct: 40,
+      dataStaleWarnMinutes: 10,
+      dataStaleBlockMinutes: 30,
+      targets: {
+        BTC: { minPct: 8, targetMaxPct: 18, stopAddPct: 22, trimPct: 25 },
+        ETH: { minPct: 3, targetMaxPct: 8, stopAddPct: 10, trimPct: 12 },
+        DOGE: { minPct: 0, targetMaxPct: 2, stopAddPct: 2, trimPct: 3 },
+        BGB: { minPct: 0, targetMaxPct: 1, stopAddPct: 1, trimPct: 2 },
+        VOO: { minPct: 10, targetMaxPct: 20, stopAddPct: 20, trimPct: 30 },
+        XAUT: { minPct: 5, targetMaxPct: 8, stopAddPct: 8, trimPct: 12 },
+        MRVL: { minPct: 0, targetMaxPct: 1.5, stopAddPct: 1.5, trimPct: 2 },
+        ANET: { minPct: 0, targetMaxPct: 1.5, stopAddPct: 1.5, trimPct: 2 },
+        TSM: { minPct: 0, targetMaxPct: 2, stopAddPct: 2, trimPct: 3 },
+        ASML: { minPct: 0, targetMaxPct: 1.5, stopAddPct: 1.5, trimPct: 2 },
+        SMH: { minPct: 0, targetMaxPct: 3, stopAddPct: 3, trimPct: 5 },
+        SOXX: { minPct: 0, targetMaxPct: 3, stopAddPct: 3, trimPct: 5 }
       },
-      "portfolioCaps": [
-            {
-                  "id": "cap-crypto-40",
-                  "symbols": [
-                        "BTC",
-                        "ETH",
-                        "DOGE",
-                        "BGB"
-                  ],
-                  "maxPct": 40,
-                  "message": "加密相关总仓超过 40%，暂停加密新增买入。"
-            },
-            {
-                  "id": "cap-doge-bgb-4",
-                  "symbols": [
-                        "DOGE",
-                        "BGB"
-                  ],
-                  "maxPct": 4,
-                  "message": "DOGE + BGB 高投机仓超过 4%，停止补仓。"
-            },
-            {
-                  "id": "cap-ai-watch-15",
-                  "symbols": [
-                        "AVGO",
-                        "MRVL",
-                        "ANET",
-                        "MU",
-                        "WDC",
-                        "DRAM",
-                        "RAM",
-                        "SNDK",
-                        "TSM",
-                        "ASML",
-                        "SMH",
-                        "SOXX",
-                        "FN",
-                        "AAOI",
-                        "GLW",
-                        "ASX"
-                  ],
-                  "maxPct": 25,
-                  "message": "AI抽水机主攻仓最高不超过 25%，超过后停止新增。"
-            },
-            {
-                  "id": "cap-storage-12",
-                  "symbols": [
-                        "DRAM",
-                        "RAM",
-                        "MU",
-                        "SNDK",
-                        "WDC"
-                  ],
-                  "maxPct": 12,
-                  "message": "存储周期篮子超过 12%，不再追加 DRAM/RAM/MU/SNDK/WDC。"
-            },
-            {
-                  "id": "cap-optical-high-beta-4",
-                  "symbols": [
-                        "AAOI",
-                        "FN"
-                  ],
-                  "maxPct": 4,
-                  "message": "高波动光通信组合超过 4%，暂停 AAOI/FN 买入。"
-            },
-            {
-                  "id": "cap-defensive-30",
-                  "symbols": [
-                        "VOO",
-                        "XAUT"
-                  ],
-                  "maxPct": 30,
-                  "message": "VOO + XAUT 稳定仓超过 30%，暂停防守仓新增。"
-            },
-            {
-                  "id": "cap-ai-core-before-complete-5",
-                  "symbols": [
-                        "AVGO",
-                        "MRVL",
-                        "ANET",
-                        "MU",
-                        "WDC",
-                        "DRAM",
-                        "RAM",
-                        "SNDK",
-                        "TSM",
-                        "ASML",
-                        "SMH",
-                        "SOXX",
-                        "FN",
-                        "AAOI",
-                        "GLW",
-                        "ASX"
-                  ],
-                  "maxPct": 25,
-                  "message": "AI抽水机主攻仓最高不超过 25%，超过后停止新增。"
-            },
-            {
-                  "id": "cap-ram-ttrade-2",
-                  "symbols": [
-                        "RAM"
-                  ],
-                  "maxPct": 2,
-                  "message": "RAM 是 2倍做多存储板块 ETF，只能作为短线T仓；超过 2% 应停止新增并等待反弹减仓。"
-            },
-            {
-                  "id": "cap-fintech-watch-3",
-                  "symbols": [
-                        "CRCL"
-                  ],
-                  "maxPct": 3,
-                  "message": "CRCL 属于稳定币/金融科技观察仓，不属于 AI 抽水机主线；超过 3% 应降低仓位。"
-            }
-      ],
-      "sellRules": {
-            "DOGE": [
-                  {
-                        "id": "doge-0085",
-                        "priceAbove": 0.085,
-                        "sellPct": 30,
-                        "message": "DOGE 第一档止盈。"
-                  },
-                  {
-                        "id": "doge-0095",
-                        "priceAbove": 0.095,
-                        "sellPct": 50,
-                        "message": "DOGE 强势止盈。"
-                  }
-            ],
-            "BGB": [
-                  {
-                        "id": "bgb-weight-2",
-                        "weightAbovePct": 2,
-                        "sellPct": 50,
-                        "message": "BGB 超过 2%，反弹可逐步清理。"
-                  }
-            ],
-            "BTC": [
-                  {
-                        "id": "btc-weight-25",
-                        "weightAbovePct": 25,
-                        "sellPct": 10,
-                        "message": "BTC 超过 25%，提醒小幅减仓回到现金。"
-                  }
-            ],
-            "ETH": [
-                  {
-                        "id": "eth-weight-12",
-                        "weightAbovePct": 12,
-                        "sellPct": 10,
-                        "message": "ETH 超过 12%，提醒小幅减仓回到现金。"
-                  }
-            ],
-            "VOO": [
-                  {
-                        "id": "voo-weight-30",
-                        "weightAbovePct": 30,
-                        "sellPct": 10,
-                        "message": "VOO 超过 30%，提醒再平衡。"
-                  }
-            ],
-            "XAUT": [
-                  {
-                        "id": "xaut-weight-12",
-                        "weightAbovePct": 12,
-                        "sellPct": 10,
-                        "message": "XAUT 超过 12%，提醒再平衡。"
-                  }
-            ],
-            "AVGO": [
-                  {
-                        "id": "avgo-weight-5",
-                        "weightAbovePct": 5,
-                        "sellPct": 20,
-                        "message": "AVGO 超过 5%，提醒降低主题集中度。"
-                  }
-            ],
-            "FN": [
-                  {
-                        "id": "fn-weight-4",
-                        "weightAbovePct": 4,
-                        "sellPct": 20,
-                        "message": "FN 超过 4%，提醒降低高波动光通信仓位。"
-                  }
-            ],
-            "MU": [
-                  {
-                        "id": "mu-weight-4",
-                        "weightAbovePct": 4,
-                        "sellPct": 20,
-                        "message": "MU 超过 4%，提醒降低存储周期仓位。"
-                  }
-            ],
-            "SNDK": [
-                  {
-                        "id": "sndk-weight-3",
-                        "weightAbovePct": 3,
-                        "sellPct": 20,
-                        "message": "SNDK 超过 3%，提醒降低存储周期仓位。"
-                  }
-            ],
-            "DRAM": [
-                  {
-                        "id": "dram-weight-7",
-                        "weightAbovePct": 7,
-                        "sellPct": 20,
-                        "message": "DRAM 超过 7%，提醒降低存储主题集中度。"
-                  }
-            ],
-            "WDC": [
-                  {
-                        "id": "wdc-weight-3",
-                        "weightAbovePct": 3,
-                        "sellPct": 20,
-                        "message": "WDC 超过 3%，提醒降低存储周期仓位。"
-                  }
-            ],
-            "ASX": [
-                  {
-                        "id": "asx-weight-3",
-                        "weightAbovePct": 3,
-                        "sellPct": 20,
-                        "message": "ASX 超过 3%，提醒降低先进封装仓位。"
-                  }
-            ],
-            "AAOI": [
-                  {
-                        "id": "aaoi-weight-1-5",
-                        "weightAbovePct": 1.5,
-                        "sellPct": 30,
-                        "message": "AAOI 超过 1.5%，提醒降低高波动仓位。"
-                  }
-            ],
-            "GLW": [
-                  {
-                        "id": "glw-weight-3",
-                        "weightAbovePct": 3,
-                        "sellPct": 20,
-                        "message": "GLW 超过 3%，提醒再平衡。"
-                  }
-            ],
-            "MRVL": [
-                  {
-                        "id": "mrvl-weight-2",
-                        "weightAbovePct": 2,
-                        "sellPct": 20,
-                        "message": "MRVL 超过 2%，提醒降低 AI 互联/定制芯片集中度。"
-                  }
-            ],
-            "ANET": [
-                  {
-                        "id": "anet-weight-2",
-                        "weightAbovePct": 2,
-                        "sellPct": 20,
-                        "message": "ANET 超过 2%，提醒降低 AI 网络设备集中度。"
-                  }
-            ],
-            "TSM": [
-                  {
-                        "id": "tsm-weight-3",
-                        "weightAbovePct": 3,
-                        "sellPct": 20,
-                        "message": "TSM 超过 3%，提醒复核半导体制造仓位。"
-                  }
-            ],
-            "ASML": [
-                  {
-                        "id": "asml-weight-2",
-                        "weightAbovePct": 2,
-                        "sellPct": 20,
-                        "message": "ASML 超过 2%，提醒复核半导体设备仓位。"
-                  }
-            ],
-            "SMH": [
-                  {
-                        "id": "smh-weight-5",
-                        "weightAbovePct": 5,
-                        "sellPct": 20,
-                        "message": "SMH 超过 5%，提醒复核半导体 ETF 仓位。"
-                  }
-            ],
-            "SOXX": [
-                  {
-                        "id": "soxx-weight-5",
-                        "weightAbovePct": 5,
-                        "sellPct": 20,
-                        "message": "SOXX 超过 5%，提醒复核半导体 ETF 仓位。"
-                  }
-            ],
-            "RAM": [
-                  {
-                        "id": "ram-t-22-5",
-                        "priceAbove": 22.5,
-                        "sellPct": 50,
-                        "message": "RAM 短线T仓反弹到 22.5 附近，卖出一半。"
-                  },
-                  {
-                        "id": "ram-t-23-5",
-                        "priceAbove": 23.5,
-                        "sellPct": 80,
-                        "message": "RAM 短线T仓反弹到 23.5 附近，卖出大部分。"
-                  },
-                  {
-                        "id": "ram-t-24-5",
-                        "priceAbove": 24.5,
-                        "sellPct": 100,
-                        "message": "RAM 短线T仓强反弹后清仓，不转长期持有。"
-                  }
-            ],
-            "CRCL": [
-                  {
-                        "id": "crcl-rebound-68",
-                        "priceAbove": 68,
-                        "sellPct": 50,
-                        "message": "CRCL 反弹到 68 附近，继续降低非主线观察仓。"
-                  },
-                  {
-                        "id": "crcl-rebound-72",
-                        "priceAbove": 72,
-                        "sellPct": 100,
-                        "message": "CRCL 反弹到 72 附近，可考虑清仓或只留极小观察仓。"
-                  }
-            ]
-      },
-      "v5Rules": {
-            "cashLayer": {
-                  "targetMatureMin": 0.4,
-                  "targetMatureMax": 0.5,
-                  "phase1Target": 0.7,
-                  "phase2Target": 0.6,
-                  "pauseNormalBuyBelow": 0.4,
-                  "stopNewBuyBelow": 0.35,
-                  "defenseModeBelow": 0.3
-            },
-            "coreGrowthLayer": {
-                  "btcFirstTargetMin": 0.08,
-                  "btcMatureTargetMin": 0.08,
-                  "btcMatureTargetMax": 0.1,
-                  "ethFirstTargetMin": 0.03,
-                  "ethMatureTargetMin": 0.04,
-                  "ethMatureTargetMax": 0.05,
-                  "btcEthTotalTargetMin": 0.12,
-                  "btcEthTotalTargetMax": 0.18,
-                  "weeklyCoreBuyLimitPct": 0.02
-            },
-            "stableLayer": {
-                  "vooFirstTargetMin": 0.03,
-                  "vooFirstTargetMax": 0.06,
-                  "vooMatureTargetMin": 0.06,
-                  "vooMatureTargetMax": 0.1,
-                  "xautFirstTargetMin": 0.02,
-                  "xautFirstTargetMax": 0.03,
-                  "xautMatureTargetMin": 0.03,
-                  "xautMatureTargetMax": 0.05
-            },
-            "themeLayer": {
-                  "targetMin": 0.08,
-                  "targetMax": 0.2,
-                  "hardMax": 0.25,
-                  "maxBeforeCoreComplete": 0.12,
-                  "symbols": [
-                        "MU",
-                        "DRAM",
-                        "RAM",
-                        "GLW",
-                        "SMH",
-                        "MRVL",
-                        "ANET",
-                        "AVGO",
-                        "TSM",
-                        "ASML",
-                        "SOXX",
-                        "WDC",
-                        "SNDK",
-                        "FN",
-                        "AAOI",
-                        "ASX"
-                  ],
-                  "subGroups": {
-                        "aiChipNetwork": [
-                              "AVGO",
-                              "MRVL",
-                              "ANET"
-                        ],
-                        "aiStorage": [
-                              "MU",
-                              "WDC",
-                              "DRAM",
-                              "RAM",
-                              "SNDK"
-                        ],
-                        "semiInfra": [
-                              "TSM",
-                              "ASML"
-                        ],
-                        "highBetaOptical": [
-                              "FN",
-                              "AAOI",
-                              "ASX"
-                        ],
-                        "aiPumpCore": [
-                              "MU",
-                              "DRAM",
-                              "GLW"
-                        ],
-                        "semiBasket": [
-                              "SMH",
-                              "SOXX"
-                        ],
-                        "aiNetwork": [
-                              "MRVL",
-                              "ANET",
-                              "AVGO"
-                        ],
-                        "storageSupplement": [
-                              "WDC",
-                              "SNDK"
-                        ],
-                        "leveragedStorageT": [
-                              "RAM"
-                        ]
-                  },
-                  "name": "AI抽水机主攻仓",
-                  "prioritySymbols": [
-                        "MU",
-                        "DRAM",
-                        "GLW"
-                  ],
-                  "priorityNote": "MU、DRAM、GLW 同列 AI 抽水机主攻观察：存储/HBM + 光纤/玻璃基板基础设施。",
-                  "singleCoreTargetPct": 0.05,
-                  "singleCoreHardMaxPct": 0.08,
-                  "leveragedTNote": "RAM 是 2倍做多存储板块 ETF，只允许短线T仓处理，不纳入长期主攻优先级。"
-            },
-            "speculativeLayer": {
-                  "targetMax": 0.02,
-                  "noNewBuyAbove": 0.025,
-                  "reduceOnlyAbove": 0.03,
-                  "hardWarningAbove": 0.04,
-                  "symbols": [
-                        "DOGE",
-                        "BGB"
-                  ]
-            },
-            "dataFreshness": {
-                  "maxAgeMinutes": 30,
-                  "warnAgeMinutes": 10
-            },
-            "drawdownRules": {
-                  "lightRisk": 0.05,
-                  "reduceBuySize": 0.1,
-                  "pauseAggressiveBuy": 0.15,
-                  "pauseActiveBuy": 0.2,
-                  "pauseActiveBuyDays": 7
-            },
-            "tradeCooldown": {
-                  "enabled": true,
-                  "sameSymbolBuyHours": 48,
-                  "postBuyNoDipBuyHours": 24
-            },
-            "versionName": "投资健康卡 5.2：最新仓位 + RAM短线T仓版",
-            "mrvlRule": {
-                  "enabled": true,
-                  "role": "AI互联 / 定制芯片 / 数据中心网络观察仓",
-                  "firstBuyPct": 0.005,
-                  "normalWatchPct": 0.01,
-                  "targetMaxPct": 0.015,
-                  "hardMaxPct": 0.02,
-                  "requireCoreMinimumComplete": true,
-                  "mailWhenUnheld": "observe_only",
-                  "note": "MRVL 可以加入 AI 观察池，但不是核心仓；核心仓未达标时只显示观察，不触发买入邮件。"
-            },
-            "emailPolicy": {
-                  "enabled": true,
-                  "highPriorityImmediate": true,
-                  "structuralWeekly": true,
-                  "structureReminderMaxPerWeek": 1,
-                  "singleTradeAlertPerDay": true,
-                  "sendStructureWhenCashAbovePct": 0.8,
-                  "sendCoreMissingWhenCashAbovePct": 0.75,
-                  "sendStableMissingWhenCashAbovePct": 0.75,
-                  "sendSpeculativeNoNewBuyAbove": 0.025,
-                  "sendSpeculativeReduceOnlyAbove": 0.03,
-                  "dataBlockSubject": "【投资风控提醒】数据过期，禁止交易判断",
-                  "structureSubject": "【投资结构提醒】现金过高 + 核心仓不足",
-                  "rebalanceSubject": "【投资再平衡提醒】达到止盈或减仓条件"
-            },
-            "bitgetReadonlySync": {
-                  "enabledBySecret": "BITGET_READONLY_ENABLED",
-                  "mode": "spot-assets-readonly",
-                  "defaultSyncSymbols": [
-                        "USDT",
-                        "USDGO",
-                        "BTC",
-                        "ETH",
-                        "DOGE",
-                        "BGB",
-                        "XAUT",
-                        "VOO",
-                        "GLW",
-                        "MU",
-                        "DRAM",
-                        "RAM",
-                        "SNDK",
-                        "SMH",
-                        "WDC",
-                        "MRVL",
-                        "CRCL"
-                  ],
-                  "doesNotSyncCostBasis": true,
-                  "doesNotPlaceOrders": true,
-                  "frontendNeverReceivesApiKey": true,
-                  "note": "Bitget API 只用于读取现货资产数量；API Key/Passphrase/RSA 私钥只能放在 GitHub Secrets 或服务器环境变量，不能写进前端或仓库。"
-            },
-            "aiPumpRules": {
-                  "enabled": true,
-                  "currentTargetMin": 0.08,
-                  "currentTargetMax": 0.12,
-                  "matureTargetMin": 0.15,
-                  "matureTargetMax": 0.2,
-                  "hardMax": 0.25,
-                  "prioritySymbols": [
-                        "MU",
-                        "DRAM",
-                        "GLW"
-                  ],
-                  "priorityEqualWeight": true,
-                  "singlePriorityTargetPct": 0.05,
-                  "singlePriorityHardMaxPct": 0.08,
-                  "noLeverage": true,
-                  "note": "从小仓观察升级为稳健进攻的 AI 抽水机仓；GLW 与 MU、DRAM 同等重视。RAM 属于 2倍短线T仓例外，不纳入长期持有主攻。",
-                  "leveragedTExceptionSymbols": [
-                        "RAM"
-                  ]
-            },
-            "ramTTradeRule": {
-                  "enabled": true,
-                  "symbol": "RAM",
-                  "role": "2倍做多存储板块ETF，短线T仓",
-                  "maxPositionPct": 0.02,
-                  "warningAbovePct": 0.015,
-                  "takeProfitZones": [
-                        22.5,
-                        23.5,
-                        24.5
-                  ],
-                  "riskControl": "跌破 20 先减半，跌破 19.5 清仓；不能越跌越补，不能转长期仓。",
-                  "note": "RAM 只用于急跌后的技术反抽，反弹即卖；不与 DRAM 一起无限叠加。"
-            },
-            "crclRule": {
-                  "enabled": true,
-                  "symbol": "CRCL",
-                  "role": "稳定币/金融科技观察仓，非AI主线",
-                  "targetMaxPct": 0.01,
-                  "hardMaxPct": 0.03,
-                  "note": "CRCL 不属于 AI 抽水机主攻仓，反弹优先降仓或保持小额观察。"
-            }
-      }
-};
+      portfolioCaps: [
+        { symbols: ["BTC", "ETH", "DOGE", "BGB"], maxPct: 40 },
+        { symbols: ["DOGE", "BGB"], maxPct: 4 },
+        { symbols: ["AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "RAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"], maxPct: 15 }
+      ]
+    };
 
     const typeLabels = {
       cash: "现金",
@@ -1473,143 +794,79 @@
     };
 
     const names = {
-      "USDT": "Tether",
-      "USDGO": "USDGO",
-      "BTC": "Bitcoin",
-      "ETH": "Ethereum",
-      "DOGE": "Dogecoin",
-      "BGB": "Bitget Token",
-      "VOO": "Vanguard S&P 500 ETF",
-      "XAUT": "Tether Gold",
-      "AVGO": "Broadcom",
-      "MRVL": "Marvell Technology",
-      "ANET": "Arista Networks",
-      "TSM": "Taiwan Semiconductor Manufacturing",
-      "ASML": "ASML Holding",
-      "SMH": "VanEck Semiconductor ETF",
-      "SOXX": "iShares Semiconductor ETF",
-      "FN": "Fabrinet",
-      "MU": "Micron",
-      "SNDK": "SanDisk",
-      "DRAM": "Roundhill Memory ETF",
-      "RAM": "Roundhill 2x Long Memory ETF",
-      "WDC": "Western Digital",
-      "CRCL": "Circle Internet Group",
-      "ASX": "ASE Technology",
-      "AAOI": "Applied Optoelectronics",
-      "GLW": "Corning"
-};
+      USDT: "Tether",
+      USDGO: "USDGO",
+      BTC: "Bitcoin",
+      ETH: "Ethereum",
+      DOGE: "Dogecoin",
+      BGB: "Bitget Token",
+      VOO: "Vanguard S&P 500 ETF",
+      XAUT: "Tether Gold",
+      AVGO: "Broadcom",
+      MRVL: "Marvell Technology",
+      ANET: "Arista Networks",
+      TSM: "Taiwan Semiconductor Manufacturing",
+      ASML: "ASML Holding",
+      SMH: "VanEck Semiconductor ETF",
+      SOXX: "iShares Semiconductor ETF",
+      FN: "Fabrinet",
+      MU: "Micron",
+      SNDK: "SanDisk",
+      DRAM: "Roundhill Memory ETF",
+      WDC: "Western Digital",
+      ASX: "ASE Technology",
+      AAOI: "Applied Optoelectronics",
+      GLW: "Corning",
+      RAM: "Roundhill 2x Long Memory ETF",
+      CRCL: "Circle Internet Group"
+    };
 
     const bitgetSymbols = {
-      "BTC": [
-            "BTCUSDT"
-      ],
-      "ETH": [
-            "ETHUSDT"
-      ],
-      "DOGE": [
-            "DOGEUSDT"
-      ],
-      "BGB": [
-            "BGBUSDT"
-      ],
-      "XAUT": [
-            "XAUTUSDT"
-      ],
-      "VOO": [
-            "RVOOUSDT",
-            "VOOUSDT"
-      ],
-      "AVGO": [
-            "RAVGOUSDT",
-            "AVGOUSDT"
-      ],
-      "MRVL": [
-            "MRVLUSDT",
-            "RMRVLUSDT"
-      ],
-      "ANET": [
-            "RANETUSDT",
-            "ANETUSDT"
-      ],
-      "TSM": [
-            "RTSMUSDT",
-            "TSMUSDT"
-      ],
-      "ASML": [
-            "RASMLUSDT",
-            "ASMLUSDT"
-      ],
-      "SMH": [
-            "RSMHUSDT",
-            "SMHUSDT"
-      ],
-      "SOXX": [
-            "RSOXXUSDT",
-            "SOXXUSDT"
-      ],
-      "FN": [
-            "RFNUSDT",
-            "FNUSDT"
-      ],
-      "MU": [
-            "RMUUSDT",
-            "MUUSDT"
-      ],
-      "SNDK": [
-            "RSNDKUSDT",
-            "SNDKUSDT"
-      ],
-      "DRAM": [
-            "RDRAMUSDT",
-            "DRAMUSDT"
-      ],
-      "RAM": [
-            "RRAMUSDT",
-            "RAMUSDT"
-      ],
-      "WDC": [
-            "RWDCUSDT",
-            "WDCUSDT"
-      ],
-      "CRCL": [
-            "RCRCLUSDT",
-            "CRCLUSDT"
-      ],
-      "ASX": [
-            "RASXUSDT",
-            "ASXUSDT"
-      ],
-      "AAOI": [
-            "RAAOIUSDT",
-            "AAOIUSDT"
-      ],
-      "GLW": [
-            "RGLWUSDT",
-            "GLWUSDT"
-      ]
-};
+      BTC: ["BTCUSDT"],
+      ETH: ["ETHUSDT"],
+      DOGE: ["DOGEUSDT"],
+      BGB: ["BGBUSDT"],
+      XAUT: ["XAUTUSDT"],
+      VOO: ["RVOOUSDT", "VOOUSDT"],
+      AVGO: ["RAVGOUSDT", "AVGOUSDT"],
+      MRVL: ["MRVLUSDT", "RMRVLUSDT"],
+      ANET: ["RANETUSDT", "ANETUSDT"],
+      TSM: ["RTSMUSDT", "TSMUSDT"],
+      ASML: ["RASMLUSDT", "ASMLUSDT"],
+      SMH: ["RSMHUSDT", "SMHUSDT"],
+      SOXX: ["RSOXXUSDT", "SOXXUSDT"],
+      FN: ["RFNUSDT", "FNUSDT"],
+      MU: ["RMUUSDT", "MUUSDT"],
+      SNDK: ["RSNDKUSDT", "SNDKUSDT"],
+      DRAM: ["RDRAMUSDT", "DRAMUSDT"],
+      WDC: ["RWDCUSDT", "WDCUSDT"],
+      ASX: ["RASXUSDT", "ASXUSDT"],
+      AAOI: ["RAAOIUSDT", "AAOIUSDT"],
+      GLW: ["RGLWUSDT", "GLWUSDT"],
+      RAM: ["RRAMUSDT", "RAMUSDT"],
+      CRCL: ["RCRCLUSDT", "CRCLUSDT"]
+    };
 
     const yahooSymbols = {
-      "VOO": "VOO",
-      "AVGO": "AVGO",
-      "MRVL": "MRVL",
-      "ANET": "ANET",
-      "TSM": "TSM",
-      "ASML": "ASML",
-      "SMH": "SMH",
-      "SOXX": "SOXX",
-      "FN": "FN",
-      "MU": "MU",
-      "SNDK": "SNDK",
-      "DRAM": "DRAM",
-      "RAM": "RAM",
-      "WDC": "WDC",
-      "CRCL": "CRCL",
-      "ASX": "ASX",
-      "AAOI": "AAOI",
-      "GLW": "GLW"
-};
+      VOO: "VOO",
+      AVGO: "AVGO",
+      MRVL: "MRVL",
+      ANET: "ANET",
+      TSM: "TSM",
+      ASML: "ASML",
+      SMH: "SMH",
+      SOXX: "SOXX",
+      FN: "FN",
+      MU: "MU",
+      SNDK: "SNDK",
+      DRAM: "DRAM",
+      WDC: "WDC",
+      ASX: "ASX",
+      AAOI: "AAOI",
+      GLW: "GLW",
+      RAM: "RAM",
+      CRCL: "CRCL"
+    };
     const stooqSymbols = Object.fromEntries(Object.entries(yahooSymbols).map(([symbol, ticker]) => [symbol, `${ticker.toLowerCase()}.us`]));
     const coingeckoIds = { BTC: "bitcoin", ETH: "ethereum", DOGE: "dogecoin" };
     const allowedSymbols = new Set(allAssets(DEFAULT_HOLDINGS).map((asset) => asset.symbol));
@@ -2141,7 +1398,7 @@
 
     function renderManualTradeControls() {
       const symbolSelect = document.getElementById("tradeSymbol");
-      const order = ["BTC", "ETH", "VOO", "XAUT", "GLW", "MU", "DRAM", "RAM", "SNDK", "SMH", "WDC", "MRVL", "CRCL", "AVGO", "ANET", "DOGE", "BGB", "TSM", "ASML", "SOXX", "FN", "AAOI", "ASX"];
+      const order = ["BTC", "ETH", "VOO", "XAUT", "MRVL", "AVGO", "ANET", "MU", "WDC", "DOGE", "BGB", "TSM", "ASML", "SMH", "SOXX", "DRAM", "RAM", "SNDK", "FN", "AAOI", "GLW", "ASX"];
       const symbols = order.filter((symbol) => allowedSymbols.has(symbol));
       symbolSelect.innerHTML = symbols.map((symbol) => `<option value="${symbol}">${symbol} · ${names[symbol] || ""}</option>`).join("");
       const settings = cloudSyncSettings();
@@ -2397,7 +1654,7 @@
 
     function renderTargetRules(snapshot, rules) {
       const targets = rules.targets || {};
-      const order = ["BTC", "ETH", "VOO", "XAUT", "GLW", "MU", "DRAM", "RAM", "SNDK", "SMH", "WDC", "MRVL", "CRCL", "AVGO", "ANET", "DOGE", "BGB", "TSM", "ASML", "SOXX", "FN", "AAOI", "ASX"];
+      const order = ["BTC", "ETH", "DOGE", "BGB", "VOO", "XAUT", "AVGO", "MRVL", "ANET", "MU", "WDC", "DRAM", "RAM", "SNDK", "TSM", "ASML", "SMH", "SOXX", "FN", "AAOI", "GLW", "ASX"];
       const symbols = [...order.filter((symbol) => targets[symbol]), ...Object.keys(targets).filter((symbol) => !order.includes(symbol))];
       document.getElementById("targetRows").innerHTML = symbols.map((symbol) => {
         const row = snapshot.positions.find((item) => item.symbol === symbol);

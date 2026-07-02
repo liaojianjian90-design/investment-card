@@ -199,7 +199,7 @@
         "WDC"
       ],
       "maxPct": 12,
-      "message": "存储周期篮子超过 12%，不再追加 DRAM/RAM/MU/SNDK/WDC。"
+      "message": "存储周期篮子超过 12%，不再追加 DRAM/MU/SNDK/WDC。"
     },
     {
       "id": "cap-optical-high-beta-4",
@@ -953,6 +953,18 @@
         "priceAbove": 24.5,
         "sellPct": 100,
         "message": "RAM 短线T仓强反弹后清仓，不转长期持有。"
+      },
+      {
+        "id": "ram-stop-20",
+        "priceBelow": 20,
+        "sellPct": 50,
+        "message": "RAM 跌破 20，短线T仓先减半控制风险。"
+      },
+      {
+        "id": "ram-stop-19-5",
+        "priceBelow": 19.5,
+        "sellPct": 100,
+        "message": "RAM 跌破 19.5，短线T仓清仓退出，不转长期持有。"
       }
     ],
     "CRCL": [
@@ -1435,5 +1447,6 @@
       "hardMaxPct": 0.03,
       "note": "CRCL 不属于 AI 抽水机主攻仓，反弹优先降仓或保持小额观察。"
     }
-  }
+  },
+  "version": "5.2"
 }
