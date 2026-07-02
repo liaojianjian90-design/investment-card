@@ -1,6 +1,8 @@
 {
   "updatedAt": null,
-  "lastAlerts": {},
+  "lastAlerts": {
+    "position-dashboard-ai-high": "2026-07-02T02:28:39.983Z"
+  },
   "lastActiveTradeDate": null,
   "triggeredLevels": {},
   "riskState": {},
