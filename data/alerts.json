@@ -1,21 +1,8 @@
 {
-  "updatedAt": "2026-07-02T03:21:26.139Z",
+  "updatedAt": "2026-07-02T03:25:12.517Z",
   "email": {
-    "sent": true,
+    "sent": false,
     "missing": []
   },
-  "alerts": [
-    {
-      "id": "position-dashboard-ai-high",
-      "symbol": "AI",
-      "type": "theme-risk",
-      "severity": "medium",
-      "title": "AI相关仓位偏高",
-      "conclusion": "AI相关仓位已进入停止新增观察区。",
-      "reason": "AI相关仓位约 36.5%；目标上限 35.0%，硬上限 40.0%。",
-      "action": "不自动加仓；如需操作，先发最新仓位和 Bitget 截图人工确认。",
-      "discipline": "AI 是主线，但高相关资产不能当成真正分散。",
-      "createdAt": "2026-07-02T03:21:26.320Z"
-    }
-  ]
+  "alerts": []
 }
