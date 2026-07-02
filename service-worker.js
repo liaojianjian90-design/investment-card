@@ -1,9 +1,9 @@
-const CACHE_NAME = "investment-card-github-pages-v526";
+const CACHE_NAME = "investment-card-github-pages-v514";
 const FILES = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./src/lib/investmentHealth.mjs?v=526",
+  "./src/lib/investmentHealth.mjs",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
 ];

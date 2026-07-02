@@ -1,52 +1,52 @@
 {
   "cashMinPct": 35,
-  "ordinaryBuyCashMinPct": 35,
+  "ordinaryBuyCashMinPct": 40,
   "repeatAlertHours": 24,
   "oneTradePerDay": true,
   "dataStaleWarnMinutes": 10,
   "dataStaleBlockMinutes": 30,
   "targets": {
     "BTC": {
-      "minPct": 5,
-      "targetMaxPct": 8,
-      "stopAddPct": 12,
-      "trimPct": 18
+      "minPct": 8,
+      "targetMaxPct": 18,
+      "stopAddPct": 22,
+      "trimPct": 25
     },
     "ETH": {
       "minPct": 3,
-      "targetMaxPct": 5,
-      "stopAddPct": 8,
-      "trimPct": 10
+      "targetMaxPct": 8,
+      "stopAddPct": 10,
+      "trimPct": 12
     },
     "DOGE": {
       "minPct": 0,
-      "targetMaxPct": 4,
-      "stopAddPct": 4.5,
-      "trimPct": 5.5
+      "targetMaxPct": 2,
+      "stopAddPct": 2,
+      "trimPct": 3
     },
     "BGB": {
       "minPct": 0,
       "targetMaxPct": 1,
-      "stopAddPct": 1.5,
+      "stopAddPct": 1,
       "trimPct": 2
     },
     "VOO": {
-      "minPct": 5,
-      "targetMaxPct": 7,
-      "stopAddPct": 10,
-      "trimPct": 15
+      "minPct": 10,
+      "targetMaxPct": 20,
+      "stopAddPct": 20,
+      "trimPct": 30
     },
     "XAUT": {
-      "minPct": 3,
-      "targetMaxPct": 4,
-      "stopAddPct": 5,
-      "trimPct": 8
+      "minPct": 5,
+      "targetMaxPct": 8,
+      "stopAddPct": 8,
+      "trimPct": 12
     },
     "AVGO": {
       "minPct": 0,
       "targetMaxPct": 4,
-      "stopAddPct": 5,
-      "trimPct": 6
+      "stopAddPct": 4,
+      "trimPct": 5
     },
     "FN": {
       "minPct": 0,
@@ -56,27 +56,27 @@
     },
     "MU": {
       "minPct": 0,
-      "targetMaxPct": 8,
-      "stopAddPct": 9,
-      "trimPct": 11
+      "targetMaxPct": 5,
+      "stopAddPct": 8,
+      "trimPct": 10
     },
     "SNDK": {
       "minPct": 0,
-      "targetMaxPct": 3,
-      "stopAddPct": 4,
-      "trimPct": 5
+      "targetMaxPct": 2,
+      "stopAddPct": 2,
+      "trimPct": 3
     },
     "DRAM": {
       "minPct": 0,
-      "targetMaxPct": 8,
-      "stopAddPct": 9,
-      "trimPct": 11
+      "targetMaxPct": 5,
+      "stopAddPct": 8,
+      "trimPct": 10
     },
     "WDC": {
       "minPct": 0,
-      "targetMaxPct": 3,
-      "stopAddPct": 4,
-      "trimPct": 5
+      "targetMaxPct": 2,
+      "stopAddPct": 2,
+      "trimPct": 3
     },
     "ASX": {
       "minPct": 0,
@@ -92,51 +92,57 @@
     },
     "GLW": {
       "minPct": 0,
-      "targetMaxPct": 8,
-      "stopAddPct": 9,
-      "trimPct": 11
-    },
-    "MRVL": {
-      "minPct": 0,
-      "targetMaxPct": 4,
-      "stopAddPct": 5,
-      "trimPct": 6
-    },
-    "ANET": {
-      "minPct": 0,
-      "targetMaxPct": 4,
-      "stopAddPct": 5,
-      "trimPct": 6
-    },
-    "TSM": {
-      "minPct": 0,
-      "targetMaxPct": 4,
-      "stopAddPct": 5,
-      "trimPct": 6
-    },
-    "ASML": {
-      "minPct": 0,
-      "targetMaxPct": 4,
-      "stopAddPct": 5,
-      "trimPct": 6
-    },
-    "SMH": {
-      "minPct": 0,
-      "targetMaxPct": 8,
-      "stopAddPct": 9,
-      "trimPct": 11
-    },
-    "SOXX": {
-      "minPct": 0,
-      "targetMaxPct": 6,
+      "targetMaxPct": 5,
       "stopAddPct": 8,
       "trimPct": 10
     },
+    "MRVL": {
+      "minPct": 0,
+      "targetMaxPct": 1.5,
+      "stopAddPct": 1.5,
+      "trimPct": 2
+    },
+    "ANET": {
+      "minPct": 0,
+      "targetMaxPct": 1.5,
+      "stopAddPct": 1.5,
+      "trimPct": 2
+    },
+    "TSM": {
+      "minPct": 0,
+      "targetMaxPct": 2,
+      "stopAddPct": 2,
+      "trimPct": 3
+    },
+    "ASML": {
+      "minPct": 0,
+      "targetMaxPct": 1.5,
+      "stopAddPct": 1.5,
+      "trimPct": 2
+    },
+    "SMH": {
+      "minPct": 0,
+      "targetMaxPct": 3,
+      "stopAddPct": 3,
+      "trimPct": 5
+    },
+    "SOXX": {
+      "minPct": 0,
+      "targetMaxPct": 3,
+      "stopAddPct": 3,
+      "trimPct": 5
+    },
+    "RAM": {
+      "minPct": 0,
+      "targetMaxPct": 1,
+      "stopAddPct": 1.5,
+      "trimPct": 2
+    },
     "CRCL": {
       "minPct": 0,
-      "targetMaxPct": 4,
-      "stopAddPct": 4.5,
-      "trimPct": 5
+      "targetMaxPct": 1,
+      "stopAddPct": 2,
+      "trimPct": 3
     }
   },
   "portfolioCaps": [
@@ -146,40 +152,22 @@
         "BTC",
         "ETH",
         "DOGE",
-        "BGB",
-        "CRCL"
+        "BGB"
       ],
-      "maxPct": 35,
-      "message": "加密与加密金融相关总仓超过 35%，暂停加密新增买入；CRCL 只做卫星仓，不抢 AI 主攻资金。"
+      "maxPct": 40,
+      "message": "加密相关总仓超过 40%，暂停加密新增买入。"
     },
     {
-      "id": "cap-doge-bgb-6",
+      "id": "cap-doge-bgb-4",
       "symbols": [
         "DOGE",
         "BGB"
       ],
-      "maxPct": 6,
-      "message": "DOGE + BGB 作为 BTC 高弹性卫星仓，合计超过 6% 后停止补仓并复盘；CRCL 独立归属加密金融基础设施卫星仓。"
+      "maxPct": 4,
+      "message": "DOGE + BGB 高投机仓超过 4%，停止补仓。"
     },
     {
-      "id": "cap-crcl-5",
-      "symbols": [
-        "CRCL"
-      ],
-      "maxPct": 5,
-      "message": "CRCL 加密金融基础设施卫星仓超过 5%，进入硬上限，只允许持有、减仓或复盘，不再新增。"
-    },
-    {
-      "id": "cap-crypto-satellite-8",
-      "symbols": [
-        "DOGE",
-        "BGB"
-      ],
-      "maxPct": 6,
-      "message": "DOGE/BGB 高弹性卫星仓合计超过 6%，暂停新增并复盘；CRCL 不纳入该投机仓合计。"
-    },
-    {
-      "id": "cap-ai-total-35",
+      "id": "cap-ai-watch-15",
       "symbols": [
         "AVGO",
         "MRVL",
@@ -187,6 +175,7 @@
         "MU",
         "WDC",
         "DRAM",
+        "RAM",
         "SNDK",
         "TSM",
         "ASML",
@@ -197,20 +186,20 @@
         "GLW",
         "ASX"
       ],
-      "maxPct": 40,
-      "message": "AI主攻仓硬上限 40%；超过 35% 后停止新增，超过 40% 必须回到 30%-35%。"
+      "maxPct": 25,
+      "message": "AI抽水机主攻仓最高不超过 25%，超过后停止新增。"
     },
     {
       "id": "cap-storage-12",
       "symbols": [
         "DRAM",
+        "RAM",
         "MU",
-        "GLW",
         "SNDK",
         "WDC"
       ],
-      "maxPct": 32,
-      "message": "AI第一主攻层 MU/DRAM/GLW/SMH 与存储补充仓合计超过 32%，暂停继续集中加仓。"
+      "maxPct": 12,
+      "message": "存储周期篮子超过 12%，不再追加 DRAM/RAM/MU/SNDK/WDC。"
     },
     {
       "id": "cap-optical-high-beta-4",
@@ -227,8 +216,8 @@
         "VOO",
         "XAUT"
       ],
-      "maxPct": 15,
-      "message": "VOO + XAUT 防守/稳定仓超过 15%，当前阶段暂停新增，新增资金优先给 AI 主攻仓。"
+      "maxPct": 30,
+      "message": "VOO + XAUT 稳定仓超过 30%，暂停防守仓新增。"
     },
     {
       "id": "cap-ai-core-before-complete-5",
@@ -239,6 +228,7 @@
         "MU",
         "WDC",
         "DRAM",
+        "RAM",
         "SNDK",
         "TSM",
         "ASML",
@@ -249,8 +239,24 @@
         "GLW",
         "ASX"
       ],
-      "maxPct": 35,
-      "message": "5.3.5 当前阶段允许 AI 主攻仓优先推进到 25%-35%，但只限 MU/DRAM/GLW/SMH 等高优先级。"
+      "maxPct": 25,
+      "message": "AI抽水机主攻仓最高不超过 25%，超过后停止新增。"
+    },
+    {
+      "id": "cap-ram-ttrade-2",
+      "symbols": [
+        "RAM"
+      ],
+      "maxPct": 2,
+      "message": "RAM 是 2倍做多存储板块 ETF，只能作为短线T仓；超过 2% 应停止新增并等待反弹减仓。"
+    },
+    {
+      "id": "cap-fintech-watch-3",
+      "symbols": [
+        "CRCL"
+      ],
+      "maxPct": 3,
+      "message": "CRCL 属于稳定币/金融科技观察仓，不属于 AI 抽水机主线；超过 3% 应降低仓位。"
     }
   ],
   "drawdownRules": [
@@ -277,29 +283,28 @@
     }
   ],
   "fixedDca": {
-    "enabled": false,
+    "enabled": true,
     "weekdayUtc": 1,
-    "requireCashPct": 45,
-    "btcAmount": 350,
-    "ethAmount": 250,
+    "requireCashPct": 40,
+    "btcAmount": 210,
+    "ethAmount": 90,
     "halfSizeDrawdownPct": 15,
-    "message": "5.3.5 降频后关闭固定定投邮件；只有预设价位、AI急跌A/S机会、风控和再平衡才打断用户。"
+    "message": "每周固定定投：BTC 210 USDT + ETH 90 USDT。"
   },
   "rapidDropRules": {
     "window": "5m",
-    "observeDropPct": 999,
-    "buyDropPct": 999,
+    "observeDropPct": 1.5,
+    "buyDropPct": 2.5,
     "buyMaxBtcPrice": 59000,
     "riskFloor": 52000,
     "requireCashPct": 45,
-    "btcAmount": 350,
-    "ethAmount": 200,
+    "btcAmount": 200,
+    "ethAmount": 60,
     "resetAbove": 61200,
     "observeHours": "4-24",
     "observeRuleId": "rapid-btc-drop-observe",
     "buyRuleId": "rapid-btc-drop-buy",
-    "message": "5.3.5 不再用 BTC 5分钟急跌触发交易邮件；BTC 只按 56000/55000/52000 档或趋势确认执行。",
-    "enabled": false
+    "message": "BTC 5 分钟急跌时先观察；满足更深急跌和现金条件才提醒小额试探。"
   },
   "coreFillRules": [
     {
@@ -307,12 +312,12 @@
       "enabled": false,
       "symbol": "BTC/ETH",
       "batch": 1,
-      "btcAmount": 1000,
-      "ethAmount": 600,
-      "requireCashPct": 45,
+      "btcAmount": 800,
+      "ethAmount": 300,
+      "requireCashPct": 40,
       "maxBtcWeightPctAfter": 18,
       "maxEthWeightPctAfter": 6,
-      "note": "核心补仓批次升级为有效仓位；默认关闭，仅保留规则历史。"
+      "note": "用户已经手动补入 BTC/ETH，第一批核心仓补足提醒默认关闭，仅保留规则历史。"
     }
   ],
   "dipBuyRules": [
@@ -320,39 +325,37 @@
       "id": "dip-btc-58000",
       "btcPriceBelow": 58000,
       "resetAbove": 59200,
-      "requireCashPct": 45,
-      "btcAmount": 450,
-      "ethAmount": 250,
-      "note": "BTC 58000 档有效仓位加仓：BTC 450 + ETH 250，不再做 100 USDT 心理仓。 5.3.5 已禁用：BTC 弱势区间不因 58k/57k 自动占用 AI 主攻资金。",
-      "enabled": false
+      "requireCashPct": 40,
+      "btcAmount": 250,
+      "ethAmount": 80,
+      "note": "BTC 第一档轻加仓。"
     },
     {
       "id": "dip-btc-57000",
       "btcPriceBelow": 57000,
       "resetAbove": 58200,
-      "requireCashPct": 45,
-      "btcAmount": 650,
-      "ethAmount": 350,
-      "note": "BTC 57000 档有效仓位加仓：BTC 650 + ETH 350，不再做 100 USDT 心理仓。 5.3.5 已禁用：BTC 弱势区间不因 58k/57k 自动占用 AI 主攻资金。",
-      "enabled": false
+      "requireCashPct": 40,
+      "btcAmount": 350,
+      "ethAmount": 100,
+      "note": "BTC 第二档加仓。"
     },
     {
       "id": "dip-btc-56000",
       "btcPriceBelow": 56000,
       "resetAbove": 57200,
-      "requireCashPct": 45,
-      "btcAmount": 500,
-      "ethAmount": 250,
-      "note": "5.3.5：BTC 到 56k 只作为小额底仓补充，必须人工确认止跌，不抢 AI 主攻资金。"
+      "requireCashPct": 40,
+      "btcAmount": 450,
+      "ethAmount": 120,
+      "note": "BTC 第三档加仓。"
     },
     {
       "id": "dip-btc-55000",
       "btcPriceBelow": 55000,
       "resetAbove": 56500,
-      "requireCashPct": 45,
-      "btcAmount": 700,
-      "ethAmount": 350,
-      "note": "5.3.5：BTC 到 55k 且未出现系统性风险时，才允许小额底仓补充。"
+      "requireCashPct": 40,
+      "btcAmount": 600,
+      "ethAmount": 180,
+      "note": "BTC 深度加仓。"
     },
     {
       "id": "risk-btc-52000",
@@ -369,15 +372,15 @@
       "id": "eth-1500",
       "priceBelow": 1500,
       "resetAbove": 1600,
-      "amount": 500,
-      "message": "ETH 深跌到 1500 以下才提醒 500 USDT；优先级低于 AI 主攻 A/S 机会，高于 DOGE。"
+      "amount": 300,
+      "message": "ETH 跌到 1500 以下，提醒买入 300 USDT。"
     },
     {
       "id": "eth-1350",
       "priceBelow": 1350,
       "resetAbove": 1450,
-      "amount": 800,
-      "message": "ETH 跌到 1350 以下才提醒 800 USDT；执行前确认现金仍高于 40%。"
+      "amount": 500,
+      "message": "ETH 跌到 1350 以下，提醒买入 500 USDT。"
     }
   ],
   "watchBuyRules": [
@@ -386,53 +389,53 @@
       "symbol": "VOO",
       "priceBelow": 655,
       "resetAbove": 672,
-      "amount": 500,
-      "requireCashPct": 45,
-      "maxSymbolWeightPctAfter": 20,
+      "amount": 200,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 30,
       "group": "defensive",
-      "message": "VOO 稳定层有效底仓买点；单笔 500 USDT。 5.3.5：VOO 是长期底仓，优先级低于 AI A/S 机会。"
+      "message": "VOO 第一档回调买点。"
     },
     {
       "id": "watch-voo-625",
       "symbol": "VOO",
       "priceBelow": 625,
       "resetAbove": 655,
-      "amount": 700,
-      "requireCashPct": 45,
-      "maxSymbolWeightPctAfter": 20,
+      "amount": 300,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 30,
       "group": "defensive",
-      "message": "VOO 稳定层有效底仓买点；单笔 700 USDT。 5.3.5：VOO 是长期底仓，优先级低于 AI A/S 机会。"
+      "message": "VOO 第二档深回调买点。"
     },
     {
-      "id": "watch-xaut-3920",
+      "id": "watch-xaut-4000",
       "symbol": "XAUT",
-      "priceBelow": 3920,
-      "resetAbove": 4000,
-      "amount": 300,
-      "requireCashPct": 55,
-      "maxSymbolWeightPctAfter": 4,
+      "priceBelow": 4000,
+      "resetAbove": 4100,
+      "amount": 200,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 12,
       "group": "gold",
-      "message": "5.3.5：XAUT 已有底仓，3920-3900 只允许小补 300 USDT；若 AI 主攻仓低于25%，默认暂缓。"
+      "message": "XAUT 第一档黄金配置买点。"
     },
     {
       "id": "watch-xaut-3850",
       "symbol": "XAUT",
       "priceBelow": 3850,
       "resetAbove": 4000,
-      "amount": 500,
-      "requireCashPct": 45,
-      "maxSymbolWeightPctAfter": 4,
+      "amount": 300,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 12,
       "group": "gold",
-      "message": "5.3.5：XAUT 只有跌到 3850 以下才允许补 500 USDT；它是保险，不是主攻。"
+      "message": "XAUT 第二档黄金配置买点。"
     },
     {
       "id": "watch-avgo-350",
       "symbol": "AVGO",
       "priceBelow": 350,
       "resetAbove": 367,
-      "amount": 350,
+      "amount": 120,
       "requireCashPct": 40,
-      "maxSymbolWeightPctAfter": 5,
+      "maxSymbolWeightPctAfter": 4,
       "group": "ai",
       "message": "AVGO 第一档 AI 网络芯片买点。"
     },
@@ -441,9 +444,9 @@
       "symbol": "AVGO",
       "priceBelow": 325,
       "resetAbove": 350,
-      "amount": 500,
+      "amount": 180,
       "requireCashPct": 40,
-      "maxSymbolWeightPctAfter": 5,
+      "maxSymbolWeightPctAfter": 4,
       "group": "ai",
       "message": "AVGO 第二档深回调买点。"
     },
@@ -452,7 +455,7 @@
       "symbol": "FN",
       "priceBelow": 500,
       "resetAbove": 525,
-      "amount": 250,
+      "amount": 100,
       "requireCashPct": 40,
       "maxSymbolWeightPctAfter": 3,
       "group": "optical",
@@ -463,7 +466,7 @@
       "symbol": "FN",
       "priceBelow": 470,
       "resetAbove": 500,
-      "amount": 350,
+      "amount": 150,
       "requireCashPct": 40,
       "maxSymbolWeightPctAfter": 3,
       "group": "optical",
@@ -474,31 +477,31 @@
       "symbol": "MU",
       "priceBelow": 1080,
       "resetAbove": 1135,
-      "amount": 500,
-      "requireCashPct": 35,
-      "maxSymbolWeightPctAfter": 8,
+      "amount": 120,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 3,
       "group": "ai-pump-core",
-      "message": "MU AI 抽水机第一主攻层有效仓位买点；单笔 500 USDT，目标 4%-7%，硬上限 8%。 5.3.5 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "MU 第一档存储周期买点。"
     },
     {
       "id": "watch-mu-1020",
       "symbol": "MU",
       "priceBelow": 1020,
       "resetAbove": 1080,
-      "amount": 700,
-      "requireCashPct": 35,
-      "maxSymbolWeightPctAfter": 8,
+      "amount": 180,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 3,
       "group": "ai-pump-core",
-      "message": "MU AI 抽水机第一主攻层有效仓位买点；单笔 700 USDT，目标 4%-7%，硬上限 8%。 5.3.5 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "MU 第二档深回调买点。"
     },
     {
       "id": "watch-sndk-2000",
       "symbol": "SNDK",
       "priceBelow": 2000,
       "resetAbove": 2100,
-      "amount": 250,
+      "amount": 80,
       "requireCashPct": 40,
-      "maxSymbolWeightPctAfter": 4,
+      "maxSymbolWeightPctAfter": 2,
       "group": "storage",
       "message": "SNDK 第一档 NAND 买点。"
     },
@@ -507,9 +510,9 @@
       "symbol": "SNDK",
       "priceBelow": 1850,
       "resetAbove": 2000,
-      "amount": 350,
+      "amount": 120,
       "requireCashPct": 40,
-      "maxSymbolWeightPctAfter": 4,
+      "maxSymbolWeightPctAfter": 2,
       "group": "storage",
       "message": "SNDK 第二档深回调买点。"
     },
@@ -518,31 +521,31 @@
       "symbol": "DRAM",
       "priceBelow": 72,
       "resetAbove": 76,
-      "amount": 500,
-      "requireCashPct": 35,
-      "maxSymbolWeightPctAfter": 8,
+      "amount": 120,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 5,
       "group": "ai-pump-core",
-      "message": "DRAM AI 抽水机第一主攻层有效仓位买点；单笔 500 USDT，目标 4%-7%，硬上限 8%。 5.3.5 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "DRAM 第一档存储 ETF 买点。"
     },
     {
       "id": "watch-dram-66",
       "symbol": "DRAM",
       "priceBelow": 66,
       "resetAbove": 72,
-      "amount": 700,
-      "requireCashPct": 35,
-      "maxSymbolWeightPctAfter": 8,
+      "amount": 180,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 5,
       "group": "ai-pump-core",
-      "message": "DRAM AI 抽水机第一主攻层有效仓位买点；单笔 700 USDT，目标 4%-7%，硬上限 8%。 5.3.5 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "DRAM 第二档深回调买点。"
     },
     {
       "id": "watch-wdc-560",
       "symbol": "WDC",
       "priceBelow": 560,
       "resetAbove": 590,
-      "amount": 250,
+      "amount": 80,
       "requireCashPct": 40,
-      "maxSymbolWeightPctAfter": 4,
+      "maxSymbolWeightPctAfter": 2,
       "group": "storage",
       "message": "WDC 第一档存储买点。"
     },
@@ -551,9 +554,9 @@
       "symbol": "WDC",
       "priceBelow": 520,
       "resetAbove": 560,
-      "amount": 350,
+      "amount": 120,
       "requireCashPct": 40,
-      "maxSymbolWeightPctAfter": 4,
+      "maxSymbolWeightPctAfter": 2,
       "group": "storage",
       "message": "WDC 第二档深回调买点。"
     },
@@ -562,7 +565,7 @@
       "symbol": "ASX",
       "priceBelow": 38,
       "resetAbove": 40,
-      "amount": 250,
+      "amount": 80,
       "requireCashPct": 40,
       "maxSymbolWeightPctAfter": 2,
       "group": "ai",
@@ -573,7 +576,7 @@
       "symbol": "ASX",
       "priceBelow": 35,
       "resetAbove": 38,
-      "amount": 350,
+      "amount": 120,
       "requireCashPct": 40,
       "maxSymbolWeightPctAfter": 2,
       "group": "ai",
@@ -584,7 +587,7 @@
       "symbol": "AAOI",
       "priceBelow": 125,
       "resetAbove": 135,
-      "amount": 150,
+      "amount": 60,
       "requireCashPct": 40,
       "maxSymbolWeightPctAfter": 1,
       "group": "optical",
@@ -595,7 +598,7 @@
       "symbol": "AAOI",
       "priceBelow": 110,
       "resetAbove": 125,
-      "amount": 250,
+      "amount": 100,
       "requireCashPct": 40,
       "maxSymbolWeightPctAfter": 1,
       "group": "optical",
@@ -606,166 +609,170 @@
       "symbol": "GLW",
       "priceBelow": 205,
       "resetAbove": 215,
-      "amount": 500,
-      "requireCashPct": 35,
-      "maxSymbolWeightPctAfter": 8,
+      "amount": 120,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 2,
       "group": "ai-pump-core",
-      "message": "GLW AI 抽水机第一主攻层有效仓位买点；单笔 500 USDT，目标 4%-7%，硬上限 8%。 5.3.5 当前阶段新增资金优先级高于 BTC/XAUT。"
+      "message": "GLW 与 MU/DRAM 同列 AI 抽水机主攻观察；光纤/玻璃基板逻辑成立时可按规则分批。"
     },
     {
       "id": "watch-glw-190",
       "symbol": "GLW",
       "priceBelow": 190,
       "resetAbove": 205,
-      "amount": 700,
-      "requireCashPct": 35,
-      "maxSymbolWeightPctAfter": 8,
+      "amount": 120,
+      "requireCashPct": 40,
+      "maxSymbolWeightPctAfter": 2,
       "group": "ai-pump-core",
-      "message": "GLW AI 抽水机第一主攻层有效仓位买点；单笔 700 USDT，目标 4%-7%，硬上限 8%。 5.3.5 当前阶段新增资金优先级高于 BTC/XAUT。"
-    },
-    {
-      "id": "watch-smh-600",
-      "symbol": "SMH",
-      "priceBelow": 600,
-      "resetAbove": 625,
-      "amount": 500,
-      "requireCashPct": 35,
-      "maxSymbolWeightPctAfter": 8,
-      "group": "ai-basket",
-      "message": "SMH 半导体篮子主攻补充买点；单笔 500 USDT 起。 5.3.5 当前阶段新增资金优先级高于 BTC/XAUT。"
-    },
-    {
-      "id": "watch-smh-570",
-      "symbol": "SMH",
-      "priceBelow": 570,
-      "resetAbove": 600,
-      "amount": 700,
-      "requireCashPct": 35,
-      "maxSymbolWeightPctAfter": 8,
-      "group": "ai-basket",
-      "message": "SMH 深回调买点；单笔 700 USDT。 5.3.5 当前阶段新增资金优先级高于 BTC/XAUT。"
-    },
-    {
-      "id": "watch-mrvl-250",
-      "symbol": "MRVL",
-      "priceBelow": 250,
-      "resetAbove": 265,
-      "amount": 350,
-      "requireCashPct": 45,
-      "maxSymbolWeightPctAfter": 5,
-      "group": "ai-network",
-      "message": "MRVL 第二梯队 AI 互联买点；单笔 350 USDT 起。"
-    },
-    {
-      "id": "watch-mrvl-230",
-      "symbol": "MRVL",
-      "priceBelow": 230,
-      "resetAbove": 250,
-      "amount": 500,
-      "requireCashPct": 45,
-      "maxSymbolWeightPctAfter": 5,
-      "group": "ai-network",
-      "message": "MRVL 深回调买点；单笔 500 USDT。"
-    },
-    {
-      "id": "watch-anet-150",
-      "symbol": "ANET",
-      "priceBelow": 150,
-      "resetAbove": 160,
-      "amount": 350,
-      "requireCashPct": 45,
-      "maxSymbolWeightPctAfter": 5,
-      "group": "ai-network",
-      "message": "ANET AI 网络设备买点；单笔 350 USDT 起。"
-    },
-    {
-      "id": "watch-anet-140",
-      "symbol": "ANET",
-      "priceBelow": 140,
-      "resetAbove": 150,
-      "amount": 500,
-      "requireCashPct": 45,
-      "maxSymbolWeightPctAfter": 5,
-      "group": "ai-network",
-      "message": "ANET 深回调买点；单笔 500 USDT。"
-    },
-    {
-      "id": "watch-tsm-410",
-      "symbol": "TSM",
-      "priceBelow": 410,
-      "resetAbove": 430,
-      "amount": 350,
-      "requireCashPct": 45,
-      "maxSymbolWeightPctAfter": 5,
-      "group": "semi-infra",
-      "message": "TSM 半导体制造基础设施买点；单笔 350 USDT 起。"
-    },
-    {
-      "id": "watch-asml-1700",
-      "symbol": "ASML",
-      "priceBelow": 1700,
-      "resetAbove": 1800,
-      "amount": 350,
-      "requireCashPct": 45,
-      "maxSymbolWeightPctAfter": 5,
-      "group": "semi-infra",
-      "message": "ASML 先进设备买点；单笔 350 USDT 起。"
-    },
-    {
-      "id": "watch-soxx-570",
-      "symbol": "SOXX",
-      "priceBelow": 570,
-      "resetAbove": 595,
-      "amount": 500,
-      "requireCashPct": 35,
-      "maxSymbolWeightPctAfter": 8,
-      "group": "ai-basket",
-      "message": "SOXX 半导体 ETF 篮子买点；单笔 500 USDT 起。 5.3.5 当前阶段新增资金优先级高于 BTC/XAUT。"
-    },
-    {
-      "id": "watch-crcl-60",
-      "symbol": "CRCL",
-      "priceBelow": 60,
-      "resetAbove": 66,
-      "amount": 200,
-      "requireCashPct": 45,
-      "maxSymbolWeightPctAfter": 4,
-      "group": "crypto_finance_satellite",
-      "message": "CRCL 加密金融基础设施卫星仓第一档小补；只允许 100-200 USDT 级别，不与 AI 主攻仓争资金。"
-    },
-    {
-      "id": "watch-crcl-55",
-      "symbol": "CRCL",
-      "priceBelow": 55,
-      "resetAbove": 60,
-      "amount": 200,
-      "requireCashPct": 45,
-      "maxSymbolWeightPctAfter": 4,
-      "group": "crypto_finance_satellite",
-      "message": "CRCL 深回调第二档；必须确认没有基本面利空和流动性风险，单次不超过 200 USDT。"
+      "message": "GLW 与 MU/DRAM 同列 AI 抽水机主攻观察；光纤/玻璃基板逻辑成立时可按规则分批。"
     }
   ],
-  "trendWatchRules": [],
-  "trendFollowRules": [],
+  "trendWatchRules": [
+    {
+      "id": "trend-voo-685",
+      "symbol": "VOO",
+      "priceAbove": 685,
+      "resetBelow": 670,
+      "amount": 100,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 30,
+      "message": "VOO 上涨确认后小额跟随。"
+    },
+    {
+      "id": "trend-xaut-4200",
+      "symbol": "XAUT",
+      "priceAbove": 4200,
+      "resetBelow": 4100,
+      "amount": 100,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 12,
+      "message": "XAUT 黄金趋势确认后小额跟随。"
+    },
+    {
+      "id": "trend-avgo-390",
+      "symbol": "AVGO",
+      "priceAbove": 390,
+      "resetBelow": 370,
+      "amount": 100,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 4,
+      "message": "AVGO 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-fn-550",
+      "symbol": "FN",
+      "priceAbove": 550,
+      "resetBelow": 525,
+      "amount": 80,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 3,
+      "message": "FN 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-mu-1200",
+      "symbol": "MU",
+      "priceAbove": 1200,
+      "resetBelow": 1135,
+      "amount": 100,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 3,
+      "message": "MU 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-sndk-2250",
+      "symbol": "SNDK",
+      "priceAbove": 2250,
+      "resetBelow": 2100,
+      "amount": 80,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 2,
+      "message": "SNDK 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-dram-82",
+      "symbol": "DRAM",
+      "priceAbove": 82,
+      "resetBelow": 76,
+      "amount": 80,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 5,
+      "message": "DRAM 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-wdc-620",
+      "symbol": "WDC",
+      "priceAbove": 620,
+      "resetBelow": 590,
+      "amount": 80,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 2,
+      "message": "WDC 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-asx-42",
+      "symbol": "ASX",
+      "priceAbove": 42,
+      "resetBelow": 40,
+      "amount": 60,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 2,
+      "message": "ASX 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-aaoi-145",
+      "symbol": "AAOI",
+      "priceAbove": 145,
+      "resetBelow": 135,
+      "amount": 50,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 1,
+      "message": "AAOI 突破确认后小额跟随。"
+    },
+    {
+      "id": "trend-glw-230",
+      "symbol": "GLW",
+      "priceAbove": 230,
+      "resetBelow": 215,
+      "amount": 60,
+      "requireCashPct": 45,
+      "maxSymbolWeightPctAfter": 2,
+      "message": "GLW 突破确认后小额跟随。"
+    }
+  ],
+  "trendFollowRules": [
+    {
+      "id": "trend-btc-65000",
+      "btcPriceAbove": 65000,
+      "resetBelow": 63000,
+      "maxWeeklyGainPct": 15,
+      "symbol": "BTC",
+      "amount": 300,
+      "action": "BTC 连续站上 65000 后，提醒买入 BTC 300 USDT。"
+    },
+    {
+      "id": "trend-btc-70000",
+      "btcPriceAbove": 70000,
+      "resetBelow": 67500,
+      "maxWeeklyGainPct": 15,
+      "symbol": "BTC/ETH",
+      "btcAmount": 300,
+      "ethAmount": 100,
+      "action": "BTC 站上 70000 且 ETH 同步走强后，提醒 BTC 300 + ETH 100。"
+    }
+  ],
   "sellRules": {
     "DOGE": [
       {
-        "id": "doge-010",
-        "priceAbove": 0.1,
-        "sellPct": 25,
-        "message": "DOGE 第一档趋势止盈：卖出 25%，保留 BTC 放大器仓位。"
+        "id": "doge-0085",
+        "priceAbove": 0.085,
+        "sellPct": 30,
+        "message": "DOGE 第一档止盈。"
       },
       {
-        "id": "doge-012",
-        "priceAbove": 0.12,
-        "sellPct": 35,
-        "message": "DOGE 第二档强势止盈：卖出 35%。"
-      },
-      {
-        "id": "doge-weight-55",
-        "weightAbovePct": 5.5,
-        "sellPct": 25,
-        "message": "DOGE 仓位超过 5.5%，即使趋势强也应回收一部分现金。"
+        "id": "doge-0095",
+        "priceAbove": 0.095,
+        "sellPct": 50,
+        "message": "DOGE 强势止盈。"
       }
     ],
     "BGB": [
@@ -773,7 +780,7 @@
         "id": "bgb-weight-2",
         "weightAbovePct": 2,
         "sellPct": 50,
-        "message": "BGB 超过 2%，反弹可逐步清理；BGB 不跟随 DOGE 放大上限。"
+        "message": "BGB 超过 2%，反弹可逐步清理。"
       }
     ],
     "BTC": [
@@ -810,10 +817,10 @@
     ],
     "AVGO": [
       {
-        "id": "avgo-weight-6",
-        "weightAbovePct": 6,
-        "sellPct": 15,
-        "message": "AVGO 超过 6%，提醒降低第二梯队/基础设施单股集中度。"
+        "id": "avgo-weight-5",
+        "weightAbovePct": 5,
+        "sellPct": 20,
+        "message": "AVGO 超过 5%，提醒降低主题集中度。"
       }
     ],
     "FN": [
@@ -826,10 +833,10 @@
     ],
     "MU": [
       {
-        "id": "mu-weight-10",
-        "weightAbovePct": 10,
-        "sellPct": 15,
-        "message": "MU 超过 10%，超过第一主攻硬风险区，提醒卖出 15% 回现金。"
+        "id": "mu-weight-4",
+        "weightAbovePct": 4,
+        "sellPct": 20,
+        "message": "MU 超过 4%，提醒降低存储周期仓位。"
       }
     ],
     "SNDK": [
@@ -842,10 +849,10 @@
     ],
     "DRAM": [
       {
-        "id": "dram-weight-10",
-        "weightAbovePct": 10,
-        "sellPct": 15,
-        "message": "DRAM 超过 10%，超过第一主攻硬风险区，提醒卖出 15% 回现金。"
+        "id": "dram-weight-7",
+        "weightAbovePct": 7,
+        "sellPct": 20,
+        "message": "DRAM 超过 7%，提醒降低存储主题集中度。"
       }
     ],
     "WDC": [
@@ -874,120 +881,135 @@
     ],
     "GLW": [
       {
-        "id": "glw-weight-10",
-        "weightAbovePct": 10,
-        "sellPct": 15,
-        "message": "GLW 超过 10%，超过第一主攻硬风险区，提醒卖出 15% 回现金。"
+        "id": "glw-weight-3",
+        "weightAbovePct": 3,
+        "sellPct": 20,
+        "message": "GLW 超过 3%，提醒再平衡。"
       }
     ],
     "MRVL": [
       {
-        "id": "mrvl-weight-6",
-        "weightAbovePct": 6,
-        "sellPct": 15,
-        "message": "MRVL 超过 6%，提醒降低第二梯队/基础设施单股集中度。"
+        "id": "mrvl-weight-2",
+        "weightAbovePct": 2,
+        "sellPct": 20,
+        "message": "MRVL 超过 2%，提醒降低 AI 互联/定制芯片集中度。"
       }
     ],
     "ANET": [
       {
-        "id": "anet-weight-6",
-        "weightAbovePct": 6,
-        "sellPct": 15,
-        "message": "ANET 超过 6%，提醒降低第二梯队/基础设施单股集中度。"
+        "id": "anet-weight-2",
+        "weightAbovePct": 2,
+        "sellPct": 20,
+        "message": "ANET 超过 2%，提醒降低 AI 网络设备集中度。"
       }
     ],
     "TSM": [
       {
-        "id": "tsm-weight-6",
-        "weightAbovePct": 6,
-        "sellPct": 15,
-        "message": "TSM 超过 6%，提醒降低第二梯队/基础设施单股集中度。"
+        "id": "tsm-weight-3",
+        "weightAbovePct": 3,
+        "sellPct": 20,
+        "message": "TSM 超过 3%，提醒复核半导体制造仓位。"
       }
     ],
     "ASML": [
       {
-        "id": "asml-weight-6",
-        "weightAbovePct": 6,
-        "sellPct": 15,
-        "message": "ASML 超过 6%，提醒降低第二梯队/基础设施单股集中度。"
+        "id": "asml-weight-2",
+        "weightAbovePct": 2,
+        "sellPct": 20,
+        "message": "ASML 超过 2%，提醒复核半导体设备仓位。"
       }
     ],
     "SMH": [
       {
-        "id": "smh-weight-10",
-        "weightAbovePct": 10,
-        "sellPct": 10,
-        "message": "SMH 超过 10%，提醒复核半导体 ETF 仓位。"
+        "id": "smh-weight-5",
+        "weightAbovePct": 5,
+        "sellPct": 20,
+        "message": "SMH 超过 5%，提醒复核半导体 ETF 仓位。"
       }
     ],
     "SOXX": [
       {
-        "id": "soxx-weight-10",
-        "weightAbovePct": 10,
-        "sellPct": 10,
-        "message": "SOXX 超过 10%，提醒复核半导体 ETF 仓位。"
+        "id": "soxx-weight-5",
+        "weightAbovePct": 5,
+        "sellPct": 20,
+        "message": "SOXX 超过 5%，提醒复核半导体 ETF 仓位。"
+      }
+    ],
+    "RAM": [
+      {
+        "id": "ram-t-22-5",
+        "priceAbove": 22.5,
+        "sellPct": 50,
+        "message": "RAM 短线T仓反弹到 22.5 附近，卖出一半。"
+      },
+      {
+        "id": "ram-t-23-5",
+        "priceAbove": 23.5,
+        "sellPct": 80,
+        "message": "RAM 短线T仓反弹到 23.5 附近，卖出大部分。"
+      },
+      {
+        "id": "ram-t-24-5",
+        "priceAbove": 24.5,
+        "sellPct": 100,
+        "message": "RAM 短线T仓强反弹后清仓，不转长期持有。"
       }
     ],
     "CRCL": [
       {
-        "id": "crcl-weight-4",
-        "weightAbovePct": 4,
-        "sellPct": 20,
-        "message": "CRCL 超过 4%，达到卫星仓暂停新增区，反弹时可卖出 20% 回现金。"
+        "id": "crcl-rebound-68",
+        "priceAbove": 68,
+        "sellPct": 50,
+        "message": "CRCL 反弹到 68 附近，继续降低非主线观察仓。"
       },
       {
-        "id": "crcl-weight-5",
-        "weightAbovePct": 5,
-        "sellPct": 30,
-        "message": "CRCL 超过 5%，超过硬上限，提醒卖出 30% 回现金。"
-      },
-      {
-        "id": "crcl-profit-30",
-        "profitAbovePct": 30,
-        "sellPct": 25,
-        "message": "CRCL 单笔盈利超过 30%，可止盈 25%，避免卫星仓变成主仓。"
+        "id": "crcl-rebound-72",
+        "priceAbove": 72,
+        "sellPct": 100,
+        "message": "CRCL 反弹到 72 附近，可考虑清仓或只留极小观察仓。"
       }
     ]
   },
   "v4Rules": {
     "cashLayer": {
-      "targetMatureMin": 0.35,
-      "targetMatureMax": 0.45,
-      "phase1Target": 0.65,
-      "phase2Target": 0.5,
-      "pauseNormalBuyBelow": 0.35,
-      "stopNewBuyBelow": 0.3,
-      "defenseModeBelow": 0.28
+      "targetMatureMin": 0.4,
+      "targetMatureMax": 0.5,
+      "phase1Target": 0.7,
+      "phase2Target": 0.6,
+      "pauseNormalBuyBelow": 0.4,
+      "stopNewBuyBelow": 0.35,
+      "defenseModeBelow": 0.3
     },
     "coreGrowthLayer": {
-      "btcFirstTargetMin": 0.05,
-      "btcMatureTargetMin": 0.05,
-      "btcMatureTargetMax": 0.08,
+      "btcFirstTargetMin": 0.08,
+      "btcMatureTargetMin": 0.08,
+      "btcMatureTargetMax": 0.1,
       "ethFirstTargetMin": 0.03,
-      "ethMatureTargetMin": 0.03,
+      "ethMatureTargetMin": 0.04,
       "ethMatureTargetMax": 0.05,
-      "btcEthTotalTargetMin": 0.08,
-      "btcEthTotalTargetMax": 0.13,
-      "weeklyCoreBuyLimitPct": 0.03
+      "btcEthTotalTargetMin": 0.12,
+      "btcEthTotalTargetMax": 0.18,
+      "weeklyCoreBuyLimitPct": 0.02
     },
     "stableLayer": {
       "vooFirstTargetMin": 0.03,
-      "vooFirstTargetMax": 0.05,
-      "vooMatureTargetMin": 0.05,
-      "vooMatureTargetMax": 0.07,
+      "vooFirstTargetMax": 0.06,
+      "vooMatureTargetMin": 0.06,
+      "vooMatureTargetMax": 0.1,
       "xautFirstTargetMin": 0.02,
       "xautFirstTargetMax": 0.03,
       "xautMatureTargetMin": 0.03,
-      "xautMatureTargetMax": 0.04
+      "xautMatureTargetMax": 0.05
     },
     "themeLayer": {
-      "targetMin": 0.25,
-      "targetMax": 0.35,
-      "hardMax": 0.4,
-      "maxBeforeCoreComplete": 0.35,
+      "targetMin": 0.08,
+      "targetMax": 0.2,
+      "hardMax": 0.25,
+      "maxBeforeCoreComplete": 0.12,
       "symbols": [
         "MU",
         "DRAM",
+        "RAM",
         "GLW",
         "SMH",
         "MRVL",
@@ -1003,6 +1025,27 @@
         "ASX"
       ],
       "subGroups": {
+        "aiChipNetwork": [
+          "AVGO",
+          "MRVL",
+          "ANET"
+        ],
+        "aiStorage": [
+          "MU",
+          "WDC",
+          "DRAM",
+          "RAM",
+          "SNDK"
+        ],
+        "semiInfra": [
+          "TSM",
+          "ASML"
+        ],
+        "highBetaOptical": [
+          "FN",
+          "AAOI",
+          "ASX"
+        ],
         "aiPumpCore": [
           "MU",
           "DRAM",
@@ -1017,47 +1060,34 @@
           "ANET",
           "AVGO"
         ],
-        "semiInfra": [
-          "TSM",
-          "ASML"
-        ],
         "storageSupplement": [
           "WDC",
           "SNDK"
         ],
-        "highBetaOptical": [
-          "FN",
-          "AAOI",
-          "ASX"
+        "leveragedStorageT": [
+          "RAM"
         ]
       },
       "name": "AI抽水机主攻仓",
       "prioritySymbols": [
         "MU",
         "DRAM",
-        "GLW",
-        "SMH"
+        "GLW"
       ],
-      "priorityNote": "5.3.5 将新增资金优先给 MU/DRAM/GLW/SMH；BTC/ETH 合计达标后，单项偏低只显示核心偏科，不再提示核心不足。",
-      "singleCoreTargetPct": 0.08,
-      "singleCoreHardMaxPct": 0.09,
-      "currentCycleTargetMin": 0.25,
-      "currentCycleTargetMax": 0.35
+      "priorityNote": "MU、DRAM、GLW 同列 AI 抽水机主攻观察：存储/HBM + 光纤/玻璃基板基础设施。",
+      "singleCoreTargetPct": 0.05,
+      "singleCoreHardMaxPct": 0.08,
+      "leveragedTNote": "RAM 是 2倍做多存储板块 ETF，只允许短线T仓处理，不纳入长期主攻优先级。"
     },
     "speculativeLayer": {
-      "targetMax": 0.045,
-      "noNewBuyAbove": 0.045,
-      "reduceOnlyAbove": 0.05,
-      "hardWarningAbove": 0.06,
+      "targetMax": 0.02,
+      "noNewBuyAbove": 0.025,
+      "reduceOnlyAbove": 0.03,
+      "hardWarningAbove": 0.04,
       "symbols": [
         "DOGE",
         "BGB"
-      ],
-      "dogeTargetMax": 0.04,
-      "dogeHardMax": 0.055,
-      "bgbTargetMax": 0.01,
-      "bgbHardMax": 0.015,
-      "note": "DOGE 可以作为 BTC 上涨放大器；BGB 只做平台币小仓观察；DOGE+BGB 合计独立受投机仓上限约束，不再与 CRCL 合并计算。"
+      ]
     },
     "dataFreshness": {
       "maxAgeMinutes": 30,
@@ -1075,54 +1105,17 @@
       "sameSymbolBuyHours": 48,
       "postBuyNoDipBuyHours": 24
     },
-    "versionName": "投资健康卡 5.3.5：CRCL独立卫星仓 + 核心总量优先判断版",
-    "effectivePositionRules": {
+    "versionName": "投资健康卡 5.2：最新仓位 + RAM短线T仓版",
+    "mrvlRule": {
       "enabled": true,
-      "mainAttackMinBuyUSDT": 500,
-      "watchMinBuyUSDT": 300,
-      "mainAttackSymbols": [
-        "MU",
-        "DRAM",
-        "GLW",
-        "SMH"
-      ],
-      "secondarySymbols": [
-        "MRVL",
-        "ANET",
-        "AVGO",
-        "TSM",
-        "ASML",
-        "SOXX"
-      ],
-      "note": "5.3.5：CRCL 独立归属加密金融基础设施卫星仓，不再与 DOGE/BGB 合并计算投机仓上限；核心增长层按 BTC/ETH 合计先判断，新增资金仍优先 AI 主攻仓。",
-      "coreMinBuyUSDT": 500,
-      "stableMinBuyUSDT": 500,
-      "speculativeMinBuyUSDT": 200,
-      "aiPriorityMode": true,
-      "version": "5.3.5",
-      "cryptoFinanceSatelliteSymbols": [
-        "CRCL"
-      ]
-    },
-    "aiPumpRules": {
-      "enabled": true,
-      "currentTargetMin": 0.2,
-      "currentTargetMax": 0.3,
-      "matureTargetMin": 0.2,
-      "matureTargetMax": 0.3,
-      "hardMax": 0.35,
-      "prioritySymbols": [
-        "MU",
-        "DRAM",
-        "GLW",
-        "SMH"
-      ],
-      "priorityEqualWeight": true,
-      "singlePriorityTargetPct": 0.07,
-      "singlePriorityHardMaxPct": 0.08,
-      "mainAttackMinBuyUSDT": 500,
-      "noLeverage": true,
-      "note": "AI 主攻仓当前目标 25%-35%，35% 后停止新增，40% 为硬上限；CRCL 不属于 AI 主攻仓。"
+      "role": "AI互联 / 定制芯片 / 数据中心网络观察仓",
+      "firstBuyPct": 0.005,
+      "normalWatchPct": 0.01,
+      "targetMaxPct": 0.015,
+      "hardMaxPct": 0.02,
+      "requireCoreMinimumComplete": true,
+      "mailWhenUnheld": "observe_only",
+      "note": "MRVL 可以加入 AI 观察池，但不是核心仓；核心仓未达标时只显示观察，不触发买入邮件。"
     },
     "emailPolicy": {
       "enabled": true,
@@ -1130,19 +1123,14 @@
       "structuralWeekly": true,
       "structureReminderMaxPerWeek": 1,
       "singleTradeAlertPerDay": true,
-      "sendStructureWhenCashAbovePct": 0.7,
-      "sendCoreMissingWhenCashAbovePct": 0.55,
-      "sendStableMissingWhenCashAbovePct": 0.55,
-      "sendSpeculativeNoNewBuyAbove": 0.045,
-      "sendSpeculativeReduceOnlyAbove": 0.05,
+      "sendStructureWhenCashAbovePct": 0.8,
+      "sendCoreMissingWhenCashAbovePct": 0.75,
+      "sendStableMissingWhenCashAbovePct": 0.75,
+      "sendSpeculativeNoNewBuyAbove": 0.025,
+      "sendSpeculativeReduceOnlyAbove": 0.03,
       "dataBlockSubject": "【投资风控提醒】数据过期，禁止交易判断",
-      "structureSubject": "【投资结构提醒】现金过高 + 核心底仓观察",
-      "rebalanceSubject": "【投资再平衡提醒】达到止盈或减仓条件",
-      "sendAiDipOpportunityEmail": true,
-      "aiDipOpportunitySubject": "【AI主攻仓急跌机会】现金充足 + 主攻标的急跌",
-      "dailySummarySubject": "【投资每日摘要】低频执行检查",
-      "weeklyReviewSubject": "【投资周复盘】仓位与机会复盘",
-      "coreSkewNote": "BTC/ETH 合计达标但单项偏低时，只记录核心偏科；CRCL 只做卫星观察，不触发高优先级主攻买入。"
+      "structureSubject": "【投资结构提醒】现金过高 + 核心仓不足",
+      "rebalanceSubject": "【投资再平衡提醒】达到止盈或减仓条件"
     },
     "bitgetReadonlySync": {
       "enabledBySecret": "BITGET_READONLY_ENABLED",
@@ -1154,279 +1142,107 @@
         "ETH",
         "DOGE",
         "BGB",
-        "XAUT"
+        "XAUT",
+        "VOO",
+        "GLW",
+        "MU",
+        "DRAM",
+        "RAM",
+        "SNDK",
+        "SMH",
+        "WDC",
+        "MRVL",
+        "CRCL"
       ],
       "doesNotSyncCostBasis": true,
       "doesNotPlaceOrders": true,
       "frontendNeverReceivesApiKey": true,
       "note": "Bitget API 只用于读取现货资产数量；API Key/Passphrase/RSA 私钥只能放在 GitHub Secrets 或服务器环境变量，不能写进前端或仓库。"
     },
-    "mrvlRule": {
+    "aiPumpRules": {
       "enabled": true,
-      "role": "AI互联 / 定制芯片 / 数据中心网络观察仓",
-      "firstBuyPct": 0.005,
-      "normalWatchPct": 0.01,
-      "targetMaxPct": 0.03,
-      "hardMaxPct": 0.05,
-      "requireCoreMinimumComplete": false,
-      "mailWhenUnheld": "observe_only",
-      "note": "MRVL 是第二梯队 AI 网络/互联主攻观察，目标 2%-3%，硬上限 5%，不替代 MU/DRAM/GLW 第一主攻层。"
-    },
-    "effectiveBuySizingPolicy": {
-      "enabled": true,
-      "version": "5.3.5",
-      "principle": "不再发出 100 USDT 级别核心/主攻买入提醒；资金量不大时更要减少无效小操作。",
-      "coreBuy": {
-        "minSingleBuyUSDT": 500,
-        "btcEthDipBatches": [
-          [
-            58000,
-            500,
-            0
-          ],
-          [
-            57000,
-            700,
-            0
-          ],
-          [
-            56000,
-            900,
-            0
-          ],
-          [
-            55000,
-            1100,
-            0
-          ]
-        ],
-        "ethDipBatches": [
-          [
-            1500,
-            500
-          ],
-          [
-            1400,
-            650
-          ],
-          [
-            1350,
-            800
-          ]
-        ],
-        "weeklyLimitPct": 0.05
-      },
-      "stableBuy": {
-        "minSingleBuyUSDT": 500,
-        "vooFirst": 500,
-        "vooSecond": 700,
-        "xautHoldZone": "3950-3980只持有",
-        "xautNext": 400,
-        "xautSecond": 700
-      },
-      "aiPumpBuy": {
-        "minMainAttackBuyUSDT": 500,
-        "minSecondaryBuyUSDT": 350,
-        "prioritySymbols": [
-          "MU",
-          "DRAM",
-          "GLW",
-          "SMH"
-        ],
-        "secondarySymbols": [
-          "MRVL",
-          "ANET",
-          "AVGO",
-          "TSM",
-          "ASML",
-          "SOXX"
-        ]
-      },
-      "speculativeBuy": {
-        "dogeAsBtcAmplifier": true,
-        "dogeTargetMaxPct": 4.0,
-        "dogeHardMaxPct": 5.5,
-        "dogeBgbNoNewBuyPct": 4.5,
-        "dogeBgbReduceOnlyPct": 5.0,
-        "dogeBgbHardWarningPct": 6.0,
-        "bgbTargetMaxPct": 1.0,
-        "crclAsCryptoFinanceSatellite": true,
-        "crclTargetMaxPct": 3.5,
-        "crclStopAddPct": 4.0,
-        "crclHardMaxPct": 5.0,
-        "crclBuyZone": "60以下小补，55以下先确认企稳，单次100-200 USDT"
-      },
-      "rebalance": {
-        "aiSinglePriorityTrimPct": 10,
-        "aiTotalStopAddPct": 30,
-        "aiTotalHardMaxPct": 35,
-        "dogeTrimWeightPct": 5.5,
-        "btcTrimPct": 25,
-        "ethTrimPct": 12,
-        "vooTrimPct": 25,
-        "xautTrimPct": 12
-      }
-    },
-    "lowFrequencyExecutionPolicy": {
-      "enabled": true,
-      "version": "5.3.5",
-      "dailySummary": true,
-      "weeklyReview": true,
-      "weeklyReviewWeekdayUtc": 0,
-      "principle": "少动；上涨不追；AI急跌敢买；CRCL 独立做加密金融基础设施卫星仓；BTC/XAUT 只保留底仓；新增资金优先主升方向；单笔有效。",
-      "checkWindows": [
-        "现金≥65%视为高现金，可在S级AI急跌时使用更高买入上限",
-        "开盘后15-60分钟只看AI A/S急跌",
-        "收盘后只更新holdings.json"
-      ],
-      "disableMicroTradeAlertsBelowUSDT": 300,
-      "mainAttackMinimumUSDT": 500,
-      "aLevelOpportunityUSDT": [
-        1000,
-        1500
-      ],
-      "sLevelOpportunityUSDT": [
-        1500,
-        2500
-      ]
-    },
-    "aiIntradayDropOpportunityRules": {
-      "enabled": true,
-      "version": "5.3.5",
-      "name": "AI主攻仓盘中急跌机会捕捉",
-      "description": "5.3.5 当前阶段新增资金优先给 AI 主攻仓；CRCL 独立做加密金融基础设施卫星仓，不参与 AI A/S 级急跌规则。现金≥45%、AI主攻仓低于25%时，主攻标的急跌可触发有效买入。",
-      "primarySymbols": [
+      "currentTargetMin": 0.08,
+      "currentTargetMax": 0.12,
+      "matureTargetMin": 0.15,
+      "matureTargetMax": 0.2,
+      "hardMax": 0.25,
+      "prioritySymbols": [
         "MU",
         "DRAM",
-        "GLW",
-        "SMH"
+        "GLW"
       ],
-      "secondarySymbols": [
-        "MRVL",
-        "ANET",
-        "AVGO",
-        "TSM",
-        "ASML",
-        "SOXX"
-      ],
-      "supplementalSymbols": [
-        "WDC",
-        "SNDK"
-      ],
-      "minCashPct": 45,
-      "strongCashPct": 55,
-      "superCashPct": 65,
-      "aiTargetUnderPct": 25,
-      "aiSuperTargetUnderPct": 20,
-      "ignoreWhenAiWeightAbovePct": 35,
-      "primaryCurrentDropPct": 5,
-      "primaryPrevCloseDropPct": 6,
-      "multiSymbolDropPct": 4,
-      "multiSymbolCount": 2,
-      "smhConfirmDropPct": 3,
-      "reviewDayLowDropPct": 5,
-      "reviewReboundFromLowPct": 4,
-      "singleSymbolAmountMin": 500,
-      "singleSymbolAmountMax": 700,
-      "twoSymbolAmountMin": 1000,
-      "twoSymbolAmountMax": 1500,
-      "basketAmountMin": 1500,
-      "basketAmountMax": 2500,
-      "maxDailyBuyPctWhenCash70": 12,
-      "maxDailyBuyPctWhenCash55": 8,
-      "maxDailyBuyPctWhenCash45": 5,
-      "maxSingleSymbolBuy": 1000,
-      "maxLeveragedEtfBuy": 500,
-      "minMainAttackBuy": 500,
-      "emailTitlePrefix": "【AI主攻仓急跌机会】",
-      "discipline": "AI 主升阶段，现金高且 AI 主攻仓不足时，A/S级急跌必须买有效仓位；BTC/XAUT 只保留底仓，不机械补仓。单日AI主攻买入不得超过总资产12%，AI总仓35%后停止新增，40%为硬上限。"
+      "priorityEqualWeight": true,
+      "singlePriorityTargetPct": 0.05,
+      "singlePriorityHardMaxPct": 0.08,
+      "noLeverage": true,
+      "note": "从小仓观察升级为稳健进攻的 AI 抽水机仓；GLW 与 MU、DRAM 同等重视。RAM 属于 2倍短线T仓例外，不纳入长期持有主攻。",
+      "leveragedTExceptionSymbols": [
+        "RAM"
+      ]
     },
-    "trendPriorityPolicy": {
+    "ramTTradeRule": {
       "enabled": true,
-      "mode": "AI主升优先，BTC/XAUT 弱势降级为底仓观察",
-      "cashTargetMinPct": 35,
-      "cashTargetMaxPct": 45,
-      "aiPriorityTargetMinPct": 25,
-      "aiPriorityTargetMaxPct": 35,
-      "aiStopNewPct": 35,
-      "aiHardMaxPct": 40,
-      "deferCoreStableWhenAiBelowPct": 25,
-      "btcActiveBuyBelow": 56000,
-      "btcExtremePauseBelow": 52000,
-      "btcTrendConfirmAbove": 62000,
-      "xautHoldZoneMin": 3900,
-      "xautHoldZoneMax": 3980,
-      "xautDeepBuyBelow": 3850,
-      "xautStopNewPct": 4,
-      "newMoneyPriority": [
-        "AI A/S急跌机会",
-        "MU/DRAM/GLW/SMH 正常回调",
-        "SMH 半导体篮子",
-        "ETH 深跌",
-        "VOO 大跌底仓",
-        "BTC/XAUT 仅深跌或趋势确认",
-        "DOGE 仅 BTC 企稳后小仓"
+      "symbol": "RAM",
+      "role": "2倍做多存储板块ETF，短线T仓",
+      "maxPositionPct": 0.02,
+      "warningAbovePct": 0.015,
+      "takeProfitZones": [
+        22.5,
+        23.5,
+        24.5
       ],
-      "principle": "BTC/XAUT 保留底仓，不再因目标不足机械占用新增资金；AI 主攻仓未到 25% 前，新增资金默认优先 AI。"
+      "riskControl": "跌破 20 先减半，跌破 19.5 清仓；不能越跌越补，不能转长期仓。",
+      "note": "RAM 只用于急跌后的技术反抽，反弹即卖；不与 DRAM 一起无限叠加。"
     },
-    "targets": {
-      "CRCL": {
-        "minPct": 0,
-        "targetMaxPct": 4,
-        "stopAddPct": 4.5,
-        "trimPct": 5
-      }
-    },
-    "cryptoFinanceLayer": {
-      "name": "加密金融基础设施卫星仓",
-      "symbols": [
-        "CRCL"
-      ],
-      "targetMax": 0.04,
-      "stopAdd": 0.045,
-      "hardMax": 0.05,
-      "note": "Circle等加密金融基础设施标的，只允许小仓卫星观察，不与AI主攻仓争资金，不与DOGE/BGB合并计算投机仓上限。"
+    "crclRule": {
+      "enabled": true,
+      "symbol": "CRCL",
+      "role": "稳定币/金融科技观察仓，非AI主线",
+      "targetMaxPct": 0.01,
+      "hardMaxPct": 0.03,
+      "note": "CRCL 不属于 AI 抽水机主攻仓，反弹优先降仓或保持小额观察。"
     }
   },
   "v5Rules": {
     "cashLayer": {
-      "targetMatureMin": 0.35,
-      "targetMatureMax": 0.45,
-      "phase1Target": 0.65,
-      "phase2Target": 0.5,
-      "pauseNormalBuyBelow": 0.35,
-      "stopNewBuyBelow": 0.3,
-      "defenseModeBelow": 0.28
+      "targetMatureMin": 0.4,
+      "targetMatureMax": 0.5,
+      "phase1Target": 0.7,
+      "phase2Target": 0.6,
+      "pauseNormalBuyBelow": 0.4,
+      "stopNewBuyBelow": 0.35,
+      "defenseModeBelow": 0.3
     },
     "coreGrowthLayer": {
-      "btcFirstTargetMin": 0.05,
-      "btcMatureTargetMin": 0.05,
-      "btcMatureTargetMax": 0.08,
+      "btcFirstTargetMin": 0.08,
+      "btcMatureTargetMin": 0.08,
+      "btcMatureTargetMax": 0.1,
       "ethFirstTargetMin": 0.03,
-      "ethMatureTargetMin": 0.03,
+      "ethMatureTargetMin": 0.04,
       "ethMatureTargetMax": 0.05,
-      "btcEthTotalTargetMin": 0.08,
-      "btcEthTotalTargetMax": 0.13,
-      "weeklyCoreBuyLimitPct": 0.03
+      "btcEthTotalTargetMin": 0.12,
+      "btcEthTotalTargetMax": 0.18,
+      "weeklyCoreBuyLimitPct": 0.02
     },
     "stableLayer": {
       "vooFirstTargetMin": 0.03,
-      "vooFirstTargetMax": 0.05,
-      "vooMatureTargetMin": 0.05,
-      "vooMatureTargetMax": 0.07,
+      "vooFirstTargetMax": 0.06,
+      "vooMatureTargetMin": 0.06,
+      "vooMatureTargetMax": 0.1,
       "xautFirstTargetMin": 0.02,
       "xautFirstTargetMax": 0.03,
       "xautMatureTargetMin": 0.03,
-      "xautMatureTargetMax": 0.04
+      "xautMatureTargetMax": 0.05
     },
     "themeLayer": {
-      "targetMin": 0.25,
-      "targetMax": 0.35,
-      "hardMax": 0.4,
-      "maxBeforeCoreComplete": 0.35,
+      "targetMin": 0.08,
+      "targetMax": 0.2,
+      "hardMax": 0.25,
+      "maxBeforeCoreComplete": 0.12,
       "symbols": [
         "MU",
         "DRAM",
+        "RAM",
         "GLW",
         "SMH",
         "MRVL",
@@ -1442,6 +1258,27 @@
         "ASX"
       ],
       "subGroups": {
+        "aiChipNetwork": [
+          "AVGO",
+          "MRVL",
+          "ANET"
+        ],
+        "aiStorage": [
+          "MU",
+          "WDC",
+          "DRAM",
+          "RAM",
+          "SNDK"
+        ],
+        "semiInfra": [
+          "TSM",
+          "ASML"
+        ],
+        "highBetaOptical": [
+          "FN",
+          "AAOI",
+          "ASX"
+        ],
         "aiPumpCore": [
           "MU",
           "DRAM",
@@ -1456,47 +1293,34 @@
           "ANET",
           "AVGO"
         ],
-        "semiInfra": [
-          "TSM",
-          "ASML"
-        ],
         "storageSupplement": [
           "WDC",
           "SNDK"
         ],
-        "highBetaOptical": [
-          "FN",
-          "AAOI",
-          "ASX"
+        "leveragedStorageT": [
+          "RAM"
         ]
       },
       "name": "AI抽水机主攻仓",
       "prioritySymbols": [
         "MU",
         "DRAM",
-        "GLW",
-        "SMH"
+        "GLW"
       ],
-      "priorityNote": "5.3.5 将新增资金优先给 MU/DRAM/GLW/SMH；BTC/ETH 合计达标后，单项偏低只显示核心偏科，不再提示核心不足。",
-      "singleCoreTargetPct": 0.08,
-      "singleCoreHardMaxPct": 0.09,
-      "currentCycleTargetMin": 0.25,
-      "currentCycleTargetMax": 0.35
+      "priorityNote": "MU、DRAM、GLW 同列 AI 抽水机主攻观察：存储/HBM + 光纤/玻璃基板基础设施。",
+      "singleCoreTargetPct": 0.05,
+      "singleCoreHardMaxPct": 0.08,
+      "leveragedTNote": "RAM 是 2倍做多存储板块 ETF，只允许短线T仓处理，不纳入长期主攻优先级。"
     },
     "speculativeLayer": {
-      "targetMax": 0.045,
-      "noNewBuyAbove": 0.045,
-      "reduceOnlyAbove": 0.05,
-      "hardWarningAbove": 0.06,
+      "targetMax": 0.02,
+      "noNewBuyAbove": 0.025,
+      "reduceOnlyAbove": 0.03,
+      "hardWarningAbove": 0.04,
       "symbols": [
         "DOGE",
         "BGB"
-      ],
-      "dogeTargetMax": 0.04,
-      "dogeHardMax": 0.055,
-      "bgbTargetMax": 0.01,
-      "bgbHardMax": 0.015,
-      "note": "DOGE 可以作为 BTC 上涨放大器；BGB 只做平台币小仓观察；DOGE+BGB 合计独立受投机仓上限约束，不再与 CRCL 合并计算。"
+      ]
     },
     "dataFreshness": {
       "maxAgeMinutes": 30,
@@ -1514,54 +1338,17 @@
       "sameSymbolBuyHours": 48,
       "postBuyNoDipBuyHours": 24
     },
-    "versionName": "5.4.2 仓位体检 + 总盈亏 + 持仓排序版",
-    "effectivePositionRules": {
+    "versionName": "投资健康卡 5.2：最新仓位 + RAM短线T仓版",
+    "mrvlRule": {
       "enabled": true,
-      "mainAttackMinBuyUSDT": 500,
-      "watchMinBuyUSDT": 300,
-      "mainAttackSymbols": [
-        "MU",
-        "DRAM",
-        "GLW",
-        "SMH"
-      ],
-      "secondarySymbols": [
-        "MRVL",
-        "ANET",
-        "AVGO",
-        "TSM",
-        "ASML",
-        "SOXX"
-      ],
-      "note": "5.3.5：CRCL 独立归属加密金融基础设施卫星仓，不再与 DOGE/BGB 合并计算投机仓上限；核心增长层按 BTC/ETH 合计先判断，新增资金仍优先 AI 主攻仓。",
-      "coreMinBuyUSDT": 500,
-      "stableMinBuyUSDT": 500,
-      "speculativeMinBuyUSDT": 200,
-      "aiPriorityMode": true,
-      "version": "5.3.5",
-      "cryptoFinanceSatelliteSymbols": [
-        "CRCL"
-      ]
-    },
-    "aiPumpRules": {
-      "enabled": true,
-      "currentTargetMin": 0.2,
-      "currentTargetMax": 0.3,
-      "matureTargetMin": 0.2,
-      "matureTargetMax": 0.3,
-      "hardMax": 0.35,
-      "prioritySymbols": [
-        "MU",
-        "DRAM",
-        "GLW",
-        "SMH"
-      ],
-      "priorityEqualWeight": true,
-      "singlePriorityTargetPct": 0.07,
-      "singlePriorityHardMaxPct": 0.08,
-      "mainAttackMinBuyUSDT": 500,
-      "noLeverage": true,
-      "note": "AI 主攻仓当前目标 25%-35%，35% 后停止新增，40% 为硬上限；CRCL 不属于 AI 主攻仓。"
+      "role": "AI互联 / 定制芯片 / 数据中心网络观察仓",
+      "firstBuyPct": 0.005,
+      "normalWatchPct": 0.01,
+      "targetMaxPct": 0.015,
+      "hardMaxPct": 0.02,
+      "requireCoreMinimumComplete": true,
+      "mailWhenUnheld": "observe_only",
+      "note": "MRVL 可以加入 AI 观察池，但不是核心仓；核心仓未达标时只显示观察，不触发买入邮件。"
     },
     "emailPolicy": {
       "enabled": true,
@@ -1569,19 +1356,14 @@
       "structuralWeekly": true,
       "structureReminderMaxPerWeek": 1,
       "singleTradeAlertPerDay": true,
-      "sendStructureWhenCashAbovePct": 0.7,
-      "sendCoreMissingWhenCashAbovePct": 0.55,
-      "sendStableMissingWhenCashAbovePct": 0.55,
-      "sendSpeculativeNoNewBuyAbove": 0.045,
-      "sendSpeculativeReduceOnlyAbove": 0.05,
+      "sendStructureWhenCashAbovePct": 0.8,
+      "sendCoreMissingWhenCashAbovePct": 0.75,
+      "sendStableMissingWhenCashAbovePct": 0.75,
+      "sendSpeculativeNoNewBuyAbove": 0.025,
+      "sendSpeculativeReduceOnlyAbove": 0.03,
       "dataBlockSubject": "【投资风控提醒】数据过期，禁止交易判断",
-      "structureSubject": "【投资结构提醒】现金过高 + 核心底仓观察",
-      "rebalanceSubject": "【投资再平衡提醒】达到止盈或减仓条件",
-      "sendAiDipOpportunityEmail": true,
-      "aiDipOpportunitySubject": "【AI主攻仓急跌机会】现金充足 + 主攻标的急跌",
-      "dailySummarySubject": "【投资每日摘要】低频执行检查",
-      "weeklyReviewSubject": "【投资周复盘】仓位与机会复盘",
-      "coreSkewNote": "BTC/ETH 合计达标但单项偏低时，只记录核心偏科；CRCL 只做卫星观察，不触发高优先级主攻买入。"
+      "structureSubject": "【投资结构提醒】现金过高 + 核心仓不足",
+      "rebalanceSubject": "【投资再平衡提醒】达到止盈或减仓条件"
     },
     "bitgetReadonlySync": {
       "enabledBySecret": "BITGET_READONLY_ENABLED",
@@ -1593,331 +1375,65 @@
         "ETH",
         "DOGE",
         "BGB",
-        "XAUT"
+        "XAUT",
+        "VOO",
+        "GLW",
+        "MU",
+        "DRAM",
+        "RAM",
+        "SNDK",
+        "SMH",
+        "WDC",
+        "MRVL",
+        "CRCL"
       ],
       "doesNotSyncCostBasis": true,
       "doesNotPlaceOrders": true,
       "frontendNeverReceivesApiKey": true,
       "note": "Bitget API 只用于读取现货资产数量；API Key/Passphrase/RSA 私钥只能放在 GitHub Secrets 或服务器环境变量，不能写进前端或仓库。"
     },
-    "mrvlRule": {
+    "aiPumpRules": {
       "enabled": true,
-      "role": "AI互联 / 定制芯片 / 数据中心网络观察仓",
-      "firstBuyPct": 0.005,
-      "normalWatchPct": 0.01,
-      "targetMaxPct": 0.03,
-      "hardMaxPct": 0.05,
-      "requireCoreMinimumComplete": false,
-      "mailWhenUnheld": "observe_only",
-      "note": "MRVL 是第二梯队 AI 网络/互联主攻观察，目标 2%-3%，硬上限 5%，不替代 MU/DRAM/GLW 第一主攻层。"
-    },
-    "effectiveBuySizingPolicy": {
-      "enabled": true,
-      "version": "5.3.5",
-      "principle": "不再发出 100 USDT 级别核心/主攻买入提醒；资金量不大时更要减少无效小操作。",
-      "coreBuy": {
-        "minSingleBuyUSDT": 500,
-        "btcEthDipBatches": [
-          [
-            58000,
-            500,
-            0
-          ],
-          [
-            57000,
-            700,
-            0
-          ],
-          [
-            56000,
-            900,
-            0
-          ],
-          [
-            55000,
-            1100,
-            0
-          ]
-        ],
-        "ethDipBatches": [
-          [
-            1500,
-            500
-          ],
-          [
-            1400,
-            650
-          ],
-          [
-            1350,
-            800
-          ]
-        ],
-        "weeklyLimitPct": 0.05
-      },
-      "stableBuy": {
-        "minSingleBuyUSDT": 500,
-        "vooFirst": 500,
-        "vooSecond": 700,
-        "xautHoldZone": "3950-3980只持有",
-        "xautNext": 400,
-        "xautSecond": 700
-      },
-      "aiPumpBuy": {
-        "minMainAttackBuyUSDT": 500,
-        "minSecondaryBuyUSDT": 350,
-        "prioritySymbols": [
-          "MU",
-          "DRAM",
-          "GLW",
-          "SMH"
-        ],
-        "secondarySymbols": [
-          "MRVL",
-          "ANET",
-          "AVGO",
-          "TSM",
-          "ASML",
-          "SOXX"
-        ]
-      },
-      "speculativeBuy": {
-        "dogeAsBtcAmplifier": true,
-        "dogeTargetMaxPct": 4.0,
-        "dogeHardMaxPct": 5.5,
-        "dogeBgbNoNewBuyPct": 4.5,
-        "dogeBgbReduceOnlyPct": 5.0,
-        "dogeBgbHardWarningPct": 6.0,
-        "bgbTargetMaxPct": 1.0,
-        "crclAsCryptoFinanceSatellite": true,
-        "crclTargetMaxPct": 3.5,
-        "crclStopAddPct": 4.0,
-        "crclHardMaxPct": 5.0,
-        "crclBuyZone": "60以下小补，55以下先确认企稳，单次100-200 USDT"
-      },
-      "rebalance": {
-        "aiSinglePriorityTrimPct": 10,
-        "aiTotalStopAddPct": 30,
-        "aiTotalHardMaxPct": 35,
-        "dogeTrimWeightPct": 5.5,
-        "btcTrimPct": 25,
-        "ethTrimPct": 12,
-        "vooTrimPct": 25,
-        "xautTrimPct": 12
-      }
-    },
-    "aiIntradayDropOpportunityRules": {
-      "enabled": false,
-      "version": "5.3.5",
-      "name": "AI主攻仓盘中急跌机会捕捉",
-      "description": "5.3.5 当前阶段新增资金优先给 AI 主攻仓；CRCL 独立做加密金融基础设施卫星仓，不参与 AI A/S 级急跌规则。现金≥45%、AI主攻仓低于25%时，主攻标的急跌可触发有效买入。",
-      "primarySymbols": [
+      "currentTargetMin": 0.08,
+      "currentTargetMax": 0.12,
+      "matureTargetMin": 0.15,
+      "matureTargetMax": 0.2,
+      "hardMax": 0.25,
+      "prioritySymbols": [
         "MU",
         "DRAM",
-        "GLW",
-        "SMH"
+        "GLW"
       ],
-      "secondarySymbols": [
-        "MRVL",
-        "ANET",
-        "AVGO",
-        "TSM",
-        "ASML",
-        "SOXX"
-      ],
-      "supplementalSymbols": [
-        "WDC",
-        "SNDK"
-      ],
-      "minCashPct": 45,
-      "strongCashPct": 55,
-      "superCashPct": 65,
-      "aiTargetUnderPct": 25,
-      "aiSuperTargetUnderPct": 20,
-      "ignoreWhenAiWeightAbovePct": 35,
-      "primaryCurrentDropPct": 5,
-      "primaryPrevCloseDropPct": 6,
-      "multiSymbolDropPct": 4,
-      "multiSymbolCount": 2,
-      "smhConfirmDropPct": 3,
-      "reviewDayLowDropPct": 5,
-      "reviewReboundFromLowPct": 4,
-      "singleSymbolAmountMin": 500,
-      "singleSymbolAmountMax": 700,
-      "twoSymbolAmountMin": 1000,
-      "twoSymbolAmountMax": 1500,
-      "basketAmountMin": 1500,
-      "basketAmountMax": 2500,
-      "maxDailyBuyPctWhenCash70": 12,
-      "maxDailyBuyPctWhenCash55": 8,
-      "maxDailyBuyPctWhenCash45": 5,
-      "maxSingleSymbolBuy": 1000,
-      "maxLeveragedEtfBuy": 500,
-      "minMainAttackBuy": 500,
-      "emailTitlePrefix": "【AI主攻仓急跌机会】",
-      "discipline": "AI 主升阶段，现金高且 AI 主攻仓不足时，A/S级急跌必须买有效仓位；BTC/XAUT 只保留底仓，不机械补仓。单日AI主攻买入不得超过总资产12%，AI总仓35%后停止新增，40%为硬上限。",
-      "note": "5.4仓位体检版关闭自动急跌买入日志；操作前人工沟通。"
+      "priorityEqualWeight": true,
+      "singlePriorityTargetPct": 0.05,
+      "singlePriorityHardMaxPct": 0.08,
+      "noLeverage": true,
+      "note": "从小仓观察升级为稳健进攻的 AI 抽水机仓；GLW 与 MU、DRAM 同等重视。RAM 属于 2倍短线T仓例外，不纳入长期持有主攻。",
+      "leveragedTExceptionSymbols": [
+        "RAM"
+      ]
     },
-    "lowFrequencyExecutionPolicy": {
-      "enabled": false,
-      "note": "5.4仓位体检版关闭每日执行摘要。"
-    },
-    "trendPriorityPolicy": {
+    "ramTTradeRule": {
       "enabled": true,
-      "mode": "AI主升优先，BTC/XAUT 弱势降级为底仓观察",
-      "cashTargetMinPct": 35,
-      "cashTargetMaxPct": 45,
-      "aiPriorityTargetMinPct": 25,
-      "aiPriorityTargetMaxPct": 35,
-      "aiStopNewPct": 35,
-      "aiHardMaxPct": 40,
-      "deferCoreStableWhenAiBelowPct": 25,
-      "btcActiveBuyBelow": 56000,
-      "btcExtremePauseBelow": 52000,
-      "btcTrendConfirmAbove": 62000,
-      "xautHoldZoneMin": 3900,
-      "xautHoldZoneMax": 3980,
-      "xautDeepBuyBelow": 3850,
-      "xautStopNewPct": 4,
-      "newMoneyPriority": [
-        "AI A/S急跌机会",
-        "MU/DRAM/GLW/SMH 正常回调",
-        "SMH 半导体篮子",
-        "ETH 深跌",
-        "VOO 大跌底仓",
-        "BTC/XAUT 仅深跌或趋势确认",
-        "DOGE 仅 BTC 企稳后小仓"
+      "symbol": "RAM",
+      "role": "2倍做多存储板块ETF，短线T仓",
+      "maxPositionPct": 0.02,
+      "warningAbovePct": 0.015,
+      "takeProfitZones": [
+        22.5,
+        23.5,
+        24.5
       ],
-      "principle": "BTC/XAUT 保留底仓，不再因目标不足机械占用新增资金；AI 主攻仓未到 25% 前，新增资金默认优先 AI。"
+      "riskControl": "跌破 20 先减半，跌破 19.5 清仓；不能越跌越补，不能转长期仓。",
+      "note": "RAM 只用于急跌后的技术反抽，反弹即卖；不与 DRAM 一起无限叠加。"
     },
-    "targets": {
-      "CRCL": {
-        "minPct": 0,
-        "targetMaxPct": 4,
-        "stopAddPct": 4.5,
-        "trimPct": 5
-      }
-    },
-    "cryptoFinanceLayer": {
-      "name": "加密金融基础设施卫星仓",
-      "symbols": [
-        "CRCL"
-      ],
-      "targetMax": 0.04,
-      "stopAdd": 0.045,
-      "hardMax": 0.05,
-      "note": "Circle等加密金融基础设施标的，只允许小仓卫星观察，不与AI主攻仓争资金，不与DOGE/BGB合并计算投机仓上限。"
-    },
-    "positionDashboardOnly": {
+    "crclRule": {
       "enabled": true,
-      "name": "仓位体检模式",
-      "note": "网站只统计仓位结构、风险上限和数据状态；不自动给加仓/减仓指令。任何操作前先人工复核。",
-      "versionName": "5.4.1 仓位体检 + 总盈亏版"
-    },
-    "performanceBaseline": {
-      "amount": 16000,
-      "currency": "USDT",
-      "note": "总盈亏展示基准，不参与仓位分层和交易决策。"
+      "symbol": "CRCL",
+      "role": "稳定币/金融科技观察仓，非AI主线",
+      "targetMaxPct": 0.01,
+      "hardMaxPct": 0.03,
+      "note": "CRCL 不属于 AI 抽水机主攻仓，反弹优先降仓或保持小额观察。"
     }
-  },
-  "systemVersion": "5.4.2",
-  "systemName": "投资健康卡 5.4.2 仓位体检 + 总盈亏 + 持仓排序版",
-  "aiIntradayDropOpportunityRules": {
-    "enabled": false,
-    "version": "5.3.5",
-    "name": "AI主攻仓盘中急跌机会捕捉",
-    "description": "5.3.5 当前阶段新增资金优先给 AI 主攻仓；CRCL 独立做加密金融基础设施卫星仓，不参与 AI A/S 级急跌规则。现金≥45%、AI主攻仓低于25%时，主攻标的急跌可触发有效买入。",
-    "primarySymbols": [
-      "MU",
-      "DRAM",
-      "GLW",
-      "SMH"
-    ],
-    "secondarySymbols": [
-      "MRVL",
-      "ANET",
-      "AVGO",
-      "TSM",
-      "ASML",
-      "SOXX"
-    ],
-    "supplementalSymbols": [
-      "WDC",
-      "SNDK"
-    ],
-    "minCashPct": 45,
-    "strongCashPct": 55,
-    "superCashPct": 65,
-    "aiTargetUnderPct": 25,
-    "aiSuperTargetUnderPct": 20,
-    "ignoreWhenAiWeightAbovePct": 35,
-    "primaryCurrentDropPct": 5,
-    "primaryPrevCloseDropPct": 6,
-    "multiSymbolDropPct": 4,
-    "multiSymbolCount": 2,
-    "smhConfirmDropPct": 3,
-    "reviewDayLowDropPct": 5,
-    "reviewReboundFromLowPct": 4,
-    "singleSymbolAmountMin": 500,
-    "singleSymbolAmountMax": 700,
-    "twoSymbolAmountMin": 1000,
-    "twoSymbolAmountMax": 1500,
-    "basketAmountMin": 1500,
-    "basketAmountMax": 2500,
-    "maxDailyBuyPctWhenCash70": 12,
-    "maxDailyBuyPctWhenCash55": 8,
-    "maxDailyBuyPctWhenCash45": 5,
-    "maxSingleSymbolBuy": 1000,
-    "maxLeveragedEtfBuy": 500,
-    "minMainAttackBuy": 500,
-    "emailTitlePrefix": "【AI主攻仓急跌机会】",
-    "discipline": "AI 主升阶段，现金高且 AI 主攻仓不足时，A/S级急跌必须买有效仓位；BTC/XAUT 只保留底仓，不机械补仓。单日AI主攻买入不得超过总资产12%，AI总仓35%后停止新增，40%为硬上限。",
-    "note": "5.4仓位体检版关闭自动急跌买入日志；操作前人工沟通。"
-  },
-  "lowFrequencyExecutionPolicy": {
-    "enabled": false,
-    "note": "5.4仓位体检版关闭每日执行摘要。"
-  },
-  "trendPriorityPolicy": {
-    "enabled": true,
-    "mode": "AI主升优先，核心增长层总量优先判断，BTC/XAUT弱势降级为底仓观察",
-    "cashTargetMinPct": 35,
-    "cashTargetMaxPct": 45,
-    "aiPriorityTargetMinPct": 25,
-    "aiPriorityTargetMaxPct": 35,
-    "aiStopNewPct": 35,
-    "aiHardMaxPct": 40,
-    "deferCoreStableWhenAiBelowPct": 25,
-    "btcActiveBuyBelow": 56000,
-    "btcExtremePauseBelow": 52000,
-    "btcTrendConfirmAbove": 62000,
-    "xautHoldZoneMin": 3900,
-    "xautHoldZoneMax": 3980,
-    "xautDeepBuyBelow": 3850,
-    "xautStopNewPct": 4,
-    "newMoneyPriority": [
-      "AI A/S急跌机会",
-      "MU/DRAM/GLW/SMH 正常回调",
-      "SMH 半导体篮子",
-      "ETH 深跌",
-      "VOO 大跌底仓",
-      "BTC/XAUT 仅深跌或趋势确认",
-      "CRCL 仅小仓卫星观察",
-      "DOGE 仅 BTC 企稳后小仓"
-    ],
-    "principle": "BTC/ETH 合计达标后，单项偏低只显示核心偏科；CRCL 独立做加密金融基础设施卫星仓；BTC/XAUT 保留底仓，不因目标不足机械占用新增资金；AI 主攻仓未到 25% 前，新增资金默认优先 AI。"
-  },
-  "positionDashboardOnly": true,
-  "performanceBaseline": {
-    "amount": 16000,
-    "currency": "USDT",
-    "label": "总盈亏基准本金",
-    "note": "以16000 USDT作为整套账户的总盈亏计算基准；页面只展示当前总资产相对该基准的盈亏金额和盈亏率，不自动给交易指令。"
-  },
-  "dashboardLayout": {
-    "version": "5.4.2",
-    "positionSectionOrder": "afterAccountSnapshot",
-    "defaultPositionSort": "weightPctDesc",
-    "note": "持仓与盈亏放在账户快照下方，默认按当前持仓市值/仓位占比从高到低排序。"
   }
 }
