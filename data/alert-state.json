@@ -1,7 +1,8 @@
 {
   "updatedAt": null,
   "lastAlerts": {
-    "position-dashboard-ai-high": "2026-07-02T03:21:26.320Z"
+    "position-dashboard-ai-high": "2026-07-02T03:21:26.320Z",
+    "position-dashboard-cash-low": "2026-07-02T06:24:25.284Z"
   },
   "lastActiveTradeDate": null,
   "triggeredLevels": {},
