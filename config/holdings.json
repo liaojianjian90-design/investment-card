@@ -3,7 +3,7 @@
   "cash": [
     {
       "symbol": "USDT",
-      "quantity": 5501.10553647,
+      "quantity": 4953.233370038,
       "cost": 1,
       "type": "cash"
     },
@@ -29,8 +29,8 @@
     },
     {
       "symbol": "DOGE",
-      "quantity": 7933.1942142,
-      "cost": 0.07309,
+      "quantity": 0,
+      "cost": 0,
       "type": "crypto"
     },
     {
@@ -71,8 +71,8 @@
     },
     {
       "symbol": "MU",
-      "quantity": 0.94527129,
-      "cost": 1125.24,
+      "quantity": 1.08737326,
+      "cost": 1116,
       "type": "watch"
     },
     {
@@ -107,14 +107,14 @@
     },
     {
       "symbol": "GLW",
-      "quantity": 5.88331646,
-      "cost": 256.69,
+      "quantity": 8.64543478,
+      "cost": 245.55,
       "type": "watch"
     },
     {
       "symbol": "MRVL",
-      "quantity": 0.79587648,
-      "cost": 251.95,
+      "quantity": 0.39587648,
+      "cost": 222.01,
       "type": "watch"
     },
     {
